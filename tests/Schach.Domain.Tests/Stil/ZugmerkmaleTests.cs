@@ -122,6 +122,23 @@ public sealed class ZugmerkmaleTests
     }
 
     [Fact]
+    public void Stilwahl_mit_echten_Merkmalen_ist_deterministisch()
+    {
+        IReadOnlyList<Policyzug> policy =
+        [
+            new("e1g1", 0.35), new("c4f7", 0.05), new("f3g5", 0.25), new("d2d3", 0.20), new("b1c3", 0.15),
+        ];
+        var aggressiv = new Stilparameter(Stilgewichte.Fuer(Persoenlichkeit.Aggressiv), 1.0);
+        Zugmerkmal Merkmale(string uci) => Zugmerkmale.Bestimme(Italienisch, uci);
+
+        var erste = Enumerable.Range(0, 30).Select(h => Stilgewichtung.Waehle(policy, aggressiv, Merkmale, Remislage.Keine, 2026, h)).ToList();
+        var zweite = Enumerable.Range(0, 30).Select(h => Stilgewichtung.Waehle(policy, aggressiv, Merkmale, Remislage.Keine, 2026, h)).ToList();
+
+        zweite.Should().Equal(erste);
+        erste.Select(w => w.Uci).Distinct().Should().HaveCountGreaterThan(1);
+    }
+
+    [Fact]
     public void Ungewoehnlich_unter_halbem_p_max()
     {
         Zugmerkmale.Ungewoehnlich(p: 0.19, pMax: 0.4).Should().BeTrue();
