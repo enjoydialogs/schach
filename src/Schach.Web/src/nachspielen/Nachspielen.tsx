@@ -186,6 +186,9 @@ function Ansicht({ zustand: z }: { zustand: ZustandDto }) {
           <button type="button" className="sheet__zeile" onClick={() => navigate('/partien')}>
             {t('nachspielen.zurListe')}
           </button>
+          <button type="button" className="sheet__zeile" onClick={() => navigate('/')}>
+            {t('allgemein.zurStartseite')}
+          </button>
         </BottomSheet>
       )}
     </div>

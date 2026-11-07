@@ -843,7 +843,7 @@ Auf Start und Neu.
 - Zugleiste 48 px: SAN-Chips, horizontal, Tippen springt.
 - Knöpfe: Anfang | Zurück | Vor | Ende. Start bei Halbzug 0.
 - chess.js spielt die Zugfolge nach.
-- Menü: „PGN teilen“ (Web Share mit Datei `schach-oscar-2026-11-07.pgn`, sonst Download; geht offline), „Zur Partienliste“.
+- Menü: „PGN teilen“ (Web Share mit Datei `schach-oscar-2026-11-07.pgn`, sonst Download; geht offline), „Zur Partienliste“, „Zur Startseite“.
 - Offline nicht gecacht: „Diese Partie ist offline nicht verfügbar. Offline kannst du nur Partien nachspielen, die du schon einmal geöffnet hast.“
 
 ### 10.9 Profil (`/profil`)
