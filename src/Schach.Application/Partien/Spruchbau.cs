@@ -57,8 +57,8 @@ public static class Spruchbau
             partie.Bedenkzeit.ToString(),
             spielerZug?.San,
             gegnerZug?.San,
-            Schlag(folge, spielerZug, "Spielers", "Gegners"),
-            Schlag(folge, gegnerZug, "Gegners", "Spielers"),
+            Schlag(folge, spielerZug, "dein", "mein"),
+            Schlag(folge, gegnerZug, "mein", "dein"),
             Stellung.AusFen(fen).IstSchach,
             lage?.MaterialAenderung ?? 0,
             Brettlage.Material(fen, gegnerFarbe),
@@ -105,7 +105,10 @@ public static class Spruchbau
         return Zugmerkmale.Schlagzug(fenVor, zug.Uci) ? Brettlage.FigurAuf(fenVor, zug.Uci[2..4]) ?? 'p' : null;
     }
 
-    /// <summary>Schlag von <paramref name="zug"/> in Worten, z. B. „Läufer des Gegners schlägt Dame des Spielers“.</summary>
+    /// <summary>Schlag von <paramref name="zug"/> in Worten aus Sicht des Gegners, der zum Spieler spricht,
+    /// z. B. „mein Läufer schlägt deine Dame“. Fertig gebeugt, damit das Modell die Rollen nicht umdeutet.</summary>
+    /// <param name="ziehender">Possessiv des Schlagenden: „mein“ oder „dein“.</param>
+    /// <param name="geschlagener">Possessiv des Geschlagenen: „mein“ oder „dein“.</param>
     private static string? Schlag(IReadOnlyList<Zug> folge, Zug? zug, string ziehender, string geschlagener)
     {
         if (zug is null)
@@ -119,21 +122,33 @@ public static class Spruchbau
             return null;
         }
 
-        var figur = Figurname(Brettlage.FigurAuf(fenVor, zug.Uci[..2]));
+        var figur = Nominativ(ziehender, Brettlage.FigurAuf(fenVor, zug.Uci[..2]));
         // Kein Stein auf dem Zielfeld: en passant, geschlagen wurde ein Bauer.
-        var opfer = Figurname(Brettlage.FigurAuf(fenVor, zug.Uci[2..4]) ?? 'p');
-        return $"{figur} des {ziehender} schlägt {opfer} des {geschlagener}";
+        var opfer = Akkusativ(geschlagener, Brettlage.FigurAuf(fenVor, zug.Uci[2..4]) ?? 'p');
+        return $"{figur} schlägt {opfer}";
     }
 
-    private static string Figurname(char? figur) => char.ToLowerInvariant(figur ?? ' ') switch
+    /// <summary>„mein Läufer“, „deine Dame“.</summary>
+    private static string Nominativ(string possessiv, char? figur) => char.ToLowerInvariant(figur ?? ' ') switch
     {
-        'k' => "König",
-        'q' => "Dame",
-        'r' => "Turm",
-        'b' => "Läufer",
-        'n' => "Springer",
-        'p' => "Bauer",
-        _ => "Figur",
+        'k' => $"{possessiv} König",
+        'q' => $"{possessiv}e Dame",
+        'r' => $"{possessiv} Turm",
+        'b' => $"{possessiv} Läufer",
+        'n' => $"{possessiv} Springer",
+        'p' => $"{possessiv} Bauer",
+        _ => $"{possessiv}e Figur",
+    };
+
+    /// <summary>„meinen Läufer“, „deine Dame“, „deinen Bauern“. Der König wird nie geschlagen.</summary>
+    private static string Akkusativ(string possessiv, char? figur) => char.ToLowerInvariant(figur ?? ' ') switch
+    {
+        'q' => $"{possessiv}e Dame",
+        'r' => $"{possessiv}en Turm",
+        'b' => $"{possessiv}en Läufer",
+        'n' => $"{possessiv}en Springer",
+        'p' => $"{possessiv}en Bauern",
+        _ => $"{possessiv}e Figur",
     };
 
     /// <summary>Laune aus dem Partie-PRNG (6.3); unbekannte Gegner bleiben trocken.</summary>

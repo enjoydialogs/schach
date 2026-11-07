@@ -27,7 +27,7 @@ public partial class SpruchPromptTests
     {
         var quelle = new PromptPersonaQuelle(Katalog);
         var daten = new SpruchDaten(
-            "FigurGewonnen", 14, "Mittelspiel", "Weiss", "OhneUhr", "Bxf7+", "Kxf7", "Läufer des Spielers schlägt Bauer des Gegners", "König des Gegners schlägt Läufer des Spielers", false, 3, 3,
+            "FigurGewonnen", 14, "Mittelspiel", "Weiss", "OhneUhr", "Bxf7+", "Kxf7", "dein Läufer schlägt meinen Bauern", "mein König schlägt deinen Läufer", false, 3, 3,
             "Gegner steht besser", ["Schlagzug"], null, laune, ["Erst mal Tee.", "Na gut."]);
         return Katalog.Render(SpruchDienst.PromptDatei, new Dictionary<string, string>
         {
