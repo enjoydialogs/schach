@@ -27,7 +27,7 @@ public partial class SpruchPromptTests
     {
         var quelle = new PromptPersonaQuelle(Katalog);
         var daten = new SpruchDaten(
-            "FigurGewonnen", 14, "Mittelspiel", "Weiss", "OhneUhr", "Lxf7+", "Kxf7", false, 3, 3,
+            "FigurGewonnen", 14, "Mittelspiel", "Weiss", "OhneUhr", "Bxf7+", "Kxf7", "Läufer des Spielers schlägt Bauer des Gegners", "König des Gegners schlägt Läufer des Spielers", false, 3, 3,
             "Gegner steht besser", ["Schlagzug"], null, laune, ["Erst mal Tee.", "Na gut."]);
         return Katalog.Render(SpruchDienst.PromptDatei, new Dictionary<string, string>
         {
@@ -141,14 +141,14 @@ public partial class SpruchPromptTests
     public void Daten_enthalten_genau_die_Felder_der_Spec_und_nie_FEN_oder_Identitaet()
     {
         var daten = new SpruchDaten(
-            "Zug", 3, "Eröffnung", "Schwarz", "Fischer5Plus3", "e4", "e5", true, 0, 0,
+            "Zug", 3, "Eröffnung", "Schwarz", "Fischer5Plus3", "e4", "e5", null, null, true, 0, 0,
             "ausgeglichen", ["Entwicklung"], "Matt", "lustig", ["a", "b", "c", "d"]);
 
         using var json = JsonDocument.Parse(daten.AlsJson());
         var felder = json.RootElement.EnumerateObject().Select(p => p.Name).ToList();
 
         felder.Should().Equal(
-            "ereignis", "zugnummer", "phase", "spielerFarbe", "bedenkzeit", "spielerZug", "gegnerZug", "schach",
+            "ereignis", "zugnummer", "phase", "spielerFarbe", "bedenkzeit", "spielerZug", "gegnerZug", "spielerSchlag", "gegnerSchlag", "schach",
             "materialAenderung", "materialBilanz", "stellung", "gegnerZugMerkmale", "grund", "laune", "letzteSprueche");
         json.RootElement.GetProperty("letzteSprueche").EnumerateArray().Select(e => e.GetString())
             .Should().Equal("b", "c", "d");

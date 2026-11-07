@@ -16,24 +16,25 @@ public static class ProbeSzenarien
 {
     private static SpruchDaten D(
         SpruchEreignis e, int zug, string phase, string? spieler, string? gegner, bool schach = false,
-        int aenderung = 0, int bilanz = 0, string? stellung = null, string[]? merkmale = null, string? grund = null) =>
-        new(e.ToString(), zug, phase, "Weiss", "OhneUhr", spieler, gegner, schach, aenderung, bilanz, stellung, merkmale ?? [], grund, "trocken", []);
+        int aenderung = 0, int bilanz = 0, string? stellung = null, string[]? merkmale = null, string? grund = null,
+        string? spielerSchlag = null, string? gegnerSchlag = null) =>
+        new(e.ToString(), zug, phase, "Weiss", "OhneUhr", spieler, gegner, spielerSchlag, gegnerSchlag, schach, aenderung, bilanz, stellung, merkmale ?? [], grund, "trocken", []);
 
     public static readonly IReadOnlyList<ProbeSzenario> Alle =
     [
-        new("sieg-matt", SpruchEreignis.Sieg, D(SpruchEreignis.Sieg, 31, "Endspiel", "Kg1", "Dg2#", true, 0, 4, grund: "Matt"), new(null, 31)),
-        new("niederlage-aufgabe", SpruchEreignis.Niederlage, D(SpruchEreignis.Niederlage, 27, "Mittelspiel", "Txe8+", null, bilanz: -6, grund: "Aufgabe"), new(null, 27)),
+        new("sieg-matt", SpruchEreignis.Sieg, D(SpruchEreignis.Sieg, 31, "Endspiel", "Kg1", "Qg2#", true, 0, 4, grund: "Matt"), new(null, 31)),
+        new("niederlage-aufgabe", SpruchEreignis.Niederlage, D(SpruchEreignis.Niederlage, 27, "Mittelspiel", "Rxe8+", null, bilanz: -6, grund: "Aufgabe", spielerSchlag: "Turm des Spielers schlägt Turm des Gegners"), new(null, 27)),
         new("remis-wiederholung", SpruchEreignis.Remis, D(SpruchEreignis.Remis, 35, "Endspiel", "Kf2", "Kg7", grund: "Wiederholung"), new(null, 35)),
         new("remis-abgelehnt", SpruchEreignis.RemisAbgelehnt, D(SpruchEreignis.RemisAbgelehnt, 12, "Mittelspiel", null, null, grund: "vor Zug 20"), new(null, 12)),
         new("zuruecknahme", SpruchEreignis.Zuruecknahme, D(SpruchEreignis.Zuruecknahme, 9, "Eröffnung", null, null), new(null, 9)),
-        new("figur-gewonnen-dame", SpruchEreignis.FigurGewonnen, D(SpruchEreignis.FigurGewonnen, 18, "Mittelspiel", "Dd4", "Sxd4", aenderung: 9, bilanz: 9, merkmale: ["Schlagzug"]), new('q', 18)),
-        new("figur-verloren-turm", SpruchEreignis.FigurVerloren, D(SpruchEreignis.FigurVerloren, 22, "Mittelspiel", "Lxa8", "Sc6", aenderung: -5, bilanz: -3), new('r', 22)),
-        new("schach-gegeben", SpruchEreignis.SchachGegeben, D(SpruchEreignis.SchachGegeben, 15, "Mittelspiel", "h3", "Lb4+", true, merkmale: ["Schach", "Königszone"]), new(null, 15)),
-        new("schach-erhalten", SpruchEreignis.SchachErhalten, D(SpruchEreignis.SchachErhalten, 16, "Mittelspiel", "Db5+", "c6"), new(null, 16)),
-        new("stellung-besser", SpruchEreignis.StellungBesser, D(SpruchEreignis.StellungBesser, 20, "Mittelspiel", "g4", "Sf4", stellung: "Gegner steht klar besser", merkmale: ["Entwicklung"]), new(null, 20)),
-        new("stellung-schlechter", SpruchEreignis.StellungSchlechter, D(SpruchEreignis.StellungSchlechter, 24, "Mittelspiel", "Sd5", "Kh8", stellung: "Spieler steht klar besser", merkmale: ["Rückzug"]), new(null, 24)),
-        new("tausch", SpruchEreignis.Tausch, D(SpruchEreignis.Tausch, 11, "Eröffnung", "Lxf6", "Dxf6", merkmale: ["Schlagzug", "Tausch"]), new('b', 11)),
-        new("zug-eroeffnung", SpruchEreignis.Zug, D(SpruchEreignis.Zug, 4, "Eröffnung", "Sc3", "Sf6", merkmale: ["Entwicklung"]), new(null, 4)),
+        new("figur-gewonnen-dame", SpruchEreignis.FigurGewonnen, D(SpruchEreignis.FigurGewonnen, 18, "Mittelspiel", "Qd4", "Nxd4", aenderung: 9, bilanz: 9, merkmale: ["Schlagzug"], gegnerSchlag: "Springer des Gegners schlägt Dame des Spielers"), new('q', 18)),
+        new("figur-verloren-turm", SpruchEreignis.FigurVerloren, D(SpruchEreignis.FigurVerloren, 22, "Mittelspiel", "Bxa8", "Nc6", aenderung: -5, bilanz: -3, spielerSchlag: "Läufer des Spielers schlägt Turm des Gegners"), new('r', 22)),
+        new("schach-gegeben", SpruchEreignis.SchachGegeben, D(SpruchEreignis.SchachGegeben, 15, "Mittelspiel", "h3", "Bb4+", true, merkmale: ["Schach", "Königszone"]), new(null, 15)),
+        new("schach-erhalten", SpruchEreignis.SchachErhalten, D(SpruchEreignis.SchachErhalten, 16, "Mittelspiel", "Qb5+", "c6"), new(null, 16)),
+        new("stellung-besser", SpruchEreignis.StellungBesser, D(SpruchEreignis.StellungBesser, 20, "Mittelspiel", "g4", "Nf4", stellung: "Gegner steht klar besser", merkmale: ["Entwicklung"]), new(null, 20)),
+        new("stellung-schlechter", SpruchEreignis.StellungSchlechter, D(SpruchEreignis.StellungSchlechter, 24, "Mittelspiel", "Nd5", "Kh8", stellung: "Spieler steht klar besser", merkmale: ["Rückzug"]), new(null, 24)),
+        new("tausch", SpruchEreignis.Tausch, D(SpruchEreignis.Tausch, 11, "Eröffnung", "Bxf6", "Qxf6", merkmale: ["Schlagzug", "Tausch"], spielerSchlag: "Läufer des Spielers schlägt Springer des Gegners", gegnerSchlag: "Dame des Gegners schlägt Läufer des Spielers"), new('b', 11)),
+        new("zug-eroeffnung", SpruchEreignis.Zug, D(SpruchEreignis.Zug, 4, "Eröffnung", "Nc3", "Nf6", merkmale: ["Entwicklung"]), new(null, 4)),
         new("zug-endspiel", SpruchEreignis.Zug, D(SpruchEreignis.Zug, 41, "Endspiel", "Kd3", "a5", merkmale: ["Ungewöhnlich"]), new(null, 41)),
     ];
 }
