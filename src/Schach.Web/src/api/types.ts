@@ -176,6 +176,8 @@ export interface SpielerDto {
   id: string
   email: string
   elo: number
+  // Der Server sendet es immer (ISO-8601 UTC). Optional, bis der Fake es fuellt (S3b, #34).
+  erstelltAm?: string
 }
 
 export interface SitzungAntwort {

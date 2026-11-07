@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
@@ -116,6 +117,34 @@ public sealed class AuthAblaufTests
         await SollAbgelehntSein(richtig);
         (await MitDbAsync(factory, db => db.Set<Anmeldung>().CountAsync(Ct))).Should().Be(0);
     });
+
+    [ContainerFact]
+    [Trait("Category", "Container")]
+    public async Task Sitzung_und_Bestaetigen_tragen_erstelltAm_des_Spielers_in_UTC()
+    {
+        // Fester Zeitpunkt in der Zukunft, damit das 180-Tage-Cookie im Testclient nicht abgelaufen ist.
+        var zeit = new FakeTimeProvider(new DateTimeOffset(2036, 3, 14, 9, 26, 53, TimeSpan.Zero));
+        await MitApiAsync(
+            async factory =>
+            {
+                using var browser = new ApiSitzung(factory);
+                await browser.AnfordernAsync("frida@example.test");
+
+                using var bestaetigt = await browser.BestaetigenAsync(new BestaetigenAnfrage(Token: ApiSitzung.TokenAus(factory.Mails()[^1])));
+                bestaetigt.StatusCode.Should().Be(HttpStatusCode.OK);
+                using (var antwort = JsonDocument.Parse(await bestaetigt.Content.ReadAsStringAsync(Ct)))
+                {
+                    antwort.RootElement.GetProperty("spieler").GetProperty("erstelltAm").GetString().Should().Be("2036-03-14T09:26:53.000Z");
+                }
+
+                zeit.Advance(TimeSpan.FromDays(1));
+                var json = await browser.Http.GetStringAsync(new Uri("/api/v1/sitzung", UriKind.Relative), Ct);
+                using var sitzung = JsonDocument.Parse(json);
+                sitzung.RootElement.GetProperty("angemeldet").GetBoolean().Should().BeTrue();
+                sitzung.RootElement.GetProperty("spieler").GetProperty("erstelltAm").GetString().Should().Be("2036-03-14T09:26:53.000Z");
+            },
+            zeit: zeit);
+    }
 
     [ContainerFact]
     [Trait("Category", "Container")]

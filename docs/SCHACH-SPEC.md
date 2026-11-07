@@ -624,7 +624,7 @@ Quelle: [Wie läuft eine Partie auf dem Server ab?](https://github.com/enjoydial
 | Methode und Pfad | Body | Antwort |
 |---|---|---|
 | `POST /auth/anmeldung` | `{email}` | immer 202 `{anmeldungId}` (kein Nachschlagen, keine Verzweigung). Vor dem Mailversand eine Zeile `AnmeldungVersuch` schreiben. Über dem Limit je Adresse (Abschnitt 11.3): 202 ohne Mail. 400 `EmailUngueltig` nur bei Formfehler (`MailAddress.TryCreate`, ≤ 254 Zeichen). 503 `MailNichtGesendet` bei Versandfehler (Zeile wieder löschen). 429 aus Abschnitt 11. |
-| `POST /auth/anmeldung/bestaetigen` | `{token}` oder `{anmeldungId, code}` | 200 `{spieler{id,email,elo}, neu}` plus Cookie. Jede Ablehnung: 422 `AnmeldungUngueltig`. |
+| `POST /auth/anmeldung/bestaetigen` | `{token}` oder `{anmeldungId, code}` | 200 `{spieler{id,email,elo,erstelltAm}, neu}` plus Cookie. Jede Ablehnung: 422 `AnmeldungUngueltig`. |
 | `GET /sitzung` | | `{angemeldet, spieler?, csrfToken}`; setzt das Antiforgery-Cookie |
 | `POST /auth/abmelden` | `{ueberall?}` | 204; `ueberall` erneuert den Sicherheitsstempel |
 | `DELETE /konto` | | 204 |
