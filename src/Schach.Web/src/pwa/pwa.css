@@ -4,10 +4,15 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: 0 -16px;
+  margin: 8px 0;
   padding: 0 4px 0 16px;
   min-height: 48px;
-  background: var(--accent-tint);
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  background: linear-gradient(135deg, var(--glass-tint), var(--glass-surface));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--glass-highlight), var(--shadow-1);
   color: var(--text);
   font-size: 14px;
 }

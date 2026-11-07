@@ -16,8 +16,20 @@ body:has(.partie) {
   overscroll-behavior: none;
   touch-action: manipulation;
   padding-top: env(safe-area-inset-top);
-  background: var(--bg);
+  /* Durchsichtig: der Glas-Hintergrund aus base.css scheint durch. */
+  background: transparent;
   color: var(--text);
+}
+
+/* Glas fuer die kleinen Flaechen im festen Layout. Nur Hintergrund und Rand, kein Platzbedarf. */
+.uhr,
+.spruchblase,
+.leistenknopf {
+  background: var(--glass-surface);
+  border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  box-shadow: var(--glass-highlight), var(--shadow-1);
 }
 
 .partie--leer {
@@ -82,7 +94,7 @@ body:has(.partie) {
 }
 
 .farbpunkt--weiss {
-  background: #ffffff;
+  background: var(--surface);
 }
 
 .farbpunkt--schwarz {
@@ -97,24 +109,26 @@ body:has(.partie) {
   justify-content: center;
   width: 80px;
   height: 36px;
-  border-radius: 8px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  border-radius: 12px;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   font-size: 18px;
+  transition:
+    background-color var(--dauer-mittel) var(--kurve-raus),
+    box-shadow var(--dauer-mittel) var(--kurve-raus);
 }
 
 .uhr--aktiv {
   background: var(--accent);
   border-color: var(--accent);
-  color: #ffffff;
+  color: var(--on-accent);
+  box-shadow: var(--glass-highlight), var(--glow-accent);
 }
 
 .uhr--knapp {
   background: var(--danger);
   border-color: var(--danger);
-  color: #ffffff;
+  color: var(--on-accent);
 }
 
 /* Spruchblase: 56 px fest reserviert, 2 Zeilen */
@@ -127,9 +141,7 @@ body:has(.partie) {
 .spruchblase {
   margin: 0;
   padding: 6px 12px;
-  border-radius: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  border-radius: 16px 16px 16px 4px;
   font-size: 15px;
   line-height: 20px;
   display: -webkit-box;
@@ -139,11 +151,12 @@ body:has(.partie) {
   overflow: hidden;
 }
 
-/* Brett: min(100vw - 24px, 480px, 100dvh - 300px) */
+/* Brett: min(100vw - 24px, 480px, 100dvh - 300px). Schatten hebt es als wichtigste Flaeche ab. */
 .partie__brett {
   flex: none;
   width: min(100vw - 24px, 480px, calc(100dvh - 300px));
   margin: 0 auto;
+  box-shadow: var(--shadow-3);
 }
 
 /* Statuszeile 48 px reserviert */
@@ -220,22 +233,40 @@ body:has(.partie) {
   justify-content: center;
   gap: 2px;
   padding: 0 2px;
-  border: 0;
-  border-radius: 12px;
-  background: var(--surface);
+  border-radius: 16px;
   color: var(--text);
   font: inherit;
   font-size: 12px;
+  font-weight: 500;
   line-height: 1.1;
   text-align: center;
+  transition:
+    transform var(--dauer-kurz) var(--kurve-raus),
+    background-color var(--dauer-kurz) var(--kurve-raus);
+}
+
+.leistenknopf:active:not(:disabled) {
+  transform: scale(0.96);
+  background: var(--glass-surface-strong);
+}
+
+@media (hover: hover) {
+  .leistenknopf:hover:not(:disabled) {
+    background: var(--glass-surface-strong);
+  }
 }
 
 .leistenknopf--gefahr {
   color: var(--danger);
 }
 
+/* Gesperrt: gedaempfte Flaeche, Text bleibt lesbar (kein reines opacity). */
 .leistenknopf:disabled {
-  opacity: 0.4;
+  background: var(--disabled-bg);
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--disabled-text);
+  cursor: not-allowed;
 }
 
 .ende__knoepfe {

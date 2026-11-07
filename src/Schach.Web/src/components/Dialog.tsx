@@ -1,7 +1,8 @@
 import { useId, type ReactNode } from 'react'
+import { useUeberlage } from './useUeberlage'
 import './bausteine.css'
 
-/** Dialog mittig mit Titel, Text und Knopfreihe (SCHACH-SPEC 10.14). Tippen daneben schliesst. */
+/** Dialog mittig mit Titel, Text und Knopfreihe (SCHACH-SPEC 10.14). Tippen daneben oder Escape schliesst. */
 export function Dialog({
   titel,
   children,
@@ -17,9 +18,12 @@ export function Dialog({
   senkrecht?: boolean
 }) {
   const titelId = useId()
+  const flaeche = useUeberlage<HTMLDivElement>(onSchliessen)
   return (
     <div className="ueberlage ueberlage--mitte" onClick={onSchliessen}>
       <div
+        ref={flaeche}
+        tabIndex={-1}
         className="dialog"
         role="dialog"
         aria-modal="true"

@@ -18,23 +18,34 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(30, 35, 41, 0.35);
+  background: var(--scrim);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 }
 
 .umwandlung__kacheln {
   display: flex;
   gap: 4px;
   padding: 4px;
-  border-radius: 12px;
-  background: var(--surface);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-surface-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  box-shadow: var(--glass-highlight), var(--shadow-3);
 }
 
+/* Innen 12 = aussen 16 - Abstand 4 */
 .umwandlung__kachel {
   width: 88px;
   height: 88px;
   padding: 8px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--accent-tint);
+  transition: transform var(--dauer-kurz) var(--kurve-raus);
+}
+
+.umwandlung__kachel:active {
+  transform: scale(0.95);
 }

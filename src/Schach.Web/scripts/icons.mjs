@@ -1,5 +1,5 @@
 // Erzeugt die PWA-Icons (SCHACH-SPEC 10.13) ohne Fremdpakete und ohne Fremddienst:
-// Springer-Silhouette aus dem Cburnett-Satz (BSD-3-Clause, src/brett/figuren.tsx) auf #F6F4EE.
+// Springer-Silhouette aus dem Cburnett-Satz (BSD-3-Clause, src/brett/figuren.tsx) auf #F4F2FB (--bg).
 //
 //   node scripts/icons.mjs
 //
@@ -12,8 +12,8 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { crc32, deflateSync } from 'node:zlib'
 
-const HINTERGRUND = [0xf6, 0xf4, 0xee]
-const FIGUR = [0x1e, 0x23, 0x29] // --text aus styles/palette.css
+const HINTERGRUND = [0xf4, 0xf2, 0xfb] // --bg aus styles/palette.css
+const FIGUR = [0x26, 0x22, 0x2f] // --text aus styles/palette.css
 
 // Koerper des Springers im 45er-Raster, wie in figuren.tsx (transform translate(0,0.3)).
 const PFADE = [

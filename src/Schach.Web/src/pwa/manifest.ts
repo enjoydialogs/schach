@@ -4,7 +4,7 @@
 
 import type { ManifestOptions } from 'vite-plugin-pwa'
 
-export const FARBE = '#F6F4EE'
+export const FARBE = '#F4F2FB'
 
 export const manifest = {
   id: '/',

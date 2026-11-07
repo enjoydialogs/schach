@@ -1,39 +1,69 @@
-/* Palette nach SCHACH-SPEC 10.3 (nur hell) und Avatar-Abstufungen nach 4.4.
-   Komponenten lesen nur diese Variablen, nie Hex-Werte. */
+/* Palette "Sorbet" (nur hell): Fliedernebel als Grund, Minze fuer Aktionen, Fliederbrett.
+   Pastell nur fuer Flaechen; Text und Knoepfe nutzen die kraeftigen Toene (alle >= 4.5:1).
+   Avatar-Abstufungen nach 4.4. Komponenten lesen nur diese Variablen, nie Hex-Werte. */
 :root {
-  --bg: #f6f4ee;
+  --bg: #f4f2fb;
   --surface: #ffffff;
-  --text: #1e2329;
-  --text-muted: #6b7178;
-  --border: #d9d4c7;
-  --accent: #2e6bd6;
-  --accent-tint: #e6eefb;
-  --warning: #f0a500;
-  --warning-tint: #fff3d6;
-  --warning-text: #7a4f00;
-  --danger: #c0392b;
-  --danger-tint: #fbe9e7;
-  --board-light: #f0d9b5;
-  --board-dark: #b58863;
+  --text: #26222f;
+  --text-muted: #67617a;
+  --border: #ddd8ea;
+  --accent: #1e7a62;
+  --accent-tint: #ddf4ea;
+  --warning: #e9a23b;
+  --warning-tint: #fff0d9;
+  --warning-text: #7a4600;
+  --danger: #c4423a;
+  --danger-tint: #fde6e2;
+  --board-light: #eee9fb;
+  --board-dark: #a898d8;
 
-  /* Brett-Overlays (10.3) */
-  --overlay-auswahl: rgba(46, 107, 214, 0.45);
-  --overlay-letzter-zug: rgba(46, 107, 214, 0.28);
-  --overlay-ziel: rgba(0, 0, 0, 0.3);
-  --overlay-warnung: rgba(240, 165, 0, 0.55);
-  --tipp-ring: inset 0 0 0 4px #2e6bd6;
+  /* Brett-Overlays (10.3), Minze auf Flieder */
+  --overlay-auswahl: rgba(30, 122, 98, 0.5);
+  --overlay-letzter-zug: rgba(30, 122, 98, 0.3);
+  --overlay-ziel: rgba(38, 34, 47, 0.3);
+  --overlay-warnung: rgba(233, 162, 59, 0.6);
+  --tipp-ring: inset 0 0 0 4px #1e7a62;
 
-  /* Avatar je Spielstaerke (4.4): Hintergrund und Schrift */
-  --avatar-anfaenger: #aac3ee;
-  --avatar-anfaenger-text: #1e2329;
-  --avatar-hobbyspieler: #779ee4;
-  --avatar-hobbyspieler-text: #1e2329;
-  --avatar-vereinsspieler: #2e6bd6;
+  /* Avatar je Spielstaerke (4.4): von zarter zu tiefer Minze */
+  --avatar-anfaenger: #c9efe0;
+  --avatar-anfaenger-text: #26222f;
+  --avatar-hobbyspieler: #8fd6bc;
+  --avatar-hobbyspieler-text: #26222f;
+  --avatar-vereinsspieler: #1e7a62;
   --avatar-vereinsspieler-text: #ffffff;
-  --avatar-turnierspieler: #1e4b99;
+  --avatar-turnierspieler: #155443;
   --avatar-turnierspieler-text: #ffffff;
-  --avatar-meister: #122e5e;
+  --avatar-meister: #0e3a2f;
   --avatar-meister-text: #ffffff;
+
+  /* Glas-Ebene: helle, halbtransparente Flaechen ueber einem weichen Farbhintergrund.
+     Deckkraft >= 0.72, damit --text-muted auf Glas 4.5:1 haelt. */
+  --on-accent: #ffffff;
+  --glass-surface: rgba(255, 255, 255, 0.72);
+  --glass-surface-strong: rgba(255, 255, 255, 0.86);
+  --glass-tint: rgba(30, 122, 98, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-hairline: rgba(38, 34, 47, 0.08);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glass-blur: 18px;
+  --glass-dark: rgba(38, 34, 47, 0.86);
+  --scrim: rgba(38, 34, 47, 0.3);
+  --backdrop-flieder: rgba(168, 152, 216, 0.34);
+  --backdrop-pfirsich: rgba(255, 196, 168, 0.4);
+  --backdrop-minze: rgba(143, 214, 188, 0.36);
+  --disabled-bg: rgba(38, 34, 47, 0.07);
+  --disabled-text: #67617a;
+  --fokus-ring: 0 0 0 3px rgba(30, 122, 98, 0.3);
+
+  /* Hoehenstufen: Kontakt, Mitte, Umgebung (shadow-elevation), leicht fliederfarben */
+  --shadow-1: 0 1px 2px rgba(56, 40, 102, 0.06), 0 2px 8px rgba(56, 40, 102, 0.05);
+  --shadow-2: 0 1px 3px rgba(56, 40, 102, 0.07), 0 6px 16px rgba(56, 40, 102, 0.07), 0 18px 40px rgba(56, 40, 102, 0.07);
+  --shadow-3: 0 2px 4px rgba(56, 40, 102, 0.08), 0 12px 28px rgba(56, 40, 102, 0.12), 0 32px 64px rgba(56, 40, 102, 0.14);
+  --glow-accent: 0 6px 20px rgba(30, 122, 98, 0.28);
+
+  --dauer-kurz: 150ms;
+  --dauer-mittel: 240ms;
+  --kurve-raus: cubic-bezier(0.22, 1, 0.36, 1);
 
   color-scheme: light;
 }

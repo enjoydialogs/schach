@@ -50,25 +50,84 @@
   border-radius: 12px;
   background: transparent;
   color: var(--text);
+  transition: background-color var(--dauer-kurz) var(--kurve-raus);
+}
+
+.symbolknopf:active {
+  background: var(--glass-tint);
+}
+
+@media (hover: hover) {
+  .symbolknopf:hover {
+    background: var(--glass-surface);
+  }
 }
 
 .knopf--outline {
-  background: transparent;
+  background: var(--glass-surface);
   color: var(--accent);
   box-shadow: inset 0 0 0 1px var(--accent);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
 }
 
 .knopf--gefahr {
   background: var(--danger);
 }
 
-/* Ueberlagen: Dialog mittig, Sheet unten */
+/* Hover behaelt die Variante: Outline behaelt den Rand, Gefahr glueht nicht blau. */
+@media (hover: hover) {
+  .knopf--outline:hover:not(:disabled) {
+    background: var(--glass-tint);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  .knopf--gefahr:hover:not(:disabled) {
+    box-shadow: var(--glass-highlight), var(--shadow-2);
+  }
+}
+
+/* Ueberlagen: Dialog mittig, Sheet unten. Abdunkeln plus leichte Unschaerfe trennt die Ebene. */
 .ueberlage {
   position: fixed;
   inset: 0;
   z-index: 50;
   display: flex;
-  background: rgba(30, 35, 41, 0.4);
+  background: var(--scrim);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  animation: einblenden var(--dauer-mittel) var(--kurve-raus);
+}
+
+@keyframes einblenden {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes hochgleiten {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+@keyframes aufpoppen {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+}
+
+/* Glasflaechen: Karte, Liste, Dialog, Sheet. Eine Regel, damit alle gleich aussehen. */
+.karte,
+.liste,
+.dialog,
+.sheet,
+.chip {
+  background: var(--glass-surface);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
 }
 
 .ueberlage--mitte {
@@ -83,15 +142,23 @@
 
 .ueberlage--durchsichtig {
   background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .dialog {
   width: 100%;
   max-width: 380px;
   padding: 20px;
-  border-radius: 16px;
-  background: var(--surface);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  border-radius: 24px;
+  background: var(--glass-surface-strong);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-highlight), var(--shadow-3);
+  animation: aufpoppen var(--dauer-mittel) var(--kurve-raus);
+}
+
+.dialog:focus {
+  outline: none;
 }
 
 .dialog__titel,
@@ -117,10 +184,29 @@
   width: 100%;
   max-height: 70dvh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
-  border-radius: 16px 16px 0 0;
-  background: var(--surface);
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.2);
+  border-radius: 24px 24px 0 0;
+  background: var(--glass-surface-strong);
+  border: 1px solid var(--glass-border);
+  border-bottom: 0;
+  box-shadow: var(--glass-highlight), var(--shadow-3);
+  animation: hochgleiten var(--dauer-mittel) var(--kurve-raus);
+}
+
+/* Griff oben am Sheet: zeigt, dass es eine Ebene ueber der Seite ist. */
+.sheet::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 4px;
+  margin: 0 auto 4px;
+  border-radius: 999px;
+  background: var(--glass-hairline);
+}
+
+.sheet:focus {
+  outline: none;
 }
 
 .sheet__kopf {
@@ -145,10 +231,45 @@
   text-align: left;
 }
 
+/* Schalter sieht aus wie ein Schalter (toggle-anatomy): Schiene plus Knopf, an = Akzent. */
 .schalter input {
+  flex: none;
+  position: relative;
   width: 44px;
   height: 24px;
-  accent-color: var(--accent);
+  margin: 0;
+  border-radius: 999px;
+  background: var(--disabled-bg);
+  box-shadow: inset 0 0 0 1px var(--glass-hairline);
+  appearance: none;
+  cursor: pointer;
+  transition: background-color var(--dauer-kurz) var(--kurve-raus);
+}
+
+.schalter input::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  transition: transform var(--dauer-kurz) var(--kurve-raus);
+}
+
+.schalter input:checked {
+  background: var(--accent);
+}
+
+.schalter input:checked::before {
+  transform: translateX(20px);
+}
+
+.schalter input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .avatar {
@@ -174,15 +295,19 @@
   border-radius: 50%;
   border: 2px solid var(--surface);
   background: var(--accent);
-  color: #ffffff;
+  color: var(--on-accent);
 }
 
 .dialog__knoepfe--senkrecht {
   flex-direction: column;
 }
 
+/* Gesperrt: eigene Flaeche statt Deckkraft, damit es nicht wie "laedt" aussieht und lesbar bleibt. */
 .knopf:disabled {
-  opacity: 0.45;
+  background: var(--disabled-bg);
+  color: var(--disabled-text);
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 .knopf--breit {
@@ -192,6 +317,18 @@
 .knopf--text {
   background: transparent;
   color: var(--accent);
+  box-shadow: none;
+}
+
+.knopf--text:disabled {
+  background: transparent;
+}
+
+@media (hover: hover) {
+  .knopf--text:hover:not(:disabled) {
+    background: var(--glass-tint);
+    box-shadow: none;
+  }
 }
 
 /* Kopfzeile 56 px (10.1): Zurueck 48x48, Titel, optional eine Aktion */
@@ -226,8 +363,8 @@
   margin: 12px 0;
   padding: 16px;
   border-radius: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-highlight), var(--shadow-2);
 }
 
 .karte__titel {
@@ -247,8 +384,7 @@
 }
 
 .karte--gast {
-  background: var(--accent-tint);
-  border-color: transparent;
+  background: linear-gradient(135deg, var(--glass-tint), var(--glass-surface));
 }
 
 .liste {
@@ -256,13 +392,13 @@
   padding: 0;
   list-style: none;
   border-radius: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-highlight), var(--shadow-2);
   overflow: hidden;
 }
 
 .liste > li + li {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--glass-hairline);
 }
 
 .zeile {
@@ -278,6 +414,21 @@
   font: inherit;
   text-align: left;
   text-decoration: none;
+  transition: background-color var(--dauer-kurz) var(--kurve-raus);
+}
+
+:is(a, button).zeile:active {
+  background: var(--glass-tint);
+}
+
+@media (hover: hover) {
+  :is(a, button).zeile:hover {
+    background: var(--glass-surface-strong);
+  }
+}
+
+.zeile:focus-visible {
+  outline-offset: -2px;
 }
 
 .zeile__mitte {
@@ -339,10 +490,12 @@
   min-height: 48px;
   padding: 0 16px;
   border-radius: 999px;
-  background: var(--accent-tint);
+  border: 1px solid var(--glass-border);
   color: var(--accent);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   text-decoration: none;
+  box-shadow: var(--glass-highlight), var(--shadow-1);
 }
 
 /* Formulare */
@@ -359,15 +512,23 @@
   padding: 0 14px;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: var(--surface);
+  background: var(--glass-surface-strong);
   color: var(--text);
   font: inherit;
   font-weight: 400;
+  transition:
+    border-color var(--dauer-kurz) var(--kurve-raus),
+    box-shadow var(--dauer-kurz) var(--kurve-raus);
 }
 
 .feld input:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--fokus-ring);
+}
+
+.feld input[aria-invalid='true'] {
+  border-color: var(--danger);
 }
 
 .feld--code input {
@@ -399,7 +560,7 @@
   gap: 4px;
   padding: 4px;
   border-radius: 12px;
-  background: var(--bg);
+  background: var(--disabled-bg);
 }
 
 .segment {
@@ -408,8 +569,11 @@
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  border-radius: 9px;
+  border-radius: 8px;
   cursor: pointer;
+  transition:
+    background-color var(--dauer-kurz) var(--kurve-raus),
+    box-shadow var(--dauer-kurz) var(--kurve-raus);
 }
 
 .segment input,
@@ -421,7 +585,7 @@
 
 .segment:has(input:checked) {
   background: var(--surface);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-1);
   font-weight: 600;
 }
 
@@ -445,7 +609,8 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 2px solid var(--border);
+  border: 2px solid var(--text-muted);
+  transition: border-width var(--dauer-kurz) var(--kurve-raus);
 }
 
 .radiozeile:has(input:checked) .radiozeile__punkt {
@@ -480,9 +645,9 @@
   height: 64px;
   margin: 12px 0;
   border-radius: 16px;
-  background: linear-gradient(90deg, var(--border) 0%, var(--surface) 50%, var(--border) 100%);
+  background: linear-gradient(90deg, var(--glass-surface) 0%, var(--surface) 50%, var(--glass-surface) 100%);
   background-size: 200% 100%;
-  opacity: 0.6;
+  border: 1px solid var(--glass-border);
   animation: schimmern 1.4s ease-in-out infinite;
 }
 
@@ -505,11 +670,14 @@
 
 /* Offline-Banner und Hinweis (Toast) */
 .banner {
-  margin: 0 -16px;
+  margin: 8px 0;
   padding: 10px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--warning);
   background: var(--warning-tint);
   color: var(--warning-text);
   font-size: 14px;
+  box-shadow: var(--shadow-1);
 }
 
 .hinweis {
@@ -521,10 +689,13 @@
   max-width: 480px;
   margin: 0 auto;
   padding: 12px 16px;
-  border-radius: 12px;
-  background: var(--text);
-  color: #ffffff;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  border-radius: 16px;
+  background: var(--glass-dark);
+  color: var(--on-accent);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  box-shadow: var(--shadow-3);
+  animation: hochgleiten var(--dauer-mittel) var(--kurve-raus);
 }
 
 .leer {

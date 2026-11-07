@@ -13,8 +13,8 @@ describe('Manifest', () => {
       scope: '/',
       display: 'standalone',
       orientation: 'portrait',
-      background_color: '#F6F4EE',
-      theme_color: '#F6F4EE',
+      background_color: '#F4F2FB',
+      theme_color: '#F4F2FB',
     })
   })
 

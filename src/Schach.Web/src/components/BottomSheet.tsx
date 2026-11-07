@@ -1,7 +1,8 @@
 import { useId, type ReactNode } from 'react'
+import { useUeberlage } from './useUeberlage'
 import './bausteine.css'
 
-/** Bottom-Sheet mit Titel (SCHACH-SPEC 10.14). Tippen daneben schliesst. */
+/** Bottom-Sheet mit Titel (SCHACH-SPEC 10.14). Tippen daneben oder Escape schliesst. */
 export function BottomSheet({
   titel,
   children,
@@ -17,9 +18,12 @@ export function BottomSheet({
   kopf?: ReactNode
 }) {
   const titelId = useId()
+  const flaeche = useUeberlage<HTMLDivElement>(onSchliessen)
   return (
     <div className={`ueberlage ueberlage--unten${abdunkeln ? '' : ' ueberlage--durchsichtig'}`} onClick={onSchliessen}>
       <div
+        ref={flaeche}
+        tabIndex={-1}
         className="sheet"
         role="dialog"
         aria-modal="true"
