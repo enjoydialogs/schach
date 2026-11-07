@@ -503,7 +503,7 @@ Immer vollständig. Felder:
   - **A** abgelaufene Uhren beenden (Grund `Zeit` oder `ZeitOhneMattmaterial`).
   - **B** ausstehende Gegnerzüge nachholen, wenn `LetzterVersuchAm` älter als 10 s ist. Nutzt denselben `SpruchDienst`.
   - **C** Gast-Partien ohne Zug seit 24 h löschen.
-  - **D** `Anmeldung`-Zeilen älter als 1 h löschen.
+  - **D** `Anmeldung`-Zeilen älter als 1 h und `AnmeldungVersuch`-Zeilen älter als 24 h löschen.
 
 ### 8.8 Tabs, Geräte, Idempotenz
 
@@ -545,6 +545,7 @@ PostgreSQL 17, EF Core 10. Eine Migration `0001_Schema` legt alles an.
 | `Bilanz` | `SpielerId, GegnerId, Siege, Remis, Niederlagen, BesiegtAm?` |
 | `Spieler` | `Id uuid PK, Email text UNIQUE (trim + lowercase), ErstelltAm, ZuletztAngemeldetAm?, Sicherheitsstempel uuid, Elo int` |
 | `Anmeldung` | `Id uuid PK (Zufall v4), Email, TokenHash bytea(32) UNIQUE, CodeHash bytea(32), Fehlversuche smallint, ErstelltAm, LaeuftAbAm` |
+| `AnmeldungVersuch` | `Id uuid PK, EmailHash bytea(32), ErstelltAm`. Eine Zeile je Anfrage für die Mail-Limits je Adresse (Abschnitt 11.3). `EmailHash` = SHA-256 der normalisierten Adresse (lowercase, `+tag` gestrichen), nie die Adresse selbst. Bleibt 24 h, weil `Anmeldung`-Zeilen nach 1 h oder bei neuer Anfrage verschwinden. |
 | `LlmVerbrauch` | `Monat PK, PromptTokens, CompletionTokens, Aufrufe, Zeitueberschreitungen, Fehler, WarnGemeldetAm?, ErschoepftGemeldetAm?` |
 | Data-Protection-Schlüssel | über `PersistKeysToDbContext<SchachDbContext>()` |
 
@@ -553,6 +554,7 @@ Indizes:
 - gefiltert unique `Partie(SpielerId) WHERE Status = Offen`
 - `Partie(Status, LetzterZugAm)`
 - `Anmeldung(Email)`, `Anmeldung(ErstelltAm)`, unique `Anmeldung(TokenHash)`
+- `AnmeldungVersuch(EmailHash, ErstelltAm)`, `AnmeldungVersuch(ErstelltAm)`
 - unique `Spieler(Email)`
 - kein Unique-Index auf `Spruch(PartieId, NachHalbzug)`
 
@@ -630,7 +632,7 @@ Logs enthalten nur `anmeldungId` und Ergebnis.
 ### 9.7 Konto löschen und Export
 
 - Selbstbedienung im Profil mit Bestätigungsdialog.
-- Eine Transaktion löscht hart alles zum Konto: Cascade auf `Spieler` (offene Partie, alle Partien, Züge, Sprüche, Elo, Bilanz) plus `DELETE Anmeldung WHERE Email = …`.
+- Eine Transaktion löscht hart alles zum Konto: Cascade auf `Spieler` (offene Partie, alle Partien, Züge, Sprüche, Elo, Bilanz) plus `DELETE Anmeldung WHERE Email = …` und `DELETE AnmeldungVersuch WHERE EmailHash = …`.
 - Danach abmelden. Andere Sitzungen werden über den Sicherheitsstempel ungültig.
 - Integrationstest: null Zeilen zur Konto-ID.
 - Derselbe Dienst ist als Admin-Befehl aufrufbar.
@@ -891,7 +893,7 @@ Budgetwächter nach Kronrat `LlmBudgetGuard` / `BudgetMath`.
 
 ### 11.3 Magic-Link-Mail
 
-- Je E-Mail-Adresse (lowercase, `+tag` gestrichen): 3 je 15 min und 6 je 24 h. DB-Zählung. Darüber neutrale Antwort ohne Mail.
+- Je E-Mail-Adresse (lowercase, `+tag` gestrichen): 3 je 15 min und 6 je 24 h. DB-Zählung über `AnmeldungVersuch` (Abschnitt 8.12). Darüber neutrale Antwort ohne Mail.
 - Je IP: 5 je 10 min (Limiter `magic-link-je-ip`, 429).
 - Global: `Mail:MaxJeStunde=40`, `Mail:MaxJeTag=200` → 503 `MailKontingentErschoepft`.
 - Der Knopf im Client ist 60 s gesperrt.
@@ -971,6 +973,7 @@ Nur nötiger Speicher, darum kein Cookie-Banner. Keine Fremd-Skripte, Fonts selb
 ### 12.5 Aufbewahrung
 
 - Unbestätigte Magic-Link-Anfragen höchstens 24 h (praktisch 1 h über Sweep D).
+- Limit-Zähler `AnmeldungVersuch` höchstens 24 h, nur als Hash der Adresse (Sweep D).
 - App-Logs ohne IP und ohne E-Mail.
 - Konten bis zur Selbstlöschung.
 
