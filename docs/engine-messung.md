@@ -62,18 +62,18 @@ Der Engine-Container hat keinen Port nach außen. Gemessen wird aus einem Wegwer
 
 ### Ergebnis VPS-Messung Teil 2
 
-Stand: noch nicht gemessen (Engine-Container noch nicht deployt).
+Stand: gemessen am 2026-11-07 gegen den Engine-Container in Produktion. 10 parallele Partien, je Phase 120 s, Tipp-Rate 0,15, Tipp 800 ms. Gemessen wird nur der Engine-Dienst per HTTP, ohne die .NET-Schicht. Details in #15.
 
 | Phase | Gegnerzug p50 ms | Gegnerzug p95 ms | Tipp p50 ms | Tipp p95 ms | 503-Quote `/move` | 503-Quote `/analyse` | RSS max MiB |
 |---|---|---|---|---|---|---|---|
-| `maia` | | | – | – | | – | |
-| `gemischt` | | | | | | | |
+| `maia` | 27,8 | 54,2 | – | – | 0,000 | – | 469,2 |
+| `gemischt` | 30,0 | 67,7 | 807,0 | 987,7 | 0,000 | 0,000 | 469,2 |
 
 | Wert | Ergebnis |
 |---|---|
-| Erststart bis `/healthz` 200 (mit Download) | |
-| `SF_ARCH` | |
-| Kriterium 5 erfüllt | |
+| Erststart bis `/healthz` 200 (mit Download) | offen: Volume `engine-models` war schon gefüllt. Warmstart etwa 4,5 s bis „maia ready“. Beim nächsten bewussten Neuaufbau des Volumes mit `--erststart` nachholen. |
+| `SF_ARCH` | `x86-64-avx2` |
+| Kriterium 5 erfüllt | ja (Gegnerzug p95 67,7 ms ≤ 1 000 ms, Tipp p95 987,7 ms ≤ 1 500 ms, RSS 469 MiB von 2 GiB, Limits gesetzt) |
 
 ## Eichung (`eichung.py`)
 
