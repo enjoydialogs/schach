@@ -8,6 +8,7 @@ using Schach.Api.Middleware;
 using Schach.Api.RateLimiting;
 using Schach.Api.Telemetry;
 using Schach.Infrastructure;
+using Schach.Infrastructure.Betrieb;
 using Schach.Infrastructure.Engine;
 using Schach.Infrastructure.Identity;
 using Schach.Infrastructure.Persistence;
@@ -78,6 +79,9 @@ builder.Services.AddHostedService<ForwardedHeadersPruefung>();
 builder.Services.AddSchachKonto(builder.Configuration);
 builder.Services.AddSchachSitzung(builder.Configuration);
 builder.Services.AddHostedService<SweepDienst>();
+
+// S2d: Betrieb (SCHACH-SPEC 14.2): Meter "Schach", Warnzeilen, Betreibermails, Tageszeile 06:00.
+builder.Services.AddSchachBetrieb(builder.Configuration);
 
 var app = builder.Build();
 

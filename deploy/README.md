@@ -12,8 +12,15 @@ Betrieb von `schach.enjoy-dialogs.de` (SCHACH-SPEC 13.5, 14). Panel-Adresse, Sub
 | Auslieferung | `.github/workflows/release.yml` per `workflow_dispatch` |
 | Rauchtest | [`ops/rauchtest.sh`](ops/rauchtest.sh) `<basis-url>` |
 | Engine aus web prüfen | [`ops/engine-aus-web.sh`](ops/engine-aus-web.sh) `<web-container>` |
+| Backup-Prüfung | [`ops/backup-check.sh`](ops/backup-check.sh), täglich über `.github/workflows/backup-check.yml` |
+| Backup einrichten, Restore-Probe | [`restore-drill.md`](restore-drill.md) (SCHACH-SPEC 14.1) |
 
-Backup-Prüfung (`ops/backup-check.sh`) und Restore-Probe (`restore-drill.md`) kommen mit S2d (SCHACH-SPEC 14.1).
+## Monitoring (SCHACH-SPEC 14.2)
+
+- Meter `Schach`: alle Instrumente in `SchachMeter` (`src/Schach.Infrastructure/Telemetry`). Export nur mit `OTEL_EXPORTER_OTLP_ENDPOINT`.
+- Warn-Logzeilen `BudgetWarn`, `BudgetErschoepft`, `EngineUeberlast`, `MailKontingent`: je Art einmal je Fenster (Budget je Kalendermonat, sonst `Betrieb__WarnFensterMinuten`, Standard 60), dazu eine Mail an `OPERATOR_EMAIL` (Engine und Mail höchstens eine je Tag). Ohne Mail-Dienst (vor S2a) oder ohne Adresse nur das Log.
+- Tageszeile: `Tageszeile <datum>: …` jeden Morgen um 06:00 Berliner Zeit, mit den Zählern seit der letzten Zeile. Nur Log, keine Mail.
+- Suchen: `docker logs <projekt>-web-1 2>&1 | grep -E "BudgetWarn|BudgetErschoepft|EngineUeberlast|MailKontingent|Tageszeile"`.
 
 ## Ablauf eines Deploys
 

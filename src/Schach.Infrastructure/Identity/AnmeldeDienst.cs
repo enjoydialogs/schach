@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Schach.Application.Abstractions;
+using Schach.Application.Betrieb;
 using Schach.Domain.Entitaeten;
 using Schach.Infrastructure.Email;
 using Schach.Infrastructure.Persistence;
@@ -40,7 +41,8 @@ public sealed partial class AnmeldeDienst(
     TimeProvider zeit,
     IOptions<AnmeldungOptionen> optionen,
     IOptions<EmailOptionen> emailOptionen,
-    ILogger<AnmeldeDienst> log)
+    ILogger<AnmeldeDienst> log,
+    IBetriebsWarner? warner = null)
 {
     /// <summary>Legt eine Anmeldung an und schickt die Mail. Die Id gibt es bei jedem 202,
     /// auch ohne Mail, damit die Antwort nichts verraet.</summary>
@@ -68,6 +70,7 @@ public sealed partial class AnmeldeDienst(
         if (!kontingent.TryBuchen())
         {
             Protokoll(log, anmeldungId, "KontingentErschoepft");
+            warner?.Melden(BetriebsWarnung.MailKontingent, "Mail:MaxJeStunde oder Mail:MaxJeTag erreicht");
             return (AnfordernErgebnis.KontingentErschoepft, Guid.Empty);
         }
 
