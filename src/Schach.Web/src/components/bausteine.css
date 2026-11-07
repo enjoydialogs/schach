@@ -1,0 +1,537 @@
+/* Gemeinsame Bausteine (SCHACH-SPEC 10.14): Avatar (4.4), Knopfvarianten, Dialog, Bottom-Sheet,
+   Schalter. Aus partie.css (S3a) hierher gehoben. */
+
+.avatar {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.avatar--anfaenger {
+  background: var(--avatar-anfaenger);
+  color: var(--avatar-anfaenger-text);
+}
+
+.avatar--hobbyspieler {
+  background: var(--avatar-hobbyspieler);
+  color: var(--avatar-hobbyspieler-text);
+}
+
+.avatar--vereinsspieler {
+  background: var(--avatar-vereinsspieler);
+  color: var(--avatar-vereinsspieler-text);
+}
+
+.avatar--turnierspieler {
+  background: var(--avatar-turnierspieler);
+  color: var(--avatar-turnierspieler-text);
+}
+
+.avatar--meister {
+  background: var(--avatar-meister);
+  color: var(--avatar-meister-text);
+}
+
+.symbolknopf {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+}
+
+.knopf--outline {
+  background: transparent;
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.knopf--gefahr {
+  background: var(--danger);
+}
+
+/* Ueberlagen: Dialog mittig, Sheet unten */
+.ueberlage {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  background: rgba(30, 35, 41, 0.4);
+}
+
+.ueberlage--mitte {
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.ueberlage--unten {
+  align-items: flex-end;
+}
+
+.ueberlage--durchsichtig {
+  background: transparent;
+}
+
+.dialog {
+  width: 100%;
+  max-width: 380px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+.dialog__titel,
+.sheet__titel {
+  margin: 0;
+  font-size: 20px;
+}
+
+.dialog__text {
+  margin: 12px 0 20px;
+}
+
+.dialog__knoepfe {
+  display: flex;
+  gap: 8px;
+}
+
+.dialog__knoepfe > * {
+  flex: 1;
+}
+
+.sheet {
+  width: 100%;
+  max-height: 70dvh;
+  overflow-y: auto;
+  padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+  border-radius: 16px 16px 0 0;
+  background: var(--surface);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.sheet__kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+}
+
+.schalter,
+.sheet__zeile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+}
+
+.schalter input {
+  width: 44px;
+  height: 24px;
+  accent-color: var(--accent);
+}
+
+.avatar {
+  position: relative;
+}
+
+.avatar--48 {
+  width: 48px;
+  height: 48px;
+  font-size: 20px;
+}
+
+/* Besiegt (4.4): Haekchen unten rechts am Kreis */
+.avatar__besiegt {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.dialog__knoepfe--senkrecht {
+  flex-direction: column;
+}
+
+.knopf:disabled {
+  opacity: 0.45;
+}
+
+.knopf--breit {
+  width: 100%;
+}
+
+.knopf--text {
+  background: transparent;
+  color: var(--accent);
+}
+
+/* Kopfzeile 56 px (10.1): Zurueck 48x48, Titel, optional eine Aktion */
+.kopfzeile {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 56px;
+  margin: 0 -12px;
+  padding-top: env(safe-area-inset-top);
+  box-sizing: content-box;
+}
+
+.kopfzeile__titel {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kopfzeile__aktion {
+  display: flex;
+  align-items: center;
+}
+
+/* Karten und Zeilen */
+.karte {
+  margin: 12px 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.karte__titel {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.karte__knoepfe {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.karte__knoepfe > * {
+  flex: 1;
+}
+
+.karte--gast {
+  background: var(--accent-tint);
+  border-color: transparent;
+}
+
+.liste {
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.liste > li + li {
+  border-top: 1px solid var(--border);
+}
+
+.zeile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+}
+
+.zeile__mitte {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.zeile__titel {
+  font-weight: 600;
+}
+
+.zeile__klein {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.zeile__pfeil {
+  flex: none;
+  color: var(--text-muted);
+}
+
+/* Gegnerwahl-Zeile (4.5) */
+.gegnerzeile {
+  align-items: flex-start;
+  padding: 12px 16px;
+}
+
+.gegnerzeile__vorstellung {
+  margin-top: 2px;
+  font-size: 14px;
+}
+
+.bilanz {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Elo-Chip und Kopf der Startseite */
+.startkopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+  margin-top: 8px;
+}
+
+.startkopf .wortmarke {
+  margin: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--accent-tint);
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Formulare */
+.feld {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 16px 0;
+  font-weight: 600;
+}
+
+.feld input {
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 400;
+}
+
+.feld input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.feld--code input {
+  font-size: 24px;
+  letter-spacing: 0.3em;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.fehlertext {
+  color: var(--danger);
+}
+
+/* Auswahl im Sheet: Segmente (Farbe) und Radiozeilen (Bedenkzeit) */
+.gruppe {
+  margin: 8px 0 16px;
+  padding: 0;
+  border: 0;
+}
+
+.gruppe legend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.segmente {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.segment {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.segment input,
+.radiozeile input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segment:has(input:checked) {
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  font-weight: 600;
+}
+
+.segment:has(input:focus-visible),
+.radiozeile:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+}
+
+.radiozeile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.radiozeile__punkt {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+}
+
+.radiozeile:has(input:checked) .radiozeile__punkt {
+  border: 7px solid var(--accent);
+}
+
+.radiozeile__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+/* Ladeanzeige: Spinner nach 300 ms, Skelette fuer Listen */
+.spinner {
+  display: block;
+  width: 32px;
+  height: 32px;
+  margin: 32px auto;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  animation: drehen 0.8s linear infinite;
+}
+
+@keyframes drehen {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.skelett {
+  height: 64px;
+  margin: 12px 0;
+  border-radius: 16px;
+  background: linear-gradient(90deg, var(--border) 0%, var(--surface) 50%, var(--border) 100%);
+  background-size: 200% 100%;
+  opacity: 0.6;
+  animation: schimmern 1.4s ease-in-out infinite;
+}
+
+.skelett--gross {
+  height: 160px;
+}
+
+@keyframes schimmern {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  .skelett {
+    animation: none;
+  }
+}
+
+/* Offline-Banner und Hinweis (Toast) */
+.banner {
+  margin: 0 -16px;
+  padding: 10px 16px;
+  background: var(--warning-tint);
+  color: var(--warning-text);
+  font-size: 14px;
+}
+
+.hinweis {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 60;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--text);
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.leer {
+  margin: 32px 0;
+  text-align: center;
+}
+
+.leer p {
+  margin: 0 0 16px;
+}

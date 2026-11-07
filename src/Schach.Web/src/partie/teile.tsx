@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Ellipsis, Flag, Handshake, Lightbulb, Plus, Rewind, Undo2, type LucideIcon } from 'lucide-react'
-import type { Farbe, GegnerDto, Stufe, UhrDto, UhrSeite } from '../api/types'
+import type { Farbe, GegnerDto, UhrDto, UhrSeite } from '../api/types'
+import { Avatar } from '../components/Avatar'
 import { de, t } from '../i18n/de'
 import type { Knopf, KnopfArt } from './knoepfe'
 import { fuelle } from './text'
@@ -8,23 +9,6 @@ import { formatiereUhr, restMs, uhrZustand } from './uhr'
 
 // Zeilen des Partie-Bildschirms (SCHACH-SPEC 10.3): Kopfzeile, Spruchblase, Statuszeile,
 // eigene Zeile, Knopfleiste.
-
-const AVATAR_KLASSE: Record<Stufe, string> = {
-  Anfaenger: 'avatar--anfaenger',
-  Hobbyspieler: 'avatar--hobbyspieler',
-  Vereinsspieler: 'avatar--vereinsspieler',
-  Turnierspieler: 'avatar--turnierspieler',
-  Meister: 'avatar--meister',
-}
-
-/** Anfangsbuchstabe im Kreis, Farbe je Spielstaerke (4.4). */
-export function Avatar({ gegner }: { gegner: GegnerDto }) {
-  return (
-    <span className={`avatar ${AVATAR_KLASSE[gegner.stufe]}`} aria-hidden="true">
-      {gegner.name.charAt(0)}
-    </span>
-  )
-}
 
 export function Uhr({
   uhr,

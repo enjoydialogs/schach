@@ -1,15 +1,10 @@
 import { useCallback, useState } from 'react'
+import { SpeicherSchluessel } from '../components/SpeicherSchluessel'
 
 // Drei Schalter der Lernhilfen (SCHACH-SPEC 7.4, 12.3). localStorage-Schluessel `einstellungen`;
 // fehlender Wert oder Parse-Fehler gilt als `true`.
 
-/**
- * localStorage-Schluessel ohne Praefix (SCHACH-SPEC 12.3). S3a braucht nur `einstellungen`;
- * weitere Schluessel (gastPartieId, installHinweis) haengen spaetere Sessions an.
- */
-export const SpeicherSchluessel = {
-  einstellungen: 'einstellungen',
-} as const
+export { SpeicherSchluessel }
 
 export interface Einstellungen {
   erlaubteZuegeAnzeigen: boolean
