@@ -23,7 +23,9 @@ public enum BetriebsWarnung
 /// selben Fenster zaehlen nur fuer die Tageszeile.
 ///
 /// Fenster: <see cref="BetriebsWarnung.BudgetWarn"/> und <see cref="BetriebsWarnung.BudgetErschoepft"/>
-/// je Kalendermonat (UTC, wie <c>LlmVerbrauch.Monat</c>), die anderen je <c>Betrieb:WarnFensterMinuten</c>.
+/// je Kalendermonat (UTC, wie <c>LlmVerbrauch.Monat</c>), die anderen je <c>Betrieb:WarnFensterMinuten</c>;
+/// deren Mail geht hoechstens einmal je UTC-Tag (Lettermint-Kontingent). Eine <c>MailKontingent</c>-Mail
+/// scheitert meist am selben Kontingent; die Logzeile steht trotzdem.
 /// Die Sperre liegt im Speicher. Nach einem Neustart kann eine Budgetwarnung erneut ausgehen; der
 /// Budgetwaechter (S2c) prueft dafuer <c>LlmVerbrauch.WarnGemeldetAm</c> / <c>ErschoepftGemeldetAm</c>
 /// und ruft nur, wenn noch nicht gemeldet.

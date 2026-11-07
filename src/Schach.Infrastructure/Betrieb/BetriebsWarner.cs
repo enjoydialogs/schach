@@ -14,12 +14,14 @@ public sealed partial class BetriebsWarner(
 {
     private readonly Lock _sperre = new();
     private readonly Dictionary<BetriebsWarnung, long> _letztesFenster = [];
+    private readonly Dictionary<BetriebsWarnung, DateOnly> _letzterMailTag = [];
     private readonly Dictionary<BetriebsWarnung, int> _zaehler = Enum.GetValues<BetriebsWarnung>().ToDictionary(a => a, _ => 0);
 
     public bool Melden(BetriebsWarnung art, string? zusatz = null)
     {
         var jetzt = zeit.GetUtcNow();
         var fenster = Fenster(art, jetzt);
+        var mailen = true;
         lock (_sperre)
         {
             _zaehler[art]++;
@@ -29,14 +31,28 @@ public sealed partial class BetriebsWarner(
             }
 
             _letztesFenster[art] = fenster;
+
+            // Budget: ein Fenster = ein Monat, also ohnehin eine Mail. Die anderen loggen je Fenster,
+            // mailen aber hoechstens einmal je UTC-Tag (Lettermint-Kontingent, SCHACH-SPEC 11.3).
+            if (art is BetriebsWarnung.EngineUeberlast or BetriebsWarnung.MailKontingent)
+            {
+                var tag = DateOnly.FromDateTime(jetzt.UtcDateTime);
+                mailen = !_letzterMailTag.TryGetValue(art, out var letzterTag) || letzterTag != tag;
+                _letzterMailTag[art] = tag;
+            }
         }
 
         var text = string.IsNullOrWhiteSpace(zusatz) ? "-" : zusatz;
         Schreiben(art, text);
+        if (!mailen)
+        {
+            return true;
+        }
+
         post.Einreihen(new OperatorMail(
             $"Schach: {art}",
             string.Create(CultureInfo.InvariantCulture,
-                $"{art} am {jetzt:yyyy-MM-dd HH:mm} UTC.\n\n{text}\n\nWeitere Meldungen dieser Art im selben Fenster gehen nur in die Tageszeile.\n")));
+                $"{art} am {jetzt:yyyy-MM-dd HH:mm} UTC.\n\n{text}\n\nWeitere Meldungen dieser Art stehen im Log und in der Tageszeile.\n")));
         return true;
     }
 

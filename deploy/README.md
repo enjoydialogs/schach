@@ -18,7 +18,7 @@ Betrieb von `schach.enjoy-dialogs.de` (SCHACH-SPEC 13.5, 14). Panel-Adresse, Sub
 ## Monitoring (SCHACH-SPEC 14.2)
 
 - Meter `Schach`: alle Instrumente in `SchachMeter` (`src/Schach.Infrastructure/Telemetry`). Export nur mit `OTEL_EXPORTER_OTLP_ENDPOINT`.
-- Warn-Logzeilen `BudgetWarn`, `BudgetErschoepft`, `EngineUeberlast`, `MailKontingent`: je Art einmal je Fenster (Budget je Kalendermonat, sonst `Betrieb__WarnFensterMinuten`, Standard 60), dazu eine Mail an `OPERATOR_EMAIL`. Ohne Mail-Dienst (vor S2a) oder ohne Adresse nur das Log.
+- Warn-Logzeilen `BudgetWarn`, `BudgetErschoepft`, `EngineUeberlast`, `MailKontingent`: je Art einmal je Fenster (Budget je Kalendermonat, sonst `Betrieb__WarnFensterMinuten`, Standard 60), dazu eine Mail an `OPERATOR_EMAIL` (Engine und Mail höchstens eine je Tag). Ohne Mail-Dienst (vor S2a) oder ohne Adresse nur das Log.
 - Tageszeile: `Tageszeile <datum>: …` jeden Morgen um 06:00 Berliner Zeit, mit den Zählern seit der letzten Zeile. Nur Log, keine Mail.
 - Suchen: `docker logs <projekt>-web-1 2>&1 | grep -E "BudgetWarn|BudgetErschoepft|EngineUeberlast|MailKontingent|Tageszeile"`.
 

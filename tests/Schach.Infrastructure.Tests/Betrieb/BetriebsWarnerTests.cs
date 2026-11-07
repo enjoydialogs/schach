@@ -77,6 +77,28 @@ public sealed class BetriebsWarnerTests
     }
 
     [Fact]
+    public void Engine_und_Mailwarnungen_mailen_hoechstens_einmal_am_Tag_loggen_aber_je_Fenster()
+    {
+        // Lettermint-Kontingent (SCHACH-SPEC 11.3): ein ganzer Tag Ueberlast darf nicht 24 Mails kosten.
+        var warner = Warner(fensterMinuten: 60);
+
+        warner.Melden(BetriebsWarnung.EngineUeberlast);  // 07.11. 10:15
+        _zeit.Advance(TimeSpan.FromHours(2));
+        warner.Melden(BetriebsWarnung.EngineUeberlast);  // 12:15, neues Fenster, selber Tag
+        _zeit.Advance(TimeSpan.FromHours(12));
+        warner.Melden(BetriebsWarnung.EngineUeberlast);  // 08.11. 00:15, neuer Tag
+
+        _log.Zeilen.Should().HaveCount(3);
+        var betreffe = new List<string>();
+        while (_post.Reader.TryRead(out var mail))
+        {
+            betreffe.Add(mail.Betreff);
+        }
+
+        betreffe.Should().Equal("Schach: EngineUeberlast", "Schach: EngineUeberlast").And.HaveCount(2);
+    }
+
+    [Fact]
     public void Zaehler_nennt_alle_Meldungen_seit_dem_letzten_Abruf_auch_die_stillen()
     {
         var warner = Warner();

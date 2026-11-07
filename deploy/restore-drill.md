@@ -90,7 +90,12 @@ KEY=$(aws s3api list-objects-v2 --bucket "$BUCKET" --prefix "$PREFIX" --endpoint
         --query 'sort_by(Contents,&LastModified)[-1].Key' --output text)
 echo "KEY=$KEY"
 aws s3 cp "s3://$BUCKET/$KEY" "$DIR/dump" --endpoint-url "$EP"
-ls -l "$DIR/dump"; file "$DIR/dump"                 # Groesse notieren; gzip oder PostgreSQL custom
+ls -l "$DIR/dump"                                   # Groesse notieren
+
+# Dokploy schreibt `.sql.gz`, darin aber pg_dump im CUSTOM-Format (GladiusEtPilum, 2026-09-08).
+# Ohne Pipe entpacken, damit ein kaputtes Archiv hier scheitert und nicht still leer einspielt.
+gunzip -t "$DIR/dump" && gunzip -c "$DIR/dump" > "$DIR/dump.raw" || cp "$DIR/dump" "$DIR/dump.raw"
+head -c5 "$DIR/dump.raw"; echo                     # PGDMP = custom format, sonst Klartext-SQL
 ```
 
 Wiederherstellen in einen **isolierten** Container: eigener Name, kein Netz (`--network none`), kein Port, gleiche Postgres-Hauptversion wie live (`postgres:17`):
@@ -100,12 +105,13 @@ date -u +"restore start %FT%TZ" | tee "$DIR/protokoll.txt"
 docker run -d --name schach-restore --network none --cpus 1 --memory 1g \
   -e POSTGRES_USER=schach -e POSTGRES_DB=schach -e POSTGRES_PASSWORD="$(openssl rand -hex 16)" postgres:17
 until docker exec schach-restore pg_isready -U schach -d schach; do sleep 2; done
-docker cp "$DIR/dump" schach-restore:/tmp/dump
+docker cp "$DIR/dump.raw" schach-restore:/tmp/dump
 
-# gzip (Dokploy-Standard, Klartext-SQL):
-docker exec schach-restore sh -c 'gunzip -c /tmp/dump | psql -v ON_ERROR_STOP=1 -q -U schach -d schach'
-# ODER PostgreSQL custom format:
-# docker exec schach-restore pg_restore -U schach -d schach --no-owner --no-privileges /tmp/dump
+if [ "$(head -c5 "$DIR/dump.raw")" = "PGDMP" ]; then
+  docker exec schach-restore pg_restore -U schach -d schach --no-owner --no-privileges --exit-on-error /tmp/dump
+else
+  docker exec schach-restore psql -v ON_ERROR_STOP=1 -q -U schach -d schach -f /tmp/dump
+fi
 echo "restore exit $?" | tee -a "$DIR/protokoll.txt"   # 0
 date -u +"restore ende %FT%TZ" | tee -a "$DIR/protokoll.txt"
 ```
@@ -113,10 +119,12 @@ date -u +"restore ende %FT%TZ" | tee -a "$DIR/protokoll.txt"
 Vergleichen mit live:
 
 ```bash
-Q='SELECT max("MigrationId") FROM "__EFMigrationsHistory";
-   SELECT relname, n_live_tup FROM pg_stat_user_tables ORDER BY relname;'
-docker exec "$APP-postgres-1" psql -U schach -d schach -At -c 'ANALYZE' -c "$Q" > "$DIR/live.txt"
-docker exec schach-restore   psql -U schach -d schach -At -c 'ANALYZE' -c "$Q" > "$DIR/restore.txt"
+# Nur lesend: letzte Migration und exakte Zeilenzahl je Tabelle (die Datenbank ist klein).
+Q="SELECT max(\"MigrationId\") FROM \"__EFMigrationsHistory\";
+   SELECT format('SELECT %L, count(*) FROM %I.%I;', tablename, schemaname, tablename)
+     FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename \\gexec"
+echo "$Q" | docker exec -i "$APP-postgres-1" psql -U schach -d schach -At > "$DIR/live.txt"
+echo "$Q" | docker exec -i schach-restore   psql -U schach -d schach -At > "$DIR/restore.txt"
 diff "$DIR/live.txt" "$DIR/restore.txt" && echo "gleich"
 ```
 
