@@ -33,7 +33,7 @@ Betrieb von `schach.enjoy-dialogs.de` (SCHACH-SPEC 13.5, 14). Panel-Adresse, Sub
 Einmalig, vom Betreiber:
 
 1. DNS: `schach.enjoy-dialogs.de` auf den VPS zeigen lassen.
-2. GHCR: die Pakete `schach-web` und `schach-engine` nach dem ersten main-Lauf auf öffentlich stellen, oder Dokploy Registry-Zugang geben.
+2. GHCR: die Pakete `schach-web` und `schach-engine` sind öffentlich ([ADR 0002](../docs/adr/0002-ghcr-pakete-oeffentlich.md)); Dokploy braucht keinen Registry-Zugang. Grund: so hängen Deploys nicht an einem geteilten GHCR-Token, und der Quellcode ist ohnehin öffentlich. Umstellen nach dem ersten main-Lauf: GitHub → Organisation `enjoydialogs` → Packages → Paket → Package settings → Change visibility → Public; „Inherit access from source repository“ bleibt an.
 3. Dokploy: neuen Compose-Dienst aus diesem Repo anlegen, Compose-Pfad `docker-compose.dokploy.yml`.
 4. Environment-Tab: Schlüssel aus `.env.dokploy.example` setzen. Pflicht: `REGISTRY`, `IMAGE_TAG=prod`, `POSTGRES_PASSWORD`, `TRAEFIK_NETWORK`. Das Subnetz auf der Box lesen:
    `docker network inspect dokploy-network --format '{{(index .IPAM.Config 0).Subnet}}'`

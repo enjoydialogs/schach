@@ -1,0 +1,39 @@
+/* Profil (SCHACH-SPEC 10.9) */
+
+.profil__konto {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  row-gap: 2px;
+}
+
+.profil__email {
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+  color: var(--text-muted);
+}
+
+.profil__elo-label {
+  font-weight: 600;
+}
+
+.profil__elo {
+  grid-row: 2 / span 1;
+  grid-column: 2;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.profil__schalter {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.profil__aktionen {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 24px 0 8px;
+}

@@ -59,7 +59,7 @@ public sealed class AuthController(AnmeldeDienst anmeldung, KontoDienst konto, I
             new AuthenticationProperties { IsPersistent = true });
 
         var s = angemeldet.Spieler;
-        return Ok(new BestaetigenAntwort(new SpielerDto(s.Id, s.Email, s.Elo), angemeldet.Neu));
+        return Ok(new BestaetigenAntwort(new SpielerDto(s.Id, s.Email, s.Elo, s.ErstelltAm), angemeldet.Neu));
     }
 
     /// <summary><c>{angemeldet, spieler?, csrfToken}</c>; setzt das Antiforgery-Cookie.</summary>
@@ -71,7 +71,7 @@ public sealed class AuthController(AnmeldeDienst anmeldung, KontoDienst konto, I
         var spieler = SchachSitzung.SpielerId(User) is { } id ? await konto.SpielerAsync(id, ct) : null;
         return new SitzungAntwort(
             spieler is not null,
-            spieler is null ? null : new SpielerDto(spieler.Id, spieler.Email, spieler.Elo),
+            spieler is null ? null : new SpielerDto(spieler.Id, spieler.Email, spieler.Elo, spieler.ErstelltAm),
             tokens.RequestToken!);
     }
 

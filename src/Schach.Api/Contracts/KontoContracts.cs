@@ -15,8 +15,8 @@ public sealed record BestaetigenAnfrage(string? Token = null, Guid? AnmeldungId 
 /// <summary>200 plus Cookie <c>schach_sitzung</c>. <see cref="Neu"/>: Konto wurde gerade angelegt.</summary>
 public sealed record BestaetigenAntwort(SpielerDto Spieler, bool Neu);
 
-/// <summary>Der angemeldete Spieler.</summary>
-public sealed record SpielerDto(Guid Id, string Email, int Elo);
+/// <summary>Der angemeldete Spieler. <see cref="ErstelltAm"/>: Anlage des Kontos („Spieler seit …“, SCHACH-SPEC 10.9).</summary>
+public sealed record SpielerDto(Guid Id, string Email, int Elo, DateTimeOffset ErstelltAm);
 
 /// <summary>Antwort von <c>GET /sitzung</c>; setzt das Antiforgery-Cookie.
 /// <see cref="CsrfToken"/> geht als Header <c>X-CSRF-TOKEN</c> mit jedem Nicht-GET.</summary>

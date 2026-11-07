@@ -176,6 +176,8 @@ export interface SpielerDto {
   id: string
   email: string
   elo: number
+  // Der Server sendet es immer (ISO-8601 UTC). Optional, bis der Fake es fuellt (S3b, #34).
+  erstelltAm?: string
 }
 
 export interface SitzungAntwort {
@@ -205,4 +207,45 @@ export interface BestaetigenAntwort {
 
 export interface AbmeldenAnfrage {
   ueberall?: boolean
+}
+
+// S3b: Konto-Export (SCHACH-SPEC 9.3, 9.7), gespiegelt aus KontoContracts.cs.
+
+export interface KontoExportKonto {
+  id: string
+  email: string
+  erstelltAm: string
+  zuletztAngemeldetAm: string | null
+}
+
+export interface KontoExportBilanz {
+  gegnerKey: string
+  siege: number
+  remis: number
+  niederlagen: number
+  besiegtAm: string | null
+}
+
+export interface KontoExportPartie {
+  id: string
+  gegnerKey: string
+  spielerFarbe: Farbe
+  bedenkzeit: Bedenkzeit
+  status: PartieStatus
+  ergebnis: Ergebnis | null
+  grund: Grund | null
+  erstelltAm: string
+  beendetAm: string | null
+  zaehltFuerElo: boolean
+  eloVorher: number | null
+  eloNachher: number | null
+  pgn: string | null
+  sprueche: SpruchDto[]
+}
+
+export interface KontoExportDto {
+  konto: KontoExportKonto
+  elo: number
+  bilanz: KontoExportBilanz[]
+  partien: KontoExportPartie[]
 }

@@ -19,6 +19,11 @@ export default defineConfig({
       '/api': apiProxy,
     },
   },
+  // Gleicher Port wie dev, damit `adb reverse tcp:5173 tcp:5173` auch fuer `vite preview` gilt.
+  preview: {
+    port: 5173,
+    strictPort: true,
+  },
   test: {
     environment: 'jsdom',
     globals: true,

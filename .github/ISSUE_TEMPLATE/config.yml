@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 🛡️ Sicherheitslücke melden
+    url: https://github.com/enjoydialogs/schach/blob/main/SECURITY.md
+    about: Bitte nicht öffentlich. So meldest du eine Lücke vertraulich.
+  - name: 👤 Hilfe zu Konto und Daten
+    url: https://github.com/enjoydialogs/schach/blob/main/SUPPORT.md
+    about: Fragen zu deinem Konto gehen per E-Mail an den Support.
