@@ -69,6 +69,7 @@ public sealed class SprachausgabeTests
         var zustand = await StartenAsync(gast, "oscar");
         using var falsch = await gast.Http.GetAsync(new Uri("/api/v1/sprachausgabe/CfDJ8kaputt", UriKind.Relative), Ct);
 
+        // Ausdrucksbaum: `is null` geht hier nicht (CS8122).
         zustand.Sprueche.Should().OnlyContain(s => s.Stimme == null);
         falsch.StatusCode.Should().Be(HttpStatusCode.NotFound);
         factory.Stimme.Aufrufe.Should().Be(0);

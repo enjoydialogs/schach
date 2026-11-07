@@ -73,7 +73,19 @@ public sealed partial class SprachausgabeDienst(
 
         var hash = Hash(options.Model, stimme.VoiceId, inhalt.Text);
         var jetzt = zeit.GetUtcNow();
-        if (await cache.LeseAsync(hash, jetzt, cancellationToken).ConfigureAwait(false) is { } vorhanden)
+        byte[]? vorhanden;
+        try
+        {
+            vorhanden = await cache.LeseAsync(hash, jetzt, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
+        {
+            // Ohne Cache kein Mistral-Aufruf: sonst zahlt jeder Abruf bei kaputter Datenbank.
+            Log.CacheFehler(logger, ex.GetType().Name);
+            return Stumm;
+        }
+
+        if (vorhanden is not null)
         {
             return new SprachTon(SprachAusgang.Audio, vorhanden);
         }
@@ -89,7 +101,16 @@ public sealed partial class SprachausgabeDienst(
             return Stumm;
         }
 
-        await cache.SpeichereAsync(hash, audio, inhalt.Text.Length, jetzt, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await cache.SpeichereAsync(hash, audio, inhalt.Text.Length, jetzt, CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            // Der Ton ist bezahlt: ausliefern, auch wenn er nicht in den Cache kommt.
+            Log.CacheFehler(logger, ex.GetType().Name);
+        }
+
         return new SprachTon(SprachAusgang.Audio, audio);
     }
 
@@ -275,5 +296,8 @@ public sealed partial class SprachausgabeDienst(
 
         [LoggerMessage(EventId = 3405, Level = LogLevel.Error, Message = "SprachausgabeVerbrauch nicht gebucht ({Fehler}).")]
         public static partial void BuchungFehlgeschlagen(ILogger logger, string fehler);
+
+        [LoggerMessage(EventId = 3406, Level = LogLevel.Error, Message = "SpruchStimme-Cache nicht erreichbar ({Fehler}).")]
+        public static partial void CacheFehler(ILogger logger, string fehler);
     }
 }

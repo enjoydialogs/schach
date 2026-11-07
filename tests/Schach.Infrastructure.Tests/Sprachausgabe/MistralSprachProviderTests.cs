@@ -126,6 +126,22 @@ public sealed class MistralSprachProviderTests
         sp.GetRequiredService<ISpruchStimmen>().Should().BeSameAs(sp.GetRequiredService<SprachausgabeDienst>());
     }
 
+    [Fact]
+    public void Leere_Werte_aus_dem_Compose_binden_als_stumm_und_ohne_Expressiveness()
+    {
+        // docker-compose.dokploy.yml setzt jede Variable, auch leer (`${…:-}`).
+        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["Sprachausgabe:Stimmen:finn:VoiceId"] = "",
+            ["Sprachausgabe:Stimmen:finn:Expressiveness"] = "",
+        }).Build();
+
+        var optionen = config.GetSection(SprachausgabeOptions.SectionName).Get<SprachausgabeOptions>()!;
+
+        optionen.Stimmen["finn"].VoiceId.Should().BeEmpty();
+        optionen.Stimmen["finn"].Expressiveness.Should().BeNull();
+    }
+
     private sealed class StillerWarner : Application.Betrieb.IBetriebsWarner
     {
         public bool Melden(Application.Betrieb.BetriebsWarnung art, string? zusatz = null) => true;

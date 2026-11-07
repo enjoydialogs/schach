@@ -71,17 +71,20 @@ export function spruchSchluessel(spruch: SpruchDto): string {
 
 /**
  * Welcher Spruch jetzt vorgelesen wird, oder `null`. Der beim Laden sichtbare Spruch gilt als
- * bekannt und wird nicht vorgelesen, nur neu ankommende. `bekannt` wird fortgeschrieben.
+ * bekannt und wird nicht vorgelesen, nur neu ankommende; Ausnahme `neuGestartet`: die Partie kommt
+ * frisch aus „Neue Partie“, ihr erster Spruch ist neu. `bekannt` wird fortgeschrieben.
  */
 export function naechsteAnsage(
   bekannt: Set<string> | null,
   spruch: SpruchDto | null,
   aktiv: boolean,
+  neuGestartet = false,
 ): { bekannt: Set<string>; token: string | null } {
   const schluessel = spruch === null ? null : spruchSchluessel(spruch)
-  if (bekannt === null) {
+  if (bekannt === null && !neuGestartet) {
     return { bekannt: new Set(schluessel === null ? [] : [schluessel]), token: null }
   }
+  bekannt ??= new Set()
   if (spruch === null || schluessel === null || bekannt.has(schluessel)) return { bekannt, token: null }
   bekannt.add(schluessel)
   return { bekannt, token: aktiv && spruch.stimme !== null ? spruch.stimme : null }
@@ -92,17 +95,23 @@ export function naechsteAnsage(
  * neuem Spruch, beim Verlassen und wenn der Tab in den Hintergrund geht. `wiederholen` spielt den
  * sichtbaren Spruch erneut (Tipp auf die Spruchblase).
  */
-export function useVorlesen(spruch: SpruchDto | null, geladen: boolean, aktiv: boolean, vorleser?: Vorleser) {
+export function useVorlesen(
+  spruch: SpruchDto | null,
+  geladen: boolean,
+  aktiv: boolean,
+  neuGestartet = false,
+  vorleser?: Vorleser,
+) {
   const eigener = useRef<Vorleser | null>(null)
   eigener.current ??= vorleser ?? new Vorleser()
   const bekannt = useRef<Set<string> | null>(null)
 
   useEffect(() => {
     if (!geladen) return
-    const { bekannt: neu, token } = naechsteAnsage(bekannt.current, spruch, aktiv)
+    const { bekannt: neu, token } = naechsteAnsage(bekannt.current, spruch, aktiv, neuGestartet)
     bekannt.current = neu
     if (token !== null) void eigener.current!.spiele(token)
-  }, [geladen, spruch, aktiv])
+  }, [geladen, spruch, aktiv, neuGestartet])
 
   useEffect(() => {
     if (!aktiv) eigener.current!.stoppe()

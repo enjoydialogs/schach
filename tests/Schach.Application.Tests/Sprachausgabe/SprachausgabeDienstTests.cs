@@ -187,6 +187,26 @@ public sealed class SprachausgabeDienstTests
     }
 
     [Fact]
+    public async Task Datenbankfehler_beim_Lesen_ergibt_Stille()
+    {
+        _cache.LesenWirft = true;
+
+        (await Dienst().AudioAsync(Token(), Ct)).Ausgang.Should().Be(SprachAusgang.Stumm);
+        _provider.Anfragen.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Datenbankfehler_beim_Speichern_liefert_den_Ton_trotzdem()
+    {
+        _cache.SpeichernWirft = true;
+
+        var ton = await Dienst().AudioAsync(Token("Hallo"), Ct);
+
+        ton.Ausgang.Should().Be(SprachAusgang.Audio);
+        System.Text.Encoding.UTF8.GetString(ton.Audio!).Should().Be("mp3:voice_oscar:Hallo");
+    }
+
+    [Fact]
     public async Task Aufraeumen_loescht_nach_90_Tagen_ohne_Nutzung()
     {
         await Dienst().AudioAsync(Token("Alt"), Ct);

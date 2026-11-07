@@ -47,9 +47,9 @@ Einmalig, vom Betreiber:
 
 ## Sprachausgabe (SCHACH-SPEC 6.9)
 
-Die Gegner lesen ihre Sprüche über Mistral Voxtral TTS vor. Ohne `MISTRAL_API_KEY` oder ohne Voice-Id bleibt der Gegner stumm; das Spiel läuft unverändert weiter.
+Die Gegner lesen ihre Sprüche über Mistral Voxtral TTS vor. Ohne `MISTRAL_API_KEY` oder ohne Voice-Id bleibt der Gegner stumm; die Partie läuft unverändert weiter.
 
-1. **Voice-Ids setzen:** im Environment-Tab `SPRACHAUSGABE_STIMME_<GEGNER>` je Gegner (`FINN`, `ILSE`, `KONRAD`, `MAREN`, `NELE`, `OSCAR`, `SEMENTA`, `THEO`). Fertigstimmen (z. B. `voice_481`) oder die Id einer geklonten Stimme aus dem Workspace „schach“. Nie Ids oder Aufnahmen ins Repo. Optional je Gegner `Sprachausgabe__Stimmen__<key>__Expressiveness` (1,0 bis 5,0) als eigene Variable im Compose.
+1. **Voice-Ids setzen:** im Environment-Tab `SPRACHAUSGABE_STIMME_<GEGNER>` je Gegner (`FINN`, `ILSE`, `KONRAD`, `MAREN`, `NELE`, `OSCAR`, `SEMENTA`, `THEO`). Fertigstimmen (z. B. `voice_481`) oder die Id einer geklonten Stimme aus dem Workspace „schach“. Nie Ids oder Aufnahmen ins Repo. Optional je Gegner `SPRACHAUSGABE_AUSDRUCK_<GEGNER>` (Expressiveness, 1.0 bis 5.0, Punkt als Dezimaltrenner).
 2. **Budget:** `SPRACHAUSGABE_BUDGET_CENT` (Vorgabe `500`, `0` schaltet ab). Etwa 1.400 Zeichen je Partie, also rund 2 Cent; 5 € reichen für etwa 250 Partien im Monat. Der Preis steht als `Sprachausgabe__CentJeMillionZeichen` (Vorgabe `1300`) im Code; bei neuer Preisliste anpassen.
 3. **Mistral-Limit:** das harte Workspace-Limit (heute 10 €) auf mindestens Chat-Budget plus Sprachausgabe-Budget anheben, sonst antwortet Mistral mit 429 und beide Wege fallen auf Ersatz bzw. Stille.
 4. **Geklonte Stimmen jährlich erneuern:** Mistral löscht gespeicherte Stimmen nach `retention_notice` (höchstens 365 Tage). Danach kommt 404, im Log steht `StimmeUnbekannt` und eine Mail geht an `OPERATOR_EMAIL` (einmal je Monat). Vor Ablauf die Stimme mit `retention_notice=365` erneuern oder neu klonen und die neue Id im Environment-Tab eintragen. Der Ton-Cache hängt an der Voice-Id; eine neue Id erzeugt die Sprüche neu.

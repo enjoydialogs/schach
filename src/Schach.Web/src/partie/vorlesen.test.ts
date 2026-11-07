@@ -129,6 +129,13 @@ describe('naechsteAnsage', () => {
     expect(s.token).toBe('tok4')
   })
 
+  it('liest den Partiebeginn einer gerade gestarteten Partie vor', () => {
+    const s = naechsteAnsage(null, spruch(0), true, true)
+
+    expect(s.token).toBe('tok0')
+    expect(naechsteAnsage(s.bekannt, spruch(0), true, true).token).toBeNull()
+  })
+
   it('liest denselben Spruch mit neuem Token nicht erneut vor', () => {
     // Data Protection verschluesselt mit Zufall: jede Antwort traegt ein neues Token.
     let s = naechsteAnsage(null, null, true)
@@ -161,7 +168,7 @@ describe('useVorlesen', () => {
 
   it('spielt nur neu ankommende Sprueche und wiederholt per Tipp', () => {
     const v = attrappe()
-    const { rerender, result } = renderHook(({ s, geladen }) => useVorlesen(s, geladen, true, v), {
+    const { rerender, result } = renderHook(({ s, geladen }) => useVorlesen(s, geladen, true, false, v), {
       initialProps: { s: null as SpruchDto | null, geladen: false },
     })
     rerender({ s: spruch(0), geladen: true })
@@ -176,7 +183,7 @@ describe('useVorlesen', () => {
 
   it('stoppt beim Verlassen und wenn der Tab verschwindet', () => {
     const v = attrappe()
-    const { unmount } = renderHook(() => useVorlesen(spruch(0), true, true, v))
+    const { unmount } = renderHook(() => useVorlesen(spruch(0), true, true, false, v))
 
     vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
     document.dispatchEvent(new Event('visibilitychange'))
@@ -189,7 +196,7 @@ describe('useVorlesen', () => {
 
   it('stoppt, wenn der Schalter ausgeht', () => {
     const v = attrappe()
-    const { rerender } = renderHook(({ aktiv }) => useVorlesen(spruch(0), true, aktiv, v), { initialProps: { aktiv: true } })
+    const { rerender } = renderHook(({ aktiv }) => useVorlesen(spruch(0), true, aktiv, false, v), { initialProps: { aktiv: true } })
 
     rerender({ aktiv: false })
 

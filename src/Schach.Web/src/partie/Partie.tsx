@@ -21,7 +21,16 @@ import './partie.css'
 type Offen = 'keins' | 'menue' | 'aufgeben' | 'eloTipp' | 'eloZuruecknehmen'
 
 /** Partie-Bildschirm, Layout `Fest` (SCHACH-SPEC 10.1, 10.3). */
-export function Partie({ id, neuePartiePfad = '/neu' }: { id: string; neuePartiePfad?: string }) {
+export function Partie({
+  id,
+  neuePartiePfad = '/neu',
+  neuGestartet = false,
+}: {
+  id: string
+  neuePartiePfad?: string
+  /** Kommt frisch aus „Neue Partie“: der erste Spruch wird vorgelesen (6.9). */
+  neuGestartet?: boolean
+}) {
   const navigate = useNavigate()
   const [einstellungen, setzeEinstellung] = useEinstellungen()
   const p = usePartie(id, einstellungen.toeneUndVibration)
@@ -40,7 +49,12 @@ export function Partie({ id, neuePartiePfad = '/neu' }: { id: string; neuePartie
   )
   const schach = useMemo(() => (fen !== null ? schachFeld(fen) : null), [fen])
   const spruch = z !== null && anzeige !== null ? sichtbarerSpruch(z.sprueche, anzeige.halbzug) : null
-  const vorlesenWiederholen = useVorlesen(spruch, z !== null && anzeige !== null, einstellungen.spruecheVorlesen)
+  const vorlesenWiederholen = useVorlesen(
+    spruch,
+    z !== null && anzeige !== null,
+    einstellungen.spruecheVorlesen,
+    neuGestartet,
+  )
 
   if (z === null || anzeige === null) {
     return (

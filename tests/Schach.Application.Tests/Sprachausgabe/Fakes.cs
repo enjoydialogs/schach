@@ -41,8 +41,17 @@ internal sealed class FakeStimmeSpeicher : ISpruchStimmeSpeicher
 {
     public Dictionary<string, (byte[] Audio, DateTimeOffset ZuletztGenutztAm)> Eintraege { get; } = [];
 
+    public bool LesenWirft { get; set; }
+
+    public bool SpeichernWirft { get; set; }
+
     public Task<byte[]?> LeseAsync(byte[] hash, DateTimeOffset jetzt, CancellationToken cancellationToken = default)
     {
+        if (LesenWirft)
+        {
+            return Task.FromException<byte[]?>(new InvalidOperationException("db weg"));
+        }
+
         var key = Convert.ToHexString(hash);
         if (!Eintraege.TryGetValue(key, out var e))
         {
@@ -55,6 +64,11 @@ internal sealed class FakeStimmeSpeicher : ISpruchStimmeSpeicher
 
     public Task SpeichereAsync(byte[] hash, byte[] audio, int zeichen, DateTimeOffset jetzt, CancellationToken cancellationToken = default)
     {
+        if (SpeichernWirft)
+        {
+            return Task.FromException(new InvalidOperationException("db weg"));
+        }
+
         Eintraege.TryAdd(Convert.ToHexString(hash), (audio, jetzt));
         return Task.CompletedTask;
     }
