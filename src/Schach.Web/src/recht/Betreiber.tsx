@@ -4,8 +4,9 @@
 // Das Impressum nennt ihn als Anbieter (§ 5 DDG), die Datenschutzerklärung als Verantwortlichen
 // (Art. 13 Abs. 1 lit. a DSGVO); zwei Kopien einer Anschrift wären zwei Gelegenheiten zu veralten.
 // Privatperson unter dem Namen "enjoy dialogs": voller Name und ladungsfähige Anschrift sind Pflicht.
+// Kontakt nur per E-Mail; das Aidbase-Formular aus Gladius übernimmt Schach nicht (Betreiber, PR #45).
 
-import { KONTAKT_EMAIL, KONTAKTFORMULAR_URL } from './kontakt'
+import { KONTAKT_EMAIL } from './kontakt'
 
 export function Betreiber() {
   return (
@@ -23,11 +24,6 @@ export function Betreiber() {
       </address>
       <p>
         E-Mail: <a href={`mailto:${KONTAKT_EMAIL}`}>{KONTAKT_EMAIL}</a>
-        <br />
-        Kontaktformular:{' '}
-        <a href={KONTAKTFORMULAR_URL} target="_blank" rel="noopener noreferrer">
-          Nachricht schreiben
-        </a>
       </p>
     </>
   )

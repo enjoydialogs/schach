@@ -37,15 +37,26 @@ describe('Rechtstexte', () => {
     )
   })
 
-  it('verlinkt das Kontaktformular als schlichten Link ohne Skript', () => {
+  it.each(['/impressum', '/datenschutz'])('bietet auf %s nur E-Mail-Kontakt, kein Formular und nichts Fremdes', (pfad) => {
     const { container } = render(
-      <RouterProvider router={createMemoryRouter(routes, { initialEntries: ['/impressum'] })} />,
+      <RouterProvider router={createMemoryRouter(routes, { initialEntries: [pfad] })} />,
     )
 
-    const link = screen.getByRole('link', { name: 'Nachricht schreiben' })
-    expect(link).toHaveAttribute('href', expect.stringMatching(/^https:\/\/hosted\.aidbase\.ai\/tickets\//))
-    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
-    expect(container.querySelector('script, iframe')).toBeNull()
+    expect(container.querySelector('script, iframe, form')).toBeNull()
+    expect(document.body).not.toHaveTextContent(/aidbase|Kontaktformular:/i)
+    const fremd = [...container.querySelectorAll('a[href^="http"]')]
+      .map((a) => a.getAttribute('href') ?? '')
+      .filter((href) => !href.startsWith('https://github.com/enjoydialogs/schach'))
+    expect(fremd).toEqual([])
+  })
+
+  it('nennt die Reply-To-Adresse der Anmelde-Mail', () => {
+    oeffne('/datenschutz')
+
+    expect(screen.getByRole('link', { name: 'support@enjoy-dialogs.de' })).toHaveAttribute(
+      'href',
+      'mailto:support@enjoy-dialogs.de',
+    )
   })
 
   it('zeigt auf /datenschutz alle 13 Abschnitte in Reihenfolge', () => {
@@ -63,6 +74,7 @@ describe('Rechtstexte', () => {
     expect(screen.getAllByText(/Lettermint B\.V\./).length).toBeGreaterThan(0)
     expect(screen.getByText('api.eu.mistral.ai')).toBeInTheDocument()
     expect(screen.getAllByText(/Hostinger International Ltd\./).length).toBeGreaterThan(0)
+    expect(screen.getByText(/Hetzner Online GmbH in Falkenstein/)).toBeInTheDocument()
   })
 
   it('listet jeden Browser-Speicher aus Spec 12.3 in der Tabelle', () => {
