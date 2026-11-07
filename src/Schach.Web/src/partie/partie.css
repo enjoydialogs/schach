@@ -60,43 +60,6 @@ body:has(.partie) {
   color: var(--text-muted);
 }
 
-.avatar {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.avatar--anfaenger {
-  background: var(--avatar-anfaenger);
-  color: var(--avatar-anfaenger-text);
-}
-
-.avatar--hobbyspieler {
-  background: var(--avatar-hobbyspieler);
-  color: var(--avatar-hobbyspieler-text);
-}
-
-.avatar--vereinsspieler {
-  background: var(--avatar-vereinsspieler);
-  color: var(--avatar-vereinsspieler-text);
-}
-
-.avatar--turnierspieler {
-  background: var(--avatar-turnierspieler);
-  color: var(--avatar-turnierspieler-text);
-}
-
-.avatar--meister {
-  background: var(--avatar-meister);
-  color: var(--avatar-meister-text);
-}
-
 /* Am-Zug-Punkt 8 px neben dem Namen; Platz bleibt reserviert, damit nichts springt. */
 .am-zug {
   display: inline-block;
@@ -152,20 +115,6 @@ body:has(.partie) {
   background: var(--danger);
   border-color: var(--danger);
   color: #ffffff;
-}
-
-.symbolknopf {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border: 0;
-  border-radius: 12px;
-  background: transparent;
-  color: var(--text);
 }
 
 /* Spruchblase: 56 px fest reserviert, 2 Zeilen */
@@ -289,105 +238,13 @@ body:has(.partie) {
   opacity: 0.4;
 }
 
-.knopf--outline {
-  background: transparent;
-  color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
-}
-
-.knopf--gefahr {
-  background: var(--danger);
-}
-
-/* Ueberlagen: Dialog mittig, Sheet unten */
-.ueberlage {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  background: rgba(30, 35, 41, 0.4);
-}
-
-.ueberlage--mitte {
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-
-.ueberlage--unten {
-  align-items: flex-end;
-}
-
-.ueberlage--durchsichtig {
-  background: transparent;
-}
-
-.dialog {
-  width: 100%;
-  max-width: 380px;
-  padding: 20px;
-  border-radius: 16px;
-  background: var(--surface);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-}
-
-.dialog__titel,
-.sheet__titel {
-  margin: 0;
-  font-size: 20px;
-}
-
-.dialog__text {
-  margin: 12px 0 20px;
-}
-
-.dialog__knoepfe,
 .ende__knoepfe {
   display: flex;
   gap: 8px;
 }
 
-.dialog__knoepfe > *,
 .ende__knoepfe > * {
   flex: 1;
-}
-
-.sheet {
-  width: 100%;
-  max-height: 70dvh;
-  overflow-y: auto;
-  padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
-  border-radius: 16px 16px 0 0;
-  background: var(--surface);
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.2);
-}
-
-.sheet__kopf {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 48px;
-}
-
-.schalter,
-.sheet__zeile {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  min-height: 48px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  text-align: left;
-}
-
-.schalter input {
-  width: 44px;
-  height: 24px;
-  accent-color: var(--accent);
 }
 
 .ende__grund {

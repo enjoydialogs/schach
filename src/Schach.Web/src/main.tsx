@@ -9,10 +9,19 @@ import './styles/palette.css'
 import './styles/base.css'
 import { createRouter } from './router'
 
-const router = createRouter()
+// S3b: Der MSW-Fake bedient die ganze App im Bau-Modus `prototyp` und mit `VITE_FAKE=1` im
+// Dev-Server (alle Bildschirme ohne Backend). Im Produktionsbau faellt der Zweig samt Import weg.
+const FAKE_FUER_ALLES =
+  import.meta.env.MODE === 'prototyp' || (import.meta.env.DEV && import.meta.env.VITE_FAKE === '1')
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>,
-)
+async function starte() {
+  if (FAKE_FUER_ALLES) await (await import('./fake/starten')).starteFake()
+  const router = createRouter()
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <RouterProvider router={router} />
+    </StrictMode>,
+  )
+}
+
+void starte()

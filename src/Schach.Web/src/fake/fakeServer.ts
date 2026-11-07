@@ -1,6 +1,10 @@
 import { Chess, type Color, type Move } from 'chess.js'
 import type {
+  AnmeldungAntwort,
   Bedenkzeit,
+  BestaetigenAnfrage,
+  BestaetigenAntwort,
+  BilanzDto,
   Ergebnis,
   Farbe,
   FehlerCode,
@@ -9,8 +13,11 @@ import type {
   GegnerZugDto,
   Grund,
   HalbzugAnfrage,
+  KontoExportDto,
   NeuePartieAnfrage,
+  PartienListeDto,
   SitzungAntwort,
+  SpielerDto,
   SpruchDto,
   SpruchEreignis,
   TippAntwort,
@@ -104,24 +111,52 @@ interface FakePartie {
   tipp: { halbzug: number; tipp: TippDto } | null
   eloVorher: number | null
   eloNachher: number | null
+  // S3b: fuer Partienliste und Export. Optional, damit ein alter sessionStorage-Stand weiter laedt.
+  erstelltAm?: number
+  beendetAm?: number | null
+}
+
+/** Offene Magic-Link-Anfrage (9.2). Im Fake liegen Token und Code im Klartext. */
+interface FakeAnmeldung {
+  email: string
+  token: string
+  code: string
+  fehlversuche: number
+  laeuftAbAm: number
 }
 
 interface FakeDaten {
   gast: boolean
   elo: number
   partien: Record<string, FakePartie>
+  // S3b: Konto. `email === null`: kein Konto (geloescht oder nie angelegt).
+  email?: string | null
+  kontoErstelltAm?: number
+  zaehler?: number
+  anmeldungen?: Record<string, FakeAnmeldung>
 }
+
+const FAKE_EMAIL = 'spieler@example.invalid'
+const ANMELDUNG_GUELTIG_MS = 15 * 60_000
+const ANMELDUNG_FEHLVERSUCHE = 5
 
 export class FakeFehler extends Error {
   readonly status: number
   readonly fehler: FehlerCode | null
   readonly zustand: ZustandDto | null
+  readonly offenePartieId: string | null
 
-  constructor(status: number, fehler: FehlerCode | null, zustand: ZustandDto | null = null) {
+  constructor(
+    status: number,
+    fehler: FehlerCode | null,
+    zustand: ZustandDto | null = null,
+    offenePartieId: string | null = null,
+  ) {
     super(fehler ?? `HTTP ${status}`)
     this.status = status
     this.fehler = fehler
     this.zustand = zustand
+    this.offenePartieId = offenePartieId
   }
 }
 
@@ -157,6 +192,7 @@ export class FakeServer {
 
   set gast(wert: boolean) {
     this.daten.gast = wert
+    if (!wert && !this.daten.email) this.legeKontoAn(FAKE_EMAIL)
     this.sichere()
   }
 
@@ -167,19 +203,25 @@ export class FakeServer {
   sitzung(): SitzungAntwort {
     return {
       angemeldet: !this.daten.gast,
-      spieler: this.daten.gast ? null : { id: 'fake-spieler', email: 'spieler@example.invalid', elo: this.daten.elo },
+      spieler: this.daten.gast ? null : this.spieler(),
       csrfToken: 'fake-csrf',
     }
   }
 
   starte(anfrage: NeuePartieAnfrage): ZustandDto {
+    // Ein Spieler hat hoechstens eine offene Partie (8.3, 8.12).
+    const offen = this.daten.gast ? undefined : this.offenePartie()
+    if (offen) throw new FakeFehler(409, 'OffenePartie', this.zustand(offen), offen.id)
     const g = FAKE_GEGNER.find((x) => x.key === anfrage.gegnerId) ?? FAKE_GEGNER[0]!
     const spielerFarbe: Farbe =
       anfrage.farbe === 'Zufall' ? (this.zufall() < 0.5 ? 'Weiss' : 'Schwarz') : anfrage.farbe
     const uhr = UHR[anfrage.bedenkzeit]
     const t = this.jetzt()
     const p: FakePartie = {
-      id: FAKE_ID_PRAEFIX + Math.floor(this.zufall() * 2 ** 48).toString(16).padStart(12, '0'),
+      id:
+        FAKE_ID_PRAEFIX +
+        Math.floor(this.zufall() * 2 ** 48).toString(16).padStart(12, '0') +
+        this.naechsteNummer().toString(16).padStart(4, '0'),
       gegner: g,
       spielerFarbe,
       bedenkzeit: anfrage.bedenkzeit,
@@ -199,6 +241,8 @@ export class FakeServer {
       tipp: null,
       eloVorher: null,
       eloNachher: null,
+      erstelltAm: t,
+      beendetAm: null,
     }
     this.daten.partien[p.id] = p
     if (this.brett(p).turn() !== farbeVon(spielerFarbe)) this.gegnerZieht(p, t)
@@ -307,7 +351,201 @@ export class FakeServer {
     return { tipp: p.tipp.tipp, zustand: this.zustand(p) }
   }
 
+  // --- S3b: offene Partie, Gegner, Partienliste, Konto (8.3, 9.3) ---
+
+  /** `GET /partien/offen`: nur Spieler (Gast 401), ohne offene Partie 404. */
+  offene(): ZustandDto {
+    if (this.daten.gast) throw new FakeFehler(401, null)
+    const p = this.offenePartie()
+    if (!p) throw new FakeFehler(404, null)
+    this.pruefeUhr(p)
+    this.sichere()
+    return this.zustand(p)
+  }
+
+  /** Nur fuer `/prototyp`: gibt eine offene Spieler-Partie auf, damit ein neuer Start nicht 409 liefert. */
+  gibOffeneAuf(): void {
+    const p = this.daten.gast ? undefined : this.offenePartie()
+    if (p) this.gibAuf(p.id, { halbzug: p.zuege.length })
+  }
+
+  /** `GET /gegner`: Elo aufsteigend, Bilanz nur fuer Spieler (3.8). */
+  gegnerListe(): GegnerDto[] {
+    return FAKE_GEGNER.map((g) => ({ ...g, bilanz: this.daten.gast ? null : this.bilanz(g.key) }))
+  }
+
+  /** `GET /partien?limit=&vorId=`: beendete Spieler-Partien, neueste zuerst. */
+  partienListe(limit: number, vorId: string | null): PartienListeDto {
+    if (this.daten.gast) throw new FakeFehler(401, null)
+    const alle = this.beendetePartien()
+    const ab = vorId === null ? 0 : alle.findIndex((p) => p.id === vorId) + 1
+    const seite = alle.slice(ab, ab + limit)
+    return {
+      partien: seite.map((p) => ({
+        id: p.id,
+        gegnerKey: p.gegner.key,
+        spielerFarbe: p.spielerFarbe,
+        bedenkzeit: p.bedenkzeit,
+        ergebnis: p.ergebnis!,
+        grund: p.grund!,
+        beendetAm: iso(p.beendetAm ?? 0),
+        zaehltFuerElo: p.zaehltFuerElo,
+        eloVorher: p.eloVorher,
+        eloNachher: p.eloNachher,
+      })),
+      weitere: ab + limit < alle.length,
+    }
+  }
+
+  /** Letzte Anfrage im Klartext, damit Tests und die Dev-Konsole Link und Code kennen. */
+  letzteAnmeldung: { anmeldungId: string; token: string; code: string; email: string } | null = null
+
+  /** `POST /auth/anmeldung`: immer 202 mit `anmeldungId`, 400 nur bei Formfehler (9.3). */
+  meldeAn(email: string): AnmeldungAntwort {
+    const adresse = email.trim().toLowerCase()
+    if (adresse.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(adresse)) throw new FakeFehler(400, 'EmailUngueltig')
+    const anmeldungen = (this.daten.anmeldungen ??= {})
+    // Eine neue Anfrage fuer dieselbe Adresse loescht aeltere (9.2).
+    for (const [id, a] of Object.entries(anmeldungen)) if (a.email === adresse) delete anmeldungen[id]
+    const hex = () => Math.floor(this.zufall() * 2 ** 32).toString(16).padStart(8, '0')
+    const nummer = this.naechsteNummer()
+    const anmeldungId = `${hex()}-fake-${nummer}`
+    const token = `fake-token-${hex()}${hex()}-${nummer}`
+    const code = String(Math.floor(this.zufall() * 1_000_000)).padStart(6, '0')
+    anmeldungen[anmeldungId] = { email: adresse, token, code, fehlversuche: 0, laeuftAbAm: this.jetzt() + ANMELDUNG_GUELTIG_MS }
+    this.letzteAnmeldung = { anmeldungId, token, code, email: adresse }
+    this.sichere()
+    return { anmeldungId }
+  }
+
+  /** `POST /auth/anmeldung/bestaetigen` per Token oder Id plus Code; jede Ablehnung 422 (9.3). */
+  bestaetige(anfrage: BestaetigenAnfrage): BestaetigenAntwort {
+    const anmeldungen = (this.daten.anmeldungen ??= {})
+    const ungueltig = () => {
+      this.sichere()
+      return new FakeFehler(422, 'AnmeldungUngueltig')
+    }
+    let id: string | undefined
+    if (anfrage.token) {
+      id = Object.keys(anmeldungen).find((k) => anmeldungen[k]!.token === anfrage.token)
+    } else if (anfrage.anmeldungId && anfrage.code !== undefined) {
+      const offen = anmeldungen[anfrage.anmeldungId]
+      if (offen && offen.code !== anfrage.code) {
+        offen.fehlversuche += 1
+        if (offen.fehlversuche >= ANMELDUNG_FEHLVERSUCHE) delete anmeldungen[anfrage.anmeldungId]
+        throw ungueltig()
+      }
+      if (offen) id = anfrage.anmeldungId
+    }
+    const a = id !== undefined ? anmeldungen[id] : undefined
+    if (id === undefined || !a) throw ungueltig()
+    delete anmeldungen[id]
+    if (a.laeuftAbAm <= this.jetzt()) throw ungueltig()
+
+    const neu = this.daten.email !== a.email
+    if (neu) this.legeKontoAn(a.email)
+    this.daten.gast = false
+    // Beim Anmelden wird eine Gast-Partie verworfen (8.8).
+    for (const [pid, p] of Object.entries(this.daten.partien)) if (p.gast) delete this.daten.partien[pid]
+    this.sichere()
+    return { spieler: this.spieler(), neu }
+  }
+
+  /** `POST /auth/abmelden` */
+  meldeAb(): void {
+    this.daten.gast = true
+    this.sichere()
+  }
+
+  /** `DELETE /konto`: alles zum Konto hart loeschen, dann abmelden (9.7). */
+  loescheKonto(): void {
+    if (this.daten.gast) throw new FakeFehler(401, null)
+    for (const [pid, p] of Object.entries(this.daten.partien)) if (!p.gast) delete this.daten.partien[pid]
+    this.daten.email = null
+    this.daten.elo = 800
+    this.daten.gast = true
+    this.sichere()
+  }
+
+  /** `GET /konto/export` (9.3, 12.4). */
+  export(): KontoExportDto {
+    if (this.daten.gast) throw new FakeFehler(401, null)
+    const partien = Object.values(this.daten.partien).filter((p) => !p.gast)
+    return {
+      konto: {
+        id: 'fake-spieler',
+        email: this.daten.email ?? FAKE_EMAIL,
+        erstelltAm: iso(this.daten.kontoErstelltAm ?? 0),
+        zuletztAngemeldetAm: null,
+      },
+      elo: this.daten.elo,
+      bilanz: FAKE_GEGNER.map((g) => ({ gegnerKey: g.key, ...this.bilanz(g.key) })),
+      partien: partien.map((p) => {
+        const z = this.zustand(p)
+        return {
+          id: p.id,
+          gegnerKey: p.gegner.key,
+          spielerFarbe: p.spielerFarbe,
+          bedenkzeit: p.bedenkzeit,
+          status: p.status,
+          ergebnis: p.ergebnis,
+          grund: p.grund,
+          erstelltAm: iso(p.erstelltAm ?? 0),
+          beendetAm: p.beendetAm ? iso(p.beendetAm) : null,
+          zaehltFuerElo: p.zaehltFuerElo,
+          eloVorher: p.eloVorher,
+          eloNachher: p.eloNachher,
+          pgn: z.pgn,
+          sprueche: z.sprueche,
+        }
+      }),
+    }
+  }
+
   // --- intern ---
+
+  private naechsteNummer(): number {
+    this.daten.zaehler = (this.daten.zaehler ?? 0) + 1
+    return this.daten.zaehler
+  }
+
+  private spieler(): SpielerDto {
+    return { id: 'fake-spieler', email: this.daten.email ?? FAKE_EMAIL, elo: this.daten.elo }
+  }
+
+  private legeKontoAn(email: string): void {
+    for (const [pid, p] of Object.entries(this.daten.partien)) if (!p.gast) delete this.daten.partien[pid]
+    this.daten.email = email
+    this.daten.elo = 800
+    this.daten.kontoErstelltAm = this.jetzt()
+  }
+
+  private offenePartie(): FakePartie | undefined {
+    return Object.values(this.daten.partien).find((p) => !p.gast && p.status === 'Offen')
+  }
+
+  private beendetePartien(): FakePartie[] {
+    // Neueste zuerst; bei gleicher Zeit gewinnt die spaeter angelegte (Einfuegereihenfolge).
+    return Object.values(this.daten.partien)
+      .map((p, i) => ({ p, i }))
+      .filter(({ p }) => !p.gast && p.status === 'Beendet')
+      .sort((a, b) => (b.p.beendetAm ?? 0) - (a.p.beendetAm ?? 0) || b.i - a.i)
+      .map(({ p }) => p)
+  }
+
+  private bilanz(gegnerKey: string): BilanzDto {
+    const b: BilanzDto = { siege: 0, remis: 0, niederlagen: 0, besiegtAm: null }
+    for (const p of this.beendetePartien().reverse()) {
+      if (p.gegner.key !== gegnerKey || p.ergebnis === null) continue
+      if (p.ergebnis === 'Remis') b.remis += 1
+      else if ((p.ergebnis === 'WeissGewinnt') === (p.spielerFarbe === 'Weiss')) {
+        b.siege += 1
+        // Besiegt nur nach einem Sieg, der fuer die Elo zaehlt (3.8).
+        if (p.zaehltFuerElo && b.besiegtAm === null) b.besiegtAm = iso(p.beendetAm ?? 0)
+      } else b.niederlagen += 1
+    }
+    return b
+  }
 
   private offen(id: string, anfrage: HalbzugAnfrage): FakePartie {
     const p = this.hole(id)
@@ -416,6 +654,7 @@ export class FakeServer {
     p.ergebnis = ergebnis
     p.grund = grund
     p.amZugSeit = null
+    p.beendetAm = this.jetzt()
     const spielerGewinnt =
       (ergebnis === 'WeissGewinnt' && p.spielerFarbe === 'Weiss') ||
       (ergebnis === 'SchwarzGewinnt' && p.spielerFarbe === 'Schwarz')
@@ -496,7 +735,7 @@ export class FakeServer {
     } catch {
       // kaputter Stand: neu anfangen
     }
-    return { gast: false, elo: 800, partien: {} }
+    return { gast: false, elo: 800, partien: {}, email: FAKE_EMAIL, kontoErstelltAm: this.jetzt() }
   }
 
   private sichere(): void {

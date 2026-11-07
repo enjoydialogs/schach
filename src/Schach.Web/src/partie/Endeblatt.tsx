@@ -2,7 +2,7 @@ import { X } from 'lucide-react'
 import { Link } from 'react-router'
 import type { SpruchDto, ZustandDto } from '../api/types'
 import { t } from '../i18n/de'
-import { BottomSheet } from './Blatt'
+import { BottomSheet } from '../components/BottomSheet'
 import { eloZeile, erklaerung, grundLabel, sichtAuf, titel } from './erklaerung'
 
 /**
