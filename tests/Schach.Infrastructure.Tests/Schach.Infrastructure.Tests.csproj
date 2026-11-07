@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Schach.Infrastructure\Schach.Infrastructure.csproj" />
+    <!-- Schach.slnx ist eingefroren (SCHACH-SPEC 15.1 Regel 4): die CI baut und testet das Werkzeug ueber diese Referenz. -->
+    <ProjectReference Include="..\..\tools\Schach.SpruchProbe\Schach.SpruchProbe.csproj" />
   </ItemGroup>
 
   <ItemGroup>
