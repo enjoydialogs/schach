@@ -25,6 +25,16 @@ Engine-Dienst für Schach (SCHACH-SPEC 5.2): Maia-3 für menschliche Kandidatenz
 - Build-ARG `SF_ARCH` (Standard `x86-64-avx2`, auch `x86-64-avx512`). Stockfish 19 erkennt die CPU zur Laufzeit selbst; `SF_ARCH` wählt das Fairy-Stockfish-Build (beide Werte: bmi2).
 - Beide laufen als eigene Prozesse über UCI und werden nicht gelinkt. Die Quellen liegen unter den genannten Tags.
 
+## Weitergabe des Images
+
+Das Image `ghcr.io/enjoydialogs/schach-engine` ist öffentlich ([ADR 0002](../docs/adr/0002-ghcr-pakete-oeffentlich.md)). Wer es zieht, bekommt damit Objektcode von Stockfish 19 und Fairy-Stockfish 14. Das ist eine Weitergabe nach GPL-3.0 § 6.
+
+- Lizenztext und Hinweise liegen im Image unter `/usr/share/doc/schach-engine/`: `COPYING` (GPL-3.0, `Copying.txt` aus dem Stockfish-Archiv) und `NOTICES.md` (Tags, Download-URLs, sha256, Maia-3-Commit, PyTorch-Version, Quelle dieses Dienstes). `docker/hole_binaries.py` schreibt beide beim Bauen; der Build bricht ab, wenn eine fehlt.
+- Corresponding Source der Binaries sind die Upstream-Tags: [`sf_19`](https://github.com/official-stockfish/Stockfish/tree/sf_19) und [`fairy_sf_14`](https://github.com/fairy-stockfish/Fairy-Stockfish/tree/fairy_sf_14). Die Binaries sind unverändert.
+- Der Quellcode dieses Dienstes ist dieses Verzeichnis zu dem Commit, den das Image-Label `org.opencontainers.image.revision` nennt (auch in `NOTICES.md`). Lizenz: AGPL-3.0-or-later (`/app/LICENSE` im Image).
+- Image-Labels: `org.opencontainers.image.licenses=AGPL-3.0-or-later AND GPL-3.0-or-later`, `documentation` zeigt auf diese Datei.
+- Pflicht nach GPL-3.0 § 6(d): Die Quellen müssen erreichbar bleiben, solange ein Image mit diesen Binaries im Register liegt. Fallen die Upstream-Tags weg, legt der Betreiber eine Kopie der Quellen neben die Images oder löscht die betroffenen Tags.
+
 ## Betrieb
 
 | Env | Vorgabe | Bedeutung |

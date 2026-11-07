@@ -33,3 +33,6 @@ Diese Datei ist ein Append-Register (SCHACH-SPEC 15.1 Regel 5): Einträge nur an
 | PyTorch 2.15.0 (CPU) | BSD-3-Clause | https://github.com/pytorch/pytorch | Maia-3-Inferenz im Engine-Image (ab S4a) |
 | Stockfish 19 (Binary) | GPL-3.0 | https://github.com/official-stockfish/Stockfish, Tag `sf_19` | Release-Binary im Engine-Image, sha256 gepinnt (ab S4a) |
 | Fairy-Stockfish 14 (Binary) | GPL-3.0 | https://github.com/fairy-stockfish/Fairy-Stockfish, Tag `fairy_sf_14` | Release-Binary im Engine-Image, sha256 gepinnt (ab S4a) |
+| Maia-3 (Code), Commit `1e13597c42d4858b7cfd7cfdae01e297263364b2` | AGPL-3.0 | https://github.com/CSSLab/maia3/tree/1e13597c42d4858b7cfd7cfdae01e297263364b2 | geänderter Auszug in `engine/src/schach_engine/maia3/` (ab S4a) |
+
+Weitergabe im öffentlichen Engine-Image (ADR 0002): Corresponding Source der Binaries sind die Upstream-Tags https://github.com/official-stockfish/Stockfish/tree/sf_19 und https://github.com/fairy-stockfish/Fairy-Stockfish/tree/fairy_sf_14. GPL-Text, sha256 und Quellen liegen im Image unter `/usr/share/doc/schach-engine/` (`COPYING`, `NOTICES.md`).
