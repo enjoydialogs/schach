@@ -13,7 +13,7 @@ Herkunft der Aussagen: **Extern** = Primärquelle (Repo, npm, NuGet, Lizenzdatei
    - Wenn die Lizenz frei bleiben soll (z. B. MIT): **react-chessboard** (MIT, passt zu React wie in Kronrat) oder **cm-chessboard** (MIT, ohne Framework).
 2. **Regeln:** Der Server ist die Autorität. In .NET ist **Gera.Chess** (MIT) der einzige gepflegte, brauchbare Kandidat. Im Frontend **chess.js** (BSD-2-Clause) für Anzeige, PGN und Nachspielen. Alternative für identische Regeln: chess.js im .NET-Server über **Jint** ausführen (Abgeleitet, nicht getestet).
 3. **Figuren:** **Cburnett-Satz** von Wikimedia Commons. Alle 12 Dateien sind auch unter **BSD-3-Clause** wählbar, also ohne Share-Alike. Achtung: Der Standardsatz von cm-chessboard (`staunty`) ist **CC BY-NC-SA 4.0** (nicht kommerziell) und muss ersetzt werden.
-4. **Offen für die Spec:** Remis-Regeln. chess.js beendet die Partie automatisch bei dreifacher Wiederholung und 50 Zügen; nach FIDE sind das nur Antragsremis. Beide Seiten brauchen dieselbe Festlegung.
+4. **Offen für die Spec:** Remis-Regeln. chess.js meldet dreifache Wiederholung und 50 Züge über `isDraw()`/`isGameOver()`; nach FIDE sind das nur Antragsremis, automatisch erst fünffache Wiederholung und 75 Züge. Keine der beiden Bibliotheken erkennt fünffach/75 von sich aus, und die Wiederholungs-Erkennung von Gera.Chess ist lückenhaft. Der Server muss Wiederholung und Remis-Regeln selbst festlegen.
 
 ## 1. Brett-UI im Browser
 
@@ -72,19 +72,26 @@ isDraw(): boolean {
 }
 isGameOver(): boolean { return this.isCheckmate() || this.isDraw() }
 ```
-chess.js wertet also dreifache Wiederholung und 50-Züge-Regel als sofortiges Partie-Ende. Nach den FIDE-Regeln sind das Antragsremis; automatisch sind erst fünffache Wiederholung und 75 Züge. Die gerenderte Doku beschreibt `isDraw()` enger als der Quelltext; maßgeblich ist der Quelltext.
+chess.js **meldet** also dreifache Wiederholung und 50-Züge-Regel als Remis. chess.js ist ohne Oberfläche: `move()` verweigert danach keine Züge (Extern, `move()` in `src/chess.ts` prüft `isGameOver()` nicht), die App entscheidet, welche Prädikate die Partie beenden. Fünffache Wiederholung und 75 Züge erkennt chess.js nicht; das ließe sich aus `history()` und dem Halbzugzähler im FEN berechnen (Abgeleitet). Die gerenderte Doku beschreibt `isDraw()` enger als der Quelltext; maßgeblich ist der Quelltext.
+
+Nach den [FIDE-Regeln (gültig ab 2023-01-01)](https://handbook.fide.com/chapter/E012023) sind dreifache Wiederholung (Art. 9.2) und 50 Züge (Art. 9.3) Antragsremis; automatisch remis sind fünffache Wiederholung und 75 Züge (Art. 9.6).
 
 ### .NET
 
 | Kandidat (NuGet) | Lizenz | Stand | Bewertung |
 |---|---|---|---|
-| **Gera.Chess** 1.2.0 | MIT | NuGet 2025-02-10, net8.0; Repo-Push 2026-09-15 (Version 1.3.0 im Repo, nicht auf NuGet) | Zuggenerierung und -prüfung, SAN, FEN, PGN, Matt, Patt, optionale Endspielregeln `AutoEndgameRules` (InsufficientMaterial, FiftyMoveRule, Repetition), Zurücknehmen. Unit-Tests vorhanden, aber **keine Perft-Tests** gefunden. |
+| **Gera.Chess** 1.2.0 | MIT | NuGet 2025-02-10, net8.0; Repo-Push 2026-09-15 (Version 1.3.0 im Repo, nicht auf NuGet) | Zuggenerierung und -prüfung, SAN, FEN, PGN, Matt, Patt, optionale Endspielregeln `AutoEndgameRules` (InsufficientMaterial, FiftyMoveRule, Repetition), Zurücknehmen. Unit-Tests vorhanden, aber **keine Perft-Tests** gefunden. **Wiederholung lückenhaft** (siehe unten). |
 | ChessDotNet 1.0.0 | MIT | README: "I don't intend to continue maintaining this project" | Nicht gepflegt, Wiederholung lange nur "geplant". Ausscheiden. |
 | pax.chess 0.7.0 | AGPL-3.0-or-later | 2026-06-08, net10.0 | AGPL zwingt das ganze Backend unter AGPL. Nur wenn das gewollt ist. |
 | Rudzoft.ChessLib 0.0.3 | MIT | NuGet 2022-10-15 (Repo aktiv 2026-09) | Engine-orientiert (Bitboards, Perft), aber NuGet-Paket uralt; PGN und Remis-Regeln nicht im README. Eher für eigene Engine. |
 | ChessDotNetCore 1.6.0 | **keine Lizenz** | 2024-05-16 | Ohne Lizenz nicht nutzbar. |
 
 Quellen (Extern): [Gera.Chess Repo](https://github.com/Geras1mleo/Chess), [Gera.Chess LICENSE.md](https://github.com/Geras1mleo/Chess/blob/master/LICENSE.md), [NuGet Gera.Chess](https://www.nuget.org/packages/Gera.Chess/), [Chess.NET README](https://github.com/thomas-daniels/Chess.NET), [pax.chess](https://github.com/ipax77/pax.chess), [Rudzoft.ChessLib](https://github.com/rudzen/ChessLib), [ChessDotNetCore](https://github.com/lrepaty/ChessDotNetCore). NuGet-Daten über die NuGet-Registrierungs-API.
+
+**Gera.Chess-Endspielregeln im Quelltext (Extern):**
+- [`FiftyMoveRule.cs`](https://github.com/Geras1mleo/Chess/blob/master/ChessLibrary/ChessBoard/EndGameTypes/FiftyMoveRule.cs): `MAX_HALF_MOVE_CLOCK = 100`, also 50 Züge. Keine 75-Züge-Regel.
+- [`RepetitionRule.cs`](https://github.com/Geras1mleo/Chess/blob/master/ChessLibrary/ChessBoard/EndGameTypes/RepetitionRule.cs): vergleicht nur die Stellungen vor 0, 4 und 8 Halbzügen und nur, wenn die letzten 8 Halbzüge umkehrbar waren. Das erkennt Hin-und-her-Wiederholung, aber keine allgemeine dreifache Wiederholung mit dazwischenliegenden anderen Zügen (Abgeleitet aus dem Code). Keine fünffache Wiederholung. Offenes Issue [#31 "Repetition rule optimisation"](https://github.com/Geras1mleo/Chess/issues/31).
+- Folge: Wiederholung im Server selbst zählen, z. B. über die ersten vier FEN-Felder je Stellung (Abgeleitet). `AutoEndgameRules` dann ohne `Repetition` setzen.
 
 ### Gleiche Regeln auf beiden Seiten?
 
@@ -96,7 +103,7 @@ Zwei verschiedene Bibliotheken können in Randfällen abweichen (Rochade-Rechte 
 
 Hinweis: Die Engine auf dem VPS (UCI) prüft keine Züge; sie braucht trotzdem eine Regelbibliothek davor (Abgeleitet).
 
-Empfehlung: **A plus B** (Gera.Chess autoritativ, erlaubte Züge vom Server, chess.js für PGN und Nachspielen, gemeinsame Test-Stellungen). C als Fallback, falls Gera.Chess in den Tests Fehler zeigt.
+Empfehlung: **A plus B** (Gera.Chess autoritativ, Wiederholung im Server selbst gezählt, erlaubte Züge vom Server, chess.js für PGN und Nachspielen, gemeinsame Test-Stellungen). C als Fallback, falls Gera.Chess in den Tests Fehler zeigt.
 
 ## 3. Figurensatz (SVG, schlicht)
 
@@ -114,14 +121,15 @@ Quellen (Extern): [Commons Chess_klt45.svg](https://commons.wikimedia.org/wiki/F
 
 Hinweise:
 - **Cburnett unter BSD-3-Clause** ist die einfachste Wahl: Hinweis auf Urheber und Lizenztext behalten, kein Share-Alike, verträglich mit MIT und GPL. react-chessboard bringt Cburnett schon mit (`src/pieces.tsx`, dort als CC BY-SA 3.0 vermerkt), chessground ebenso (`assets/chessground.cburnett.css`). lichess führt Cburnett als GPLv2+; das ist eine der vier Optionen, kein Widerspruch.
-- cm-chessboard nennt im Kopf von `standard.svg` zusätzlich den Autor **Rfc1394**. Bei Nutzung dieser Datei beide Namen nennen.
+- Die **BSD-Option gilt für Cburnetts Originaldateien auf Commons.** Die gebündelten Kopien in react-chessboard und cm-chessboard sind bearbeitet und tragen eigene Hinweise (CC BY-SA 3.0). Für BSD die SVGs direkt von Commons nehmen; sonst dem Hinweis der jeweiligen Kopie folgen.
+- cm-chessboard nennt im Kopf von `standard.svg` zusätzlich den Autor **Rfc1394** und die Bearbeitung durch shaack. Bei Nutzung dieser Datei alle nennen.
 - Die lichess-Sätze außer Cburnett sind **nur nach lichess-Angabe** erfasst, Upstream-Lizenzen nicht geprüft. Vor Nutzung die Original-Repos prüfen.
 - **NC-Sätze meiden** (staunty, california, cardinal usw.): "NonCommercial" ist rechtlich unscharf und blockiert spätere Werbung oder Bezahlfunktionen.
 - Für "wenige Farben": Cburnett lässt sich per CSS/SVG-`fill` umfärben (Abgeleitet). Geänderte Dateien bei CC BY-SA als geändert kennzeichnen; unter BSD reicht der Hinweis.
 
 ## 4. Lizenz-Verträglichkeit mit einem öffentlichen Repo
 
-- **Ohne Lizenzdatei** ist ein öffentliches Repo "alle Rechte vorbehalten" (Abgeleitet aus Urheberrecht). Das ist mit allen Kandidaten vereinbar, solange deren Hinweise mitgeliefert werden, aber unüblich. Eine Lizenzwahl gehört in die Spec.
+- **Ohne Lizenzdatei** ist ein öffentliches Repo "alle Rechte vorbehalten" (Abgeleitet aus Urheberrecht). Das verträgt sich **nur mit den freizügigen Kandidaten** (MIT, BSD, Apache, CC0), deren Hinweise mitgeliefert werden. **chessground oder chessops gehen erst, wenn das Frontend unter GPL-3.0 steht**; ein Hinweis-File allein reicht dafür nicht. Eine Lizenzwahl gehört in die Spec.
 - **MIT, BSD-2/3, Apache-2.0, CC0:** mit jeder Repo-Lizenz verträglich. Pflicht: Copyright- und Lizenzhinweis mitliefern (z. B. `THIRD-PARTY-NOTICES.md` und im Impressum/Über-Bereich der App).
 - **GPL-3.0 (chessground, chessops):** Das Frontend, das sie bündelt, muss unter GPL-3.0 verbreitet werden; Quellcode ist öffentlich, das erfüllt die Herausgabepflicht. Backend über API getrennt ist davon nicht berührt (Abgeleitet, übliche Auslegung; keine Rechtsberatung).
 - **AGPL-3.0 (pax.chess):** würde das Backend erfassen, weil es übers Netz genutzt wird. Meiden, wenn das Backend nicht AGPL werden soll.
@@ -133,6 +141,6 @@ Hinweise:
 
 1. **Repo-Lizenz:** MIT (Bibliotheken: react-chessboard oder cm-chessboard) oder GPL-3.0 (chessground möglich).
 2. **Brett:** nach Lizenz und kurzem Test auf dem Pixel 7 festlegen.
-3. **Remis-Regeln:** automatisch bei dreifacher Wiederholung und 50 Zügen (wie chess.js) oder FIDE-nah (Antrag, automatisch erst bei fünffacher Wiederholung und 75 Zügen). Gera.Chess ist über `AutoEndgameRules` einstellbar; chess.js nicht.
+3. **Remis-Regeln:** automatisch bei dreifacher Wiederholung und 50 Zügen (einfach für Anfänger) oder FIDE-nah (Antrag, automatisch erst bei fünffacher Wiederholung und 75 Zügen). Keine der beiden Bibliotheken liefert fünffach/75 fertig; Gera.Chess erkennt Wiederholung nur teilweise. Der Server legt das Ergebnis fest; bei Option B betrifft die Frontend-Logik nur die Anzeige.
 4. **Regel-Architektur:** Option A plus B wie oben, mit gemeinsamer Testsuite aus FEN-Stellungen.
 5. **Gera.Chess-Version:** NuGet 1.2.0 gegen Repo 1.3.x klären; falls nötig aus dem Repo bauen oder auf Release warten.
