@@ -748,7 +748,7 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 
 | Palette (`id`) | Grund `--bg` | Brett hell / dunkel | Akzent `--accent` |
 |---|---|---|---|
-| Lila (`lila`, Standard, „Sorbet“) | `#F4F2FB` Fliedernebel | `#EEE9FB` / `#A898D8` | `#1E7A62` Minze |
+| Lila (`lila`, Standard, „Sorbet“) | `#F4F2FB` Fliedernebel | `#EEE9FB` / `#A898D8` | `#1C715B` Minze |
 | Pink (`pink`) | `#FCF1F6` Rosenebel | `#FBE6EF` / `#E09CBA` | `#1B6A7E` Petrol |
 | Grün (`gruen`) | `#EFF7F2` Minznebel | `#E4F3EA` / `#8EC6A7` | `#6A45B0` Violett |
 | Blau (`blau`) | `#F0F4FB` Himmelnebel | `#E6EEFA` / `#94AFDE` | `#A3336B` Beere |
@@ -767,7 +767,7 @@ Die folgende Tabelle zeigt die Standardpalette Lila.
 | `--text` | `#26222F` |
 | `--text-muted` | `#67617A` |
 | `--border` | `#DDD8EA` |
-| `--accent` | `#1E7A62` |
+| `--accent` | `#1C715B` |
 | `--accent-tint` | `#DDF4EA` |
 | `--warning` | `#E9A23B` |
 | `--warning-tint` | `#FFF0D9` |

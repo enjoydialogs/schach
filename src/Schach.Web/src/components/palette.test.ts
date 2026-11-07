@@ -50,7 +50,23 @@ function kontrast(a: string, b: string): number {
 
 /** Glas: Weiss mit Deckkraft 0,72 ueber dem Grund. */
 function glas(grund: string): string {
-  return '#' + rgb(grund).map((v) => Math.round(255 * 0.72 + v * 0.28).toString(16).padStart(2, '0')).join('')
+  return mische('#ffffff', 0.72, grund)
+}
+
+/**
+ * Abgeleitete Flaeche `variable` (`color-mix(in srgb, var(--x) N%, transparent)` in palette.css)
+ * ueber `hinten`. Liest Quelle und Anteil aus dem CSS, damit der Test einer Aenderung dort folgt.
+ */
+function flaeche(variable: string, w: (name: string) => string, hinten: string): string {
+  const treffer = css.match(new RegExp(`${variable}:\\s*color-mix\\(in srgb, var\\((--[\\w-]+)\\) (\\d+)%, transparent\\)`))
+  if (!treffer) throw new Error(`${variable} ist kein color-mix mit transparent`)
+  return mische(w(treffer[1]!), Number(treffer[2]) / 100, hinten)
+}
+
+/** `vorne` mit Deckkraft `anteil` ueber `hinten` (wie color-mix mit transparent). */
+function mische(vorne: string, anteil: number, hinten: string): string {
+  const h = rgb(hinten)
+  return '#' + rgb(vorne).map((v, i) => Math.round(v * anteil + h[i]! * (1 - anteil)).toString(16).padStart(2, '0')).join('')
 }
 
 describe('Palette', () => {
@@ -106,6 +122,15 @@ describe('Palette', () => {
       ['Avatar Vereinsspieler', weiss, w('--avatar-vereinsspieler')],
       ['Avatar Turnierspieler', weiss, w('--avatar-turnierspieler')],
       ['Avatar Meister', weiss, w('--avatar-meister')],
+      // Phase 4 (#41): Paare, die bisher fehlten
+      ['Akzent auf Hover-Tint ueber Grund', w('--accent'), flaeche('--glass-tint', w, w('--bg'))],
+      ['Gefahr auf Grund', w('--danger'), w('--bg')],
+      ['Gefahr auf Glas', w('--danger'), glas(w('--bg'))],
+      ['Knopftext auf Gefahr', weiss, w('--danger')],
+      ['Warntext auf Warn-Tint', w('--warning-text'), w('--warning-tint')],
+      ['Warntext auf Grund', w('--warning-text'), w('--bg')],
+      ['Gesperrt auf Gesperrt-Flaeche', w('--text-muted'), flaeche('--disabled-bg', w, glas(w('--bg')))],
+      ['Weiss auf dunklem Glas', weiss, flaeche('--glass-dark', w, w('--bg'))],
     ]
     for (const [name, vorne, hinten] of paare) {
       expect({ name, kontrast: kontrast(vorne, hinten) >= 4.5 }).toEqual({ name, kontrast: true })
