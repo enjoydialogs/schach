@@ -63,8 +63,27 @@ internal sealed class FakeEngine : IEngineClient
         }
     }
 
-    public Task<EngineAnalyseResponse> AnalyseAsync(EngineAnalyseRequest request, CancellationToken cancellationToken = default) =>
-        throw new EngineNichtVerfuegbarException("Fake: keine Analyse.");
+    /// <summary>S1d: Bewertung fuer <c>/analyse</c> in Centipawns aus Sicht der Seite am Zug; <c>null</c> heisst 503.</summary>
+    public int? AnalyseCp { get; set; } = 0;
+
+    public int AnalyseAufrufe { get; private set; }
+
+    /// <summary>Stockfish-Ersatz: bestmove ist der erste erlaubte Zug (ordinal), Bewertung <see cref="AnalyseCp"/>.</summary>
+    public Task<EngineAnalyseResponse> AnalyseAsync(EngineAnalyseRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        lock (_sperre)
+        {
+            AnalyseAufrufe++;
+            if (Modus == FakeEngineModus.Ausfall || AnalyseCp is not { } cp)
+            {
+                throw new EngineNichtVerfuegbarException("Fake: keine Analyse.");
+            }
+
+            var best = Stellung.AusFen(request.Fen).Ziehe(request.Moves).ErlaubteZuege()[0];
+            return Task.FromResult(new EngineAnalyseResponse(best, [new EngineAnalyseZeile(best, cp, null, new EngineWdl(0.4, 0.3, 0.3))]));
+        }
+    }
 
     public Task<bool> IsHealthyAsync(CancellationToken cancellationToken = default) => Task.FromResult(Modus != FakeEngineModus.Ausfall);
 }

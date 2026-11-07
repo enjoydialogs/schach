@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Schach.Application.Abstractions;
 using Schach.Application.Limits;
+using Schach.Application.Sprueche;
 using Schach.Domain;
 using Schach.Domain.Entitaeten;
 using Schach.Domain.Stil;
@@ -27,17 +28,27 @@ public enum PartieFehler
     ZuruecknehmenNichtErlaubt,
     TageslimitErreicht,
     GeradeVielLos,
+    RemisAngebotGesperrt,
+    TippNichtErlaubt,
+    TippNichtVerfuegbar,
 }
 
 /// <summary>Ergebnis eines Partie-Use-Cases: eine <see cref="Sicht"/>, ein <see cref="Fehler"/> oder beides
 /// (409 mit Zustand).</summary>
-public sealed record PartieErgebnis(PartieSicht? Sicht, PartieFehler? Fehler = null, Guid? OffenePartieId = null)
+/// <param name="Tipp">Nur bei <c>POST /partien/{id}/tipp</c>.</param>
+/// <param name="Remis">Nur bei <c>POST /partien/{id}/remis-angebot</c>: wie der Gegner geantwortet hat.</param>
+public sealed record PartieErgebnis(
+    PartieSicht? Sicht, PartieFehler? Fehler = null, Guid? OffenePartieId = null, Tippzug? Tipp = null, RemisAntwort? Remis = null)
 {
     public static PartieErgebnis Abgelehnt(PartieFehler fehler, PartieSicht? sicht = null) => new(sicht, fehler);
 }
 
 /// <summary>Ein Gegner mit der Bilanz des Spielers; <c>null</c> fuer Gaeste.</summary>
 public sealed record GegnerMitBilanz(Gegner Gegner, Bilanz? Bilanz);
+
+/// <summary>Eine Seite der Partienliste (SCHACH-SPEC 8.3, 10.7), neueste zuerst.</summary>
+/// <param name="Weitere">Es gibt aeltere beendete Partien.</param>
+public sealed record PartienSeite(IReadOnlyList<Partie> Partien, bool Weitere);
 
 /// <summary>
 /// Partie-Kern ueber die Datenbank (SCHACH-SPEC 3.1 bis 3.3, 8.8, 8.10, 8.11). Zwei Transaktionen je Zug:
@@ -48,9 +59,29 @@ public sealed record GegnerMitBilanz(Gegner Gegner, Bilanz? Bilanz);
 /// </summary>
 /// <param name="spielerId">In allen Methoden: angemeldeter Spieler oder <c>null</c> fuer Gaeste. Eine
 /// Spieler-Partie sieht nur ihr Besitzer; eine Gast-Partie jeder, der die Id kennt.</param>
-public sealed class PartieDienst(IAppDbContext db, IEngineClient engine, IPartieStartLimits limits, TimeProvider zeit)
+public sealed class PartieDienst(
+    IAppDbContext db,
+    IEngineClient engine,
+    IPartieStartLimits limits,
+    SpruchDienst sprueche,
+    SpruchOptions spruchOptionen,
+    TippCache tippCache,
+    TippOptions tippOptionen,
+    TimeProvider zeit)
 {
-    /// <summary><c>POST /partien</c>. Spielt der Gegner Weiss, enthaelt die Sicht seinen ersten Zug.</summary>
+    /// <summary>Hoechstzahl je Seite der Partienliste.</summary>
+    public const int ListeMax = 50;
+
+    /// <summary>Uhr der Spielerseite abgelaufen (SCHACH-SPEC 8.7). Die Gegnerseite laeuft nie ab: bei
+    /// Engine-Ausfall wird ihr nur D belastet, und D ist auf 10 % ihrer Restzeit gedeckelt.</summary>
+    public static bool UhrAbgelaufen(Partie partie, TimeProvider zeit)
+    {
+        ArgumentNullException.ThrowIfNull(partie);
+        return partie.SpielerAmZug() && partie.Uhr() is { } uhr && uhr.IstAbgelaufen(zeit);
+    }
+
+    /// <summary><c>POST /partien</c>. Spielt der Gegner Weiss, enthaelt die Sicht seinen ersten Zug.
+    /// Der <c>Partiebeginn</c>-Spruch (nur Ersatz, SCHACH-SPEC 6.1) kommt in derselben Transaktion.</summary>
     /// <param name="farbe"><c>null</c> heisst Zufall.</param>
     public async Task<PartieErgebnis> StartenAsync(
         Guid? spielerId, string gegnerId, Farbe? farbe, Bedenkzeit bedenkzeit, CancellationToken ct = default)
@@ -86,6 +117,9 @@ public sealed class PartieDienst(IAppDbContext db, IEngineClient engine, IPartie
             partie.LetzterVersuchAm = zeit.GetUtcNow();
         }
 
+        var beginn = await sprueche.ErzeugeAsync(
+            Spruchbau.Anfrage(partie, [], [], SpruchEreignis.Partiebeginn, 0, null, nurErsatz: true), ct);
+
         try
         {
             await db.RunInTransactionAsync(
@@ -93,6 +127,7 @@ public sealed class PartieDienst(IAppDbContext db, IEngineClient engine, IPartie
                 {
                     Leeren();
                     db.Set<Partie>().Add(partie);
+                    db.Set<Spruch>().Add(Kopie(beginn));
                     await db.SaveChangesAsync(t);
                     return 0;
                 },
@@ -107,33 +142,80 @@ public sealed class PartieDienst(IAppDbContext db, IEngineClient engine, IPartie
                 : throw new InvalidOperationException("Partie konnte nicht angelegt werden.");
         }
 
-        var sicht = new PartieSicht(partie, [], [], null);
-        return new PartieErgebnis(partie.GegnerZugAusstehend() ? await GegnerAntwortAsync(sicht, ct) : sicht);
+        var sicht = new PartieSicht(partie, [], [beginn], null);
+        return new PartieErgebnis(partie.GegnerZugAusstehend() ? await GegnerAntwortAsync(sicht, nachAusfall: false, ct) : sicht);
     }
 
-    /// <summary><c>GET /partien/{id}</c>.</summary>
+    /// <summary><c>GET /partien/{id}</c>. Prueft zuerst den Zeitablauf (SCHACH-SPEC 8.7).</summary>
     public async Task<PartieErgebnis> LadenAsync(Guid id, Guid? spielerId, CancellationToken ct = default)
     {
         Leeren();
-        return await SichtAsync(id, spielerId, ct) is { } sicht
+        return await SichtMitZeitablaufAsync(id, spielerId, ct) is { } sicht
             ? new PartieErgebnis(sicht)
             : PartieErgebnis.Abgelehnt(PartieFehler.NichtGefunden);
     }
 
-    /// <summary><c>GET /partien/offen</c>: die offene Partie des Spielers oder <c>null</c>.</summary>
+    /// <summary><c>GET /partien/offen</c>: die offene Partie des Spielers oder <c>null</c>. Ist ihre Uhr
+    /// abgelaufen, kommt sie beendet zurueck.</summary>
     public async Task<PartieSicht?> OffeneAsync(Guid spielerId, CancellationToken ct = default)
     {
         Leeren();
-        return await OffenePartieIdAsync(spielerId, ct) is { } id ? await SichtAsync(id, spielerId, ct) : null;
+        return await OffenePartieIdAsync(spielerId, ct) is { } id ? await SichtMitZeitablaufAsync(id, spielerId, ct) : null;
     }
 
-    /// <summary><c>POST /partien/{id}/zuege</c> (SCHACH-SPEC 8.1, 8.8).</summary>
+    /// <summary><c>GET /partien?limit&amp;vorId</c>: beendete Partien des Spielers, neueste zuerst (Keyset
+    /// ueber <c>(BeendetAm, Id)</c>). <c>null</c>, wenn <paramref name="vorId"/> keine beendete Partie des
+    /// Spielers ist.</summary>
+    public async Task<PartienSeite?> ListeAsync(Guid spielerId, int limit, Guid? vorId, CancellationToken ct = default)
+    {
+        limit = Math.Clamp(limit, 1, ListeMax);
+        var basis = db.Set<Partie>().AsNoTracking()
+            .Where(p => p.SpielerId == spielerId && p.Status == PartieStatus.Beendet && p.BeendetAm != null);
+        var abfrage = basis;
+        var gleichzeitig = 0;
+        if (vorId is { } vor)
+        {
+            var grenze = await basis.Where(p => p.Id == vor).Select(p => p.BeendetAm).FirstOrDefaultAsync(ct);
+            if (grenze is null)
+            {
+                return null;
+            }
+
+            // Gleiche BeendetAm stehen in der SQL-Ordnung zuerst; bis einschliesslich vorId ueberspringen.
+            // So bleibt die Uuid-Ordnung ganz in Postgres.
+            gleichzeitig = await basis.CountAsync(p => p.BeendetAm == grenze, ct);
+            abfrage = basis.Where(p => p.BeendetAm <= grenze);
+        }
+
+        var zeilen = await abfrage
+            .OrderByDescending(p => p.BeendetAm)
+            .ThenByDescending(p => p.Id)
+            .Take(limit + 1 + gleichzeitig)
+            .ToListAsync(ct);
+        if (vorId is { } v)
+        {
+            zeilen = [.. zeilen.Skip(zeilen.FindIndex(p => p.Id == v) + 1)];
+        }
+
+        return new PartienSeite([.. zeilen.Take(limit)], zeilen.Count > limit);
+    }
+
+    /// <summary><c>POST /partien/{id}/zuege</c> (SCHACH-SPEC 8.1, 8.8). Ein Zug nach Ablauf der Uhr ergibt
+    /// <see cref="PartieFehler.UhrAbgelaufen"/>.</summary>
     public async Task<PartieErgebnis> ZugAsync(Guid id, Guid? spielerId, int halbzug, string uci, CancellationToken ct = default)
     {
         PartieErgebnis t1;
+        var gespielt = false;
         try
         {
-            t1 = await db.RunInTransactionAsync(t => SpielerzugAsync(id, spielerId, halbzug, uci, t), ct);
+            t1 = await db.RunInTransactionAsync(
+                async t =>
+                {
+                    var (ergebnis, neu) = await SpielerzugAsync(id, spielerId, halbzug, uci, t);
+                    gespielt = neu;
+                    return ergebnis;
+                },
+                ct);
         }
         catch (DbUpdateException)
         {
@@ -145,89 +227,234 @@ public sealed class PartieDienst(IAppDbContext db, IEngineClient engine, IPartie
             return t1;
         }
 
-        return new PartieErgebnis(sicht.Partie.GegnerZugAusstehend() ? await GegnerAntwortAsync(sicht, ct) : sicht);
+        if (gespielt && sicht.Partie is { Status: PartieStatus.Beendet, Ergebnis: { } erg, Grund: { } grund })
+        {
+            // Partieende durch den Spielerzug: die einzige Ausnahme von „ein Spruch je Gegnerzug“.
+            return new PartieErgebnis(await SpruchNachtragenAsync(
+                sicht, SpruchAuswahl.BeiEnde(erg, sicht.Partie.SpielerFarbe), sicht.Partie.Halbzuege, grund.ToString(), ct));
+        }
+
+        return new PartieErgebnis(sicht.Partie.GegnerZugAusstehend() && sicht.GegnerZug is null
+            ? await GegnerAntwortAsync(sicht, nachAusfall: false, ct)
+            : sicht);
     }
 
-    /// <summary><c>POST /partien/{id}/zuruecknehmen</c> (SCHACH-SPEC 3.3).</summary>
+    /// <summary><c>POST /partien/{id}/zuruecknehmen</c> (SCHACH-SPEC 3.3). Der Gegner darf es kommentieren.</summary>
     public async Task<PartieErgebnis> ZuruecknehmenAsync(Guid id, Guid? spielerId, int halbzug, CancellationToken ct = default)
     {
-        try
-        {
-            return await db.RunInTransactionAsync(
-                async t =>
+        var schonZurueckgenommen = false;
+        var ergebnis = await InTransaktionAsync(
+            id,
+            spielerId,
+            async (sicht, t) =>
+            {
+                if (Vorab(sicht, halbzug) is { } fehler)
                 {
-                    Leeren();
-                    if (await SichtAsync(id, spielerId, t) is not { } sicht)
-                    {
-                        return PartieErgebnis.Abgelehnt(PartieFehler.NichtGefunden);
-                    }
+                    return fehler;
+                }
 
-                    if (Vorab(sicht, halbzug) is { } fehler)
-                    {
-                        return fehler;
-                    }
+                int neu;
+                try
+                {
+                    neu = sicht.Partie.NimmZurueck(sicht.Zugfolge);
+                }
+                catch (ZuruecknehmenNichtErlaubtException)
+                {
+                    return PartieErgebnis.Abgelehnt(PartieFehler.ZuruecknehmenNichtErlaubt, sicht);
+                }
 
-                    int neu;
-                    try
-                    {
-                        neu = sicht.Partie.NimmZurueck(sicht.Zugfolge);
-                    }
-                    catch (ZuruecknehmenNichtErlaubtException)
-                    {
-                        return PartieErgebnis.Abgelehnt(PartieFehler.ZuruecknehmenNichtErlaubt, sicht);
-                    }
+                schonZurueckgenommen = sicht.Sprueche.Any(s => s.Ereignis == SpruchEreignis.Zuruecknahme);
+                sicht.Partie.LetzterVersuchAm = null;
+                db.Set<Zug>().RemoveRange(sicht.Zugfolge.Where(z => z.Halbzug > neu));
+                db.Set<Spruch>().RemoveRange(sicht.Sprueche.Where(s => s.NachHalbzug > neu));
+                await db.SaveChangesAsync(t);
+                return new PartieErgebnis(sicht with
+                {
+                    Zugfolge = [.. sicht.Zugfolge.Where(z => z.Halbzug <= neu)],
+                    Sprueche = [.. sicht.Sprueche.Where(s => s.NachHalbzug <= neu)],
+                });
+            },
+            ct);
 
-                    sicht.Partie.LetzterVersuchAm = null;
-                    db.Set<Zug>().RemoveRange(sicht.Zugfolge.Where(z => z.Halbzug > neu));
-                    db.Set<Spruch>().RemoveRange(sicht.Sprueche.Where(s => s.NachHalbzug > neu));
-                    await db.SaveChangesAsync(t);
-                    return new PartieErgebnis(sicht with
-                    {
-                        Zugfolge = [.. sicht.Zugfolge.Where(z => z.Halbzug <= neu)],
-                        Sprueche = [.. sicht.Sprueche.Where(s => s.NachHalbzug <= neu)],
-                    });
-                },
-                ct);
-        }
-        catch (DbUpdateException)
+        if (ergebnis is not { Fehler: null, Sicht: { } danach })
         {
-            return await VeraltetAsync(id, spielerId, ct);
+            return ergebnis;
         }
+
+        var ereignis = SpruchAuswahl.NachZuruecknahme(
+            danach.Sprueche, danach.Zugfolge, danach.Partie.SpielerFarbe, schonZurueckgenommen, spruchOptionen);
+        return ereignis is { } e
+            ? new PartieErgebnis(await SpruchNachtragenAsync(danach, e, danach.Partie.Halbzuege, null, ct))
+            : ergebnis;
     }
 
     /// <summary><c>POST /partien/{id}/aufgeben</c> (SCHACH-SPEC 3.5): der Gegner gewinnt, Grund Aufgabe.</summary>
     public async Task<PartieErgebnis> AufgebenAsync(Guid id, Guid? spielerId, int halbzug, CancellationToken ct = default)
     {
+        var ergebnis = await InTransaktionAsync(
+            id,
+            spielerId,
+            async (sicht, t) =>
+            {
+                if (Vorab(sicht, halbzug) is { } fehler)
+                {
+                    return fehler;
+                }
+
+                await BeendenAsync(sicht.Partie, Partieende.Sieg(Brettlage.Andere(sicht.Partie.SpielerFarbe), Grund.Aufgabe), t);
+                return new PartieErgebnis(sicht);
+            },
+            ct);
+
+        return ergebnis is { Fehler: null, Sicht: { } s }
+            ? new PartieErgebnis(await SpruchNachtragenAsync(s, SpruchEreignis.Sieg, s.Partie.Halbzuege, nameof(Grund.Aufgabe), ct))
+            : ergebnis;
+    }
+
+    /// <summary>
+    /// <c>POST /partien/{id}/remis-angebot</c> (SCHACH-SPEC 3.5, 11.2). Sperren ohne Engine; ab Zug 20
+    /// bewertet Stockfish (<c>/analyse</c>) aus Sicht des Gegners, bei Ausfall die Materialbilanz.
+    /// Annahme beendet mit Grund Vereinbarung; Ablehnung speichert die Zugnummer und bringt einen
+    /// <c>RemisAbgelehnt</c>-Spruch.
+    /// </summary>
+    public async Task<PartieErgebnis> RemisAngebotAsync(Guid id, Guid? spielerId, int halbzug, CancellationToken ct = default)
+    {
+        var vorab = await InTransaktionAsync(
+            id,
+            spielerId,
+            async (sicht, t) =>
+            {
+                if (Vorab(sicht, halbzug) is { } fehler)
+                {
+                    return fehler;
+                }
+
+                var ohneEngine = Remisangebot.VorEngine(Brettlage.Zugnummer(sicht.Partie.Fen), sicht.Partie.LetztesRemisAngebotBeiZug);
+                return ohneEngine is { } antwort ? await RemisAntwortenAsync(sicht, antwort, t) : new PartieErgebnis(sicht);
+            },
+            ct);
+        if (vorab.Fehler is not null || vorab.Remis is not null || vorab.Sicht is not { } sicht)
+        {
+            return await RemisSpruchAsync(vorab, ct);
+        }
+
+        var partie = sicht.Partie;
+        EngineAnalyseZeile? zeile;
+        try
+        {
+            var analyse = await engine.AnalyseAsync(
+                new EngineAnalyseRequest(partie.Fen, [], tippOptionen.MovetimeMs, 1), ct);
+            zeile = analyse.Lines.Count > 0 ? analyse.Lines[0] : null;
+        }
+        catch (Exception e) when (e is EngineNichtVerfuegbarException or EngineFehlerException)
+        {
+            zeile = null;
+        }
+
+        var gegnerFarbe = Brettlage.Andere(partie.SpielerFarbe);
+        var nachEngine = Remisangebot.NachEngine(zeile, partie.AmZug() == gegnerFarbe, Brettlage.Material(partie.Fen, gegnerFarbe));
+        var ergebnis = await InTransaktionAsync(
+            id,
+            spielerId,
+            async (s, t) =>
+            {
+                if (Vorab(s, halbzug) is { } fehler)
+                {
+                    return fehler;
+                }
+
+                // Ein paralleles Angebot kann inzwischen abgelehnt worden sein.
+                var gesperrt = Remisangebot.VorEngine(Brettlage.Zugnummer(s.Partie.Fen), s.Partie.LetztesRemisAngebotBeiZug);
+                return await RemisAntwortenAsync(s, gesperrt ?? nachEngine, t);
+            },
+            ct);
+        return await RemisSpruchAsync(ergebnis, ct);
+    }
+
+    /// <summary>
+    /// <c>POST /partien/{id}/tipp</c> (SCHACH-SPEC 7.3, 8.3): der beste Zug laut Stockfish, je FEN
+    /// gecacht. Der erste Tipp setzt <c>ZaehltFuerElo = false</c>. Nur ohne Bedenkzeit und am Zug.
+    /// </summary>
+    public async Task<PartieErgebnis> TippAsync(Guid id, Guid? spielerId, int halbzug, CancellationToken ct = default)
+    {
+        var vorab = await InTransaktionAsync(id, spielerId, (sicht, _) => Task.FromResult(TippVorab(sicht, halbzug) ?? new PartieErgebnis(sicht)), ct);
+        if (vorab.Fehler is not null || vorab.Sicht is not { } sicht)
+        {
+            return vorab;
+        }
+
+        var fen = sicht.Partie.Fen;
+        if (!tippCache.Versuche(fen, out var uci))
+        {
+            try
+            {
+                uci = (await engine.AnalyseAsync(new EngineAnalyseRequest(fen, [], tippOptionen.MovetimeMs, 1), ct)).Bestmove;
+            }
+            catch (Exception e) when (e is EngineNichtVerfuegbarException or EngineFehlerException)
+            {
+                return PartieErgebnis.Abgelehnt(PartieFehler.TippNichtVerfuegbar, sicht);
+            }
+
+            if (uci is null || !Stellung.AusFen(fen).ErlaubteZuege().Contains(uci, StringComparer.Ordinal))
+            {
+                return PartieErgebnis.Abgelehnt(PartieFehler.TippNichtVerfuegbar, sicht);
+            }
+
+            tippCache.Merke(fen, uci);
+        }
+
+        var tipp = Tippzug.Aus(fen, uci);
+        if (!sicht.Partie.ZaehltFuerElo)
+        {
+            return new PartieErgebnis(sicht, Tipp: tipp);
+        }
+
+        var ergebnis = await InTransaktionAsync(
+            id,
+            spielerId,
+            async (s, t) =>
+            {
+                if (TippVorab(s, halbzug) is { } fehler)
+                {
+                    return fehler;
+                }
+
+                // Wie eine Zuruecknahme: die Partie zaehlt nicht mehr fuer die Elo (SCHACH-SPEC 3.7).
+                s.Partie.ZaehltFuerElo = false;
+                s.Partie.Version++;
+                await db.SaveChangesAsync(t);
+                return new PartieErgebnis(s);
+            },
+            ct);
+        return ergebnis.Fehler is null ? ergebnis with { Tipp = tipp } : ergebnis;
+    }
+
+    /// <summary>Sweep-Block A und Lazy-Pfad: beendet die Partie, wenn die Uhr des Spielers abgelaufen ist
+    /// (Grund Zeit oder ZeitOhneMattmaterial, Ersatzspruch). <c>null</c>, wenn es sie nicht gibt.</summary>
+    public async Task<PartieSicht?> ZeitablaufAsync(Guid id, Guid? spielerId, CancellationToken ct = default)
+    {
         try
         {
             return await db.RunInTransactionAsync(
                 async t =>
                 {
                     Leeren();
-                    if (await SichtAsync(id, spielerId, t) is not { } sicht)
-                    {
-                        return PartieErgebnis.Abgelehnt(PartieFehler.NichtGefunden);
-                    }
-
-                    if (Vorab(sicht, halbzug) is { } fehler)
-                    {
-                        return fehler;
-                    }
-
-                    var gegnerFarbe = sicht.Partie.SpielerFarbe == Farbe.Weiss ? Farbe.Schwarz : Farbe.Weiss;
-                    await BeendenAsync(sicht.Partie, Partieende.Sieg(gegnerFarbe, Grund.Aufgabe), t);
-                    return new PartieErgebnis(sicht);
+                    return await SichtAsync(id, spielerId, t) is { } sicht
+                        ? await ZeitablaufImTxAsync(sicht, t) ?? sicht
+                        : null;
                 },
                 ct);
         }
         catch (DbUpdateException)
         {
-            return await VeraltetAsync(id, spielerId, ct);
+            // Parallel gezogen oder beendet: der frische Stand gilt.
+            Leeren();
+            return await SichtAsync(id, spielerId, ct);
         }
     }
 
-    /// <summary>Holt einen ausstehenden Gegnerzug nach (Sweep-Block B, S1d). Ohne ausstehenden Zug
-    /// liefert er nur die Sicht.</summary>
+    /// <summary>Holt einen ausstehenden Gegnerzug nach (Sweep-Block B). Belastet wird dem Gegner nur
+    /// seine Denkzeit D (SCHACH-SPEC 8.6). Ohne ausstehenden Zug liefert er nur die Sicht.</summary>
     public async Task<PartieSicht?> GegnerZugNachholenAsync(Guid id, CancellationToken ct = default)
     {
         Leeren();
@@ -237,7 +464,13 @@ public sealed class PartieDienst(IAppDbContext db, IEngineClient engine, IPartie
             return null;
         }
 
-        return sicht.Partie.GegnerZugAusstehend() ? await GegnerAntwortAsync(sicht, ct) : sicht;
+        if (!sicht.Partie.GegnerZugAusstehend())
+        {
+            await db.Set<Partie>().Where(p => p.Id == id).ExecuteUpdateAsync(s => s.SetProperty(p => p.LetzterVersuchAm, (DateTimeOffset?)null), ct);
+            return sicht;
+        }
+
+        return await GegnerAntwortAsync(sicht, nachAusfall: true, ct);
     }
 
     /// <summary><c>GET /gegner</c>: alle Gegner Elo aufsteigend, mit Bilanz nur fuer Spieler.</summary>
@@ -257,12 +490,19 @@ public sealed class PartieDienst(IAppDbContext db, IEngineClient engine, IPartie
         ];
     }
 
-    private async Task<PartieErgebnis> SpielerzugAsync(Guid id, Guid? spielerId, int halbzug, string uci, CancellationToken t)
+    /// <returns>Das Ergebnis und ob ein neuer Spielerzug gespeichert wurde.</returns>
+    private async Task<(PartieErgebnis Ergebnis, bool Neu)> SpielerzugAsync(Guid id, Guid? spielerId, int halbzug, string uci, CancellationToken t)
     {
         Leeren();
         if (await SichtAsync(id, spielerId, t) is not { } sicht)
         {
-            return PartieErgebnis.Abgelehnt(PartieFehler.NichtGefunden);
+            return (PartieErgebnis.Abgelehnt(PartieFehler.NichtGefunden), false);
+        }
+
+        if (await ZeitablaufImTxAsync(sicht, t) is { } abgelaufen)
+        {
+            // Lazy (SCHACH-SPEC 8.7): wer ueberzieht, verliert; der Zug kommt zu spaet.
+            return (PartieErgebnis.Abgelehnt(PartieFehler.UhrAbgelaufen, abgelaufen), false);
         }
 
         var partie = sicht.Partie;
@@ -270,13 +510,18 @@ public sealed class PartieDienst(IAppDbContext db, IEngineClient engine, IPartie
         {
             case Zugeinordnung.Wiederholung:
                 // Gleicher Zug an gespielter Position: aktueller Zustand samt schon gespielter Antwort.
-                return new PartieErgebnis(sicht with { GegnerZug = sicht.Zugfolge.FirstOrDefault(z => z.Halbzug == halbzug + 2) });
+                return (new PartieErgebnis(sicht with { GegnerZug = sicht.Zugfolge.FirstOrDefault(z => z.Halbzug == halbzug + 2) }), false);
             case Zugeinordnung.PartieBeendet:
-                return PartieErgebnis.Abgelehnt(PartieFehler.PartieBeendet, sicht);
+                // Schon vom Sweep oder einem GET wegen Zeit beendet: fuer den Zug ist es dasselbe.
+                return (PartieErgebnis.Abgelehnt(
+                    partie.Grund is Grund.Zeit or Grund.ZeitOhneMattmaterial && halbzug == partie.Halbzuege
+                        ? PartieFehler.UhrAbgelaufen
+                        : PartieFehler.PartieBeendet,
+                    sicht), false);
             case Zugeinordnung.HalbzugVeraltet:
-                return PartieErgebnis.Abgelehnt(PartieFehler.HalbzugVeraltet, sicht);
+                return (PartieErgebnis.Abgelehnt(PartieFehler.HalbzugVeraltet, sicht), false);
             case Zugeinordnung.NichtAmZug:
-                return PartieErgebnis.Abgelehnt(PartieFehler.NichtAmZug, sicht);
+                return (PartieErgebnis.Abgelehnt(PartieFehler.NichtAmZug, sicht), false);
         }
 
         Halbzugergebnis ergebnis;
@@ -286,14 +531,14 @@ public sealed class PartieDienst(IAppDbContext db, IEngineClient engine, IPartie
         }
         catch (ZugUnzulaessigException)
         {
-            return PartieErgebnis.Abgelehnt(PartieFehler.ZugUnzulaessig);
+            return (PartieErgebnis.Abgelehnt(PartieFehler.ZugUnzulaessig), false);
         }
         catch (UhrAbgelaufenException)
         {
-            // Lazy fuer den Zug-Pfad (SCHACH-SPEC 8.7): wer ueberzieht, verliert.
             var stellung = Partiefuehrung.Verlauf(sicht.Zugfolge)[^1];
-            await BeendenAsync(partie, Remisregeln.Zeitueberschreitung(stellung, partie.SpielerFarbe), t);
-            return PartieErgebnis.Abgelehnt(PartieFehler.UhrAbgelaufen, sicht);
+            return (PartieErgebnis.Abgelehnt(
+                PartieFehler.UhrAbgelaufen,
+                await EndeMitErsatzAsync(sicht, Remisregeln.Zeitueberschreitung(stellung, partie.SpielerFarbe), t)), false);
         }
 
         var zug = ergebnis.Zug!;
@@ -309,12 +554,22 @@ public sealed class PartieDienst(IAppDbContext db, IEngineClient engine, IPartie
             await db.SaveChangesAsync(t);
         }
 
-        return new PartieErgebnis(sicht);
+        return (new PartieErgebnis(sicht), true);
     }
 
-    /// <summary>Engine ausserhalb jeder Transaktion, dann T2. Faellt die Engine aus, bleibt der Zug
-    /// ausstehend.</summary>
-    private async Task<PartieSicht> GegnerAntwortAsync(PartieSicht vorher, CancellationToken ct)
+    /// <summary>Was T2 bewirkt hat.</summary>
+    private enum Gegnerantwort
+    {
+        Nichts,
+        Zug,
+        ZugMitEnde,
+        Zeitende,
+    }
+
+    /// <summary>Engine ausserhalb jeder Transaktion, dann T2, dann der Spruch (SpruchDienst wartet bis
+    /// 2,5 s und gehoert in keine Transaktion). Faellt die Engine aus, bleibt der Zug ausstehend.</summary>
+    /// <param name="nachAusfall">Sweep-Block B: dem Gegner nur D belasten (SCHACH-SPEC 8.6).</param>
+    private async Task<PartieSicht> GegnerAntwortAsync(PartieSicht vorher, bool nachAusfall, CancellationToken ct)
     {
         var partie = vorher.Partie;
         var gegner = GegnerKatalog.Finde(partie.GegnerId)
@@ -347,49 +602,72 @@ public sealed class PartieDienst(IAppDbContext db, IEngineClient engine, IPartie
 
         if (wahl is null)
         {
+            // Der Sweep versucht es erst wieder, wenn dieser Versuch 10 s alt ist.
+            var jetzt = zeit.GetUtcNow();
+            await db.Set<Partie>()
+                .Where(p => p.Id == partie.Id && p.Halbzuege == halbzug && p.Status == PartieStatus.Offen)
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.LetzterVersuchAm, (DateTimeOffset?)jetzt), ct);
             return vorher with { GegnerZug = null };
         }
 
+        var art = Gegnerantwort.Nichts;
+        PartieSicht sicht;
         try
         {
-            return await db.RunInTransactionAsync(
+            sicht = await db.RunInTransactionAsync(
                 async t =>
                 {
+                    art = Gegnerantwort.Nichts;
                     Leeren();
-                    var sicht = await SichtAsync(partie.Id, partie.SpielerId, t);
-                    if (sicht is null || sicht.Partie.Halbzuege != halbzug || !sicht.Partie.GegnerZugAusstehend())
+                    var s = await SichtAsync(partie.Id, partie.SpielerId, t);
+                    if (s is null || s.Partie.Halbzuege != halbzug || !s.Partie.GegnerZugAusstehend())
                     {
                         // Inzwischen geaendert (Zuruecknehmen, Aufgeben, Sweep): nichts mehr zu tun.
-                        return sicht ?? vorher with { GegnerZug = null };
+                        return s ?? vorher with { GegnerZug = null };
+                    }
+
+                    if (nachAusfall)
+                    {
+                        // Die Ausfallzeit zaehlt nicht: gespieltAm = jetzt + D, belastet wird nur D.
+                        var jetzt = zeit.GetUtcNow();
+                        s.Partie.LetzterZugAm = jetzt;
+                        if (s.Partie.Uhr() is not null)
+                        {
+                            s.Partie.AmZugSeit = jetzt;
+                        }
                     }
 
                     Halbzugergebnis ergebnis;
                     try
                     {
-                        ergebnis = sicht.Partie.SpieleGegnerzug(sicht.Zugfolge, wahl, zeit);
+                        ergebnis = s.Partie.SpieleGegnerzug(s.Zugfolge, wahl, zeit);
                     }
                     catch (ZugUnzulaessigException)
                     {
-                        return sicht;
+                        return s;
                     }
 
-                    if (ergebnis.Zug is { } zug)
+                    if (ergebnis.Zug is not { } zug)
                     {
-                        db.Set<Zug>().Add(zug);
-                        sicht = sicht with { Zugfolge = [.. sicht.Zugfolge, zug], GegnerZug = zug };
+                        art = Gegnerantwort.Zeitende;
+                        return await EndeMitErsatzAsync(s, ergebnis.Ende!, t);
                     }
 
-                    sicht.Partie.LetzterVersuchAm = null;
+                    db.Set<Zug>().Add(zug);
+                    s = s with { Zugfolge = [.. s.Zugfolge, zug], GegnerZug = zug };
+                    s.Partie.LetzterVersuchAm = null;
                     if (ergebnis.Ende is { } ende)
                     {
-                        await BeendenAsync(sicht.Partie, ende, t);
+                        art = Gegnerantwort.ZugMitEnde;
+                        await BeendenAsync(s.Partie, ende, t);
                     }
                     else
                     {
+                        art = Gegnerantwort.Zug;
                         await db.SaveChangesAsync(t);
                     }
 
-                    return sicht;
+                    return s;
                 },
                 ct);
         }
@@ -397,6 +675,22 @@ public sealed class PartieDienst(IAppDbContext db, IEngineClient engine, IPartie
         {
             Leeren();
             return await SichtAsync(partie.Id, partie.SpielerId, ct) ?? vorher with { GegnerZug = null };
+        }
+
+        switch (art)
+        {
+            case Gegnerantwort.ZugMitEnde when sicht.Partie is { Ergebnis: { } erg, Grund: { } grund }:
+                return await SpruchNachtragenAsync(sicht, SpruchAuswahl.BeiEnde(erg, sicht.Partie.SpielerFarbe), sicht.Partie.Halbzuege, grund.ToString(), ct);
+            case Gegnerantwort.Zug:
+                var farbe = sicht.Partie.SpielerFarbe;
+                var ereignis = SpruchAuswahl.NachGegnerzug(
+                    Spruchbau.Lage(sicht.Zugfolge, farbe),
+                    SpruchAuswahl.GegnerzuegeSeitSpruch(sicht.Zugfolge, sicht.Sprueche, farbe),
+                    SpruchAuswahl.NichtPflicht(sicht.Sprueche),
+                    spruchOptionen);
+                return ereignis is { } e ? await SpruchNachtragenAsync(sicht, e, sicht.Partie.Halbzuege, null, ct) : sicht;
+            default:
+                return sicht;
         }
     }
 
@@ -434,6 +728,174 @@ public sealed class PartieDienst(IAppDbContext db, IEngineClient engine, IPartie
         return halbzug != sicht.Partie.Halbzuege ? PartieErgebnis.Abgelehnt(PartieFehler.HalbzugVeraltet, sicht) : null;
     }
 
+    /// <summary>Tipp nur ohne Bedenkzeit und am Zug (SCHACH-SPEC 3.2, 7.3, 8.3).</summary>
+    private static PartieErgebnis? TippVorab(PartieSicht sicht, int halbzug)
+    {
+        if (Vorab(sicht, halbzug) is { } fehler)
+        {
+            return fehler;
+        }
+
+        if (sicht.Partie.Bedenkzeit != Bedenkzeit.OhneUhr)
+        {
+            return PartieErgebnis.Abgelehnt(PartieFehler.TippNichtErlaubt, sicht);
+        }
+
+        return sicht.Partie.SpielerAmZug() ? null : PartieErgebnis.Abgelehnt(PartieFehler.NichtAmZug, sicht);
+    }
+
+    /// <summary>Annahme beendet, Ablehnung speichert die Zugnummer (Sperre fuer 5 Zuege).</summary>
+    private async Task<PartieErgebnis> RemisAntwortenAsync(PartieSicht sicht, RemisAntwort antwort, CancellationToken t)
+    {
+        switch (antwort)
+        {
+            case RemisAntwort.Gesperrt:
+                return PartieErgebnis.Abgelehnt(PartieFehler.RemisAngebotGesperrt, sicht);
+            case RemisAntwort.Angenommen:
+                await BeendenAsync(sicht.Partie, Partieende.Remis(Grund.Vereinbarung), t);
+                break;
+            default:
+                sicht.Partie.LetztesRemisAngebotBeiZug = Brettlage.Zugnummer(sicht.Partie.Fen);
+                sicht.Partie.Version++;
+                await db.SaveChangesAsync(t);
+                break;
+        }
+
+        return new PartieErgebnis(sicht, Remis: antwort);
+    }
+
+    private async Task<PartieErgebnis> RemisSpruchAsync(PartieErgebnis ergebnis, CancellationToken ct)
+    {
+        if (ergebnis is not { Fehler: null, Sicht: { } sicht, Remis: { } antwort })
+        {
+            return ergebnis;
+        }
+
+        var (ereignis, grund) = antwort switch
+        {
+            RemisAntwort.Angenommen => (SpruchEreignis.Remis, nameof(Grund.Vereinbarung)),
+            RemisAntwort.AbgelehntVorZug20 => (SpruchEreignis.RemisAbgelehnt, Remisangebot.GrundVorZug20),
+            _ => (SpruchEreignis.RemisAbgelehnt, Remisangebot.GrundKlarVorn),
+        };
+        return ergebnis with { Sicht = await SpruchNachtragenAsync(sicht, ereignis, sicht.Partie.Halbzuege, grund, ct) };
+    }
+
+    /// <summary>Laedt die Partie in einer Transaktion, prueft zuerst den Zeitablauf (SCHACH-SPEC 8.7) und
+    /// fuehrt dann <paramref name="arbeit"/> aus. Concurrency-Konflikt: <see cref="PartieFehler.HalbzugVeraltet"/>.</summary>
+    private async Task<PartieErgebnis> InTransaktionAsync(
+        Guid id, Guid? spielerId, Func<PartieSicht, CancellationToken, Task<PartieErgebnis>> arbeit, CancellationToken ct)
+    {
+        try
+        {
+            return await db.RunInTransactionAsync(
+                async t =>
+                {
+                    Leeren();
+                    if (await SichtAsync(id, spielerId, t) is not { } sicht)
+                    {
+                        return PartieErgebnis.Abgelehnt(PartieFehler.NichtGefunden);
+                    }
+
+                    return await arbeit(await ZeitablaufImTxAsync(sicht, t) ?? sicht, t);
+                },
+                ct);
+        }
+        catch (DbUpdateException)
+        {
+            return await VeraltetAsync(id, spielerId, ct);
+        }
+    }
+
+    /// <summary>Laden mit Lazy-Zeitablauf: nur wenn die Uhr abgelaufen ist, kostet es eine Transaktion.</summary>
+    private async Task<PartieSicht?> SichtMitZeitablaufAsync(Guid id, Guid? spielerId, CancellationToken ct)
+    {
+        var sicht = await SichtAsync(id, spielerId, ct);
+        return sicht is not null && UhrAbgelaufen(sicht.Partie, zeit) ? await ZeitablaufAsync(id, spielerId, ct) : sicht;
+    }
+
+    /// <summary>In der laufenden Transaktion: ist die Uhr abgelaufen, endet die Partie mit Zeit und
+    /// Ersatzspruch. <c>null</c>, wenn nicht.</summary>
+    private async Task<PartieSicht?> ZeitablaufImTxAsync(PartieSicht sicht, CancellationToken t)
+    {
+        var partie = sicht.Partie;
+        if (partie.Status != PartieStatus.Offen || !UhrAbgelaufen(partie, zeit))
+        {
+            return null;
+        }
+
+        return await EndeMitErsatzAsync(sicht, Remisregeln.Zeitueberschreitung(Stellung.AusFen(partie.Fen), partie.SpielerFarbe), t);
+    }
+
+    /// <summary>Beendet in der laufenden Transaktion mit Ersatzspruch (Ende ohne Request-Bezug,
+    /// SCHACH-SPEC 6.1). Der Ersatzspruch braucht kein Netz und darf darum in die Transaktion.</summary>
+    private async Task<PartieSicht> EndeMitErsatzAsync(PartieSicht sicht, Partieende ende, CancellationToken t)
+    {
+        var p = sicht.Partie;
+        var spruch = await sprueche.ErzeugeAsync(
+            Spruchbau.Anfrage(p, sicht.Zugfolge, sicht.Sprueche, SpruchAuswahl.BeiEnde(ende.Ergebnis, p.SpielerFarbe), p.Halbzuege, ende.Grund.ToString(), nurErsatz: true),
+            t);
+        db.Set<Spruch>().Add(spruch);
+        await BeendenAsync(p, ende, t);
+        return sicht with { Sprueche = [.. sicht.Sprueche, spruch] };
+    }
+
+    /// <summary>
+    /// Erzeugt einen Spruch ausserhalb jeder Transaktion (Mistral bis 2,5 s, sonst Ersatz) und speichert
+    /// ihn danach. Gast-Partien sind nach dem Ende schon geloescht: dann steht er nur in der Antwort.
+    /// </summary>
+    private async Task<PartieSicht> SpruchNachtragenAsync(PartieSicht sicht, SpruchEreignis ereignis, int nachHalbzug, string? grund, CancellationToken ct)
+    {
+        var p = sicht.Partie;
+        var vorher = p.MistralAufrufe;
+        var spruch = await sprueche.ErzeugeAsync(Spruchbau.Anfrage(p, sicht.Zugfolge, sicht.Sprueche, ereignis, nachHalbzug, grund, nurErsatz: false), ct);
+        var aufrufe = p.MistralAufrufe - vorher;
+        var neu = sicht with { Sprueche = [.. sicht.Sprueche, spruch] };
+        if (p.SpielerId is null && p.Status == PartieStatus.Beendet)
+        {
+            return neu;
+        }
+
+        try
+        {
+            await db.RunInTransactionAsync(
+                async t =>
+                {
+                    Leeren();
+                    if (!await db.Set<Partie>().AnyAsync(x => x.Id == p.Id, t))
+                    {
+                        return 0;
+                    }
+
+                    db.Set<Spruch>().Add(Kopie(spruch));
+                    await db.SaveChangesAsync(t);
+                    if (aufrufe > 0)
+                    {
+                        // Monoton, ohne Version: kein Konflikt mit dem naechsten Zug.
+                        await db.Set<Partie>().Where(x => x.Id == p.Id)
+                            .ExecuteUpdateAsync(s => s.SetProperty(x => x.MistralAufrufe, x => x.MistralAufrufe + aufrufe), t);
+                    }
+
+                    return 0;
+                },
+                ct);
+        }
+        catch (DbUpdateException)
+        {
+            // Die Partie ist inzwischen weg (Gast, Sweep C): der Spruch steht nur in der Antwort.
+        }
+
+        return neu;
+    }
+
+    private static Spruch Kopie(Spruch s) => new()
+    {
+        PartieId = s.PartieId,
+        NachHalbzug = s.NachHalbzug,
+        Ereignis = s.Ereignis,
+        Text = s.Text,
+        Quelle = s.Quelle,
+    };
+
     /// <summary>Beenden in der laufenden Transaktion (SCHACH-SPEC 8.11). Gast-Partien werden geloescht;
     /// die Sicht im Speicher bleibt fuer die Antwort.</summary>
     private async Task BeendenAsync(Partie partie, Partieende ende, CancellationToken t)
@@ -470,8 +932,13 @@ public sealed class PartieDienst(IAppDbContext db, IEngineClient engine, IPartie
             return null;
         }
 
-        var zuege = await db.Set<Zug>().Where(z => z.PartieId == id).OrderBy(z => z.Halbzug).ToListAsync(ct);
-        var sprueche = await db.Set<Spruch>().Where(s => s.PartieId == id).OrderBy(s => s.NachHalbzug).ThenBy(s => s.Id).ToListAsync(ct);
+        // Nur bis zum geladenen Stand: unter READ COMMITTED kann ein paralleler Zug zwischen den Abfragen
+        // committen. Ohne Filter passten Partie und Zugfolge nicht zusammen (gleichzeitige Zuege ergaben
+        // dann 400 ZugUnzulaessig statt 409); so scheitert der zweite Zug am Concurrency-Token.
+        var halbzuege = partie.Halbzuege;
+        var zuege = await db.Set<Zug>().Where(z => z.PartieId == id && z.Halbzug <= halbzuege).OrderBy(z => z.Halbzug).ToListAsync(ct);
+        var sprueche = await db.Set<Spruch>().Where(s => s.PartieId == id && s.NachHalbzug <= halbzuege)
+            .OrderBy(s => s.NachHalbzug).ThenBy(s => s.Id).ToListAsync(ct);
         return new PartieSicht(partie, zuege, sprueche, null);
     }
 

@@ -32,6 +32,8 @@ internal sealed class SchachApiFactory(
         builder.UseSetting("Limits:AnmeldungenJeAdresseUnd24Stunden", "1000");
         builder.UseSetting("Mail:MaxJeStunde", "1000");
         builder.UseSetting("Mail:MaxJeTag", "1000");
+        // S1d: die Sweep-Schleife laeuft nicht nebenher; Tests rufen PartieSweep selbst.
+        builder.UseSetting("Sweep:Aktiv", "false");
         foreach (var (k, v) in einstellungen ?? new Dictionary<string, string>())
         {
             builder.UseSetting(k, v);
