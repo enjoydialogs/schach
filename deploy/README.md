@@ -37,6 +37,7 @@ Einmalig, vom Betreiber:
 3. Dokploy: neuen Compose-Dienst aus diesem Repo anlegen, Compose-Pfad `docker-compose.dokploy.yml`.
 4. Environment-Tab: Schlüssel aus `.env.dokploy.example` setzen. Pflicht: `REGISTRY`, `IMAGE_TAG=prod`, `POSTGRES_PASSWORD`, `TRAEFIK_NETWORK`. Das Subnetz auf der Box lesen:
    `docker network inspect dokploy-network --format '{{(index .IPAM.Config 0).Subnet}}'`
+   Optional, leer gilt die Vorgabe aus dem Code: `MAIL_MAX_JE_TAG` (`Mail:MaxJeTag`) an den gebuchten Lettermint-Tarif anpassen (SCHACH-SPEC 16, Punkt 4). `LIMITS_*` (`Limits:*` aus SCHACH-SPEC 11.2) nach der VPS-Messung Teil 2 setzen (Punkt 1).
 5. Domains-Tab: `schach.enjoy-dialogs.de` am Dienst `web`, Container-Port `8080`, HTTPS mit Let's Encrypt.
 6. GitHub → Settings → Environments → `production`: Variablen `DOKPLOY_URL`, `DOKPLOY_COMPOSE_ID` (letzter Abschnitt der Dienst-URL im Panel), Secret `DOKPLOY_API_KEY` (Member mit Zugriff nur auf dieses Projekt).
 7. `release` per `workflow_dispatch` starten. Der Rauchtest muss grün enden.
