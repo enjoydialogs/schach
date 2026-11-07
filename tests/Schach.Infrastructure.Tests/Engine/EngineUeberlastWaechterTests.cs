@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
+using Schach.Application.Betrieb;
 using Schach.Infrastructure.Engine;
 
 namespace Schach.Infrastructure.Tests.Engine;
@@ -18,6 +19,36 @@ public sealed class EngineUeberlastWaechterTests
 
     [Fact]
     public void Ohne_Ausfaelle_ist_nichts_gesperrt() => Waechter().IstGesperrt.Should().BeFalse();
+
+    [Fact]
+    public void Jede_neue_Sperre_geht_an_den_Betriebswarner_der_Fenster_und_Betreibermail_regelt()
+    {
+        var warner = new MerkenderWarner();
+        var waechter = new EngineUeberlastWaechter(
+            Options.Create(new EngineUeberlastOptions { UeberlastFehlerIn30s = 2, UeberlastSperreSekunden = 60 }),
+            _zeit,
+            NullLogger<EngineUeberlastWaechter>.Instance,
+            warner);
+
+        waechter.AusfallMelden();
+        waechter.AusfallMelden();          // Sperre 1
+        _zeit.Advance(TimeSpan.FromSeconds(61));
+        waechter.AusfallMelden();
+        waechter.AusfallMelden();          // Sperre 2
+
+        warner.Meldungen.Should().Equal(BetriebsWarnung.EngineUeberlast, BetriebsWarnung.EngineUeberlast);
+    }
+
+    private sealed class MerkenderWarner : IBetriebsWarner
+    {
+        public List<BetriebsWarnung> Meldungen { get; } = [];
+
+        public bool Melden(BetriebsWarnung art, string? zusatz = null)
+        {
+            Meldungen.Add(art);
+            return true;
+        }
+    }
 
     [Fact]
     public void Zehn_Ausfaelle_in_30_Sekunden_sperren_fuer_60_Sekunden()

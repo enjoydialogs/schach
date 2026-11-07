@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Spruch-Probe (SCHACH-SPEC 6.8): Konsolenwerkzeug fuer den Betreiber, nicht im Prod-Image
+    (das Dockerfile kopiert nur src/, .dockerignore schliesst tools/ aus). Nicht in Schach.slnx
+    (eingefroren); die CI baut und testet es ueber Schach.Infrastructure.Tests.
+
+    Aufruf (Schluessel nur aus user-secrets oder der Umgebung, nie im Repo):
+      dotnet user-secrets set Llm:ApiKey <schluessel> -p tools/Schach.SpruchProbe
+      dotnet run -p tools/Schach.SpruchProbe
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <UserSecretsId>schach-spruch-probe</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Schach.Infrastructure\Schach.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

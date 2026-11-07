@@ -3,28 +3,17 @@ using System.Diagnostics.Metrics;
 namespace Schach.Infrastructure.Telemetry;
 
 /// <summary>
-/// Zaehler am Meter <see cref="SchachMetrics.MeterName"/> (SCHACH-SPEC 14.2), Singleton. S2b legt
-/// <c>schach.limits.abgelehnt{policy}</c> und <c>schach.engine.fehler{art}</c> an. Tags tragen nur
-/// Policy- oder Artnamen, nie eine IP, Partie-Id oder E-Mail-Adresse.
+/// Zaehler fuer Limits und Engine (S2b), Singleton. Duenne Fassade ueber <see cref="SchachMeter"/>
+/// (S2d), damit jedes Instrument genau einmal angelegt wird, Tagwerte nie eine IP oder E-Mail-Adresse
+/// tragen und die Zahlen in die Tageszeile gehen.
 /// </summary>
-public sealed class SchachZaehler
+public sealed class SchachZaehler(IMeterFactory meterFactory)
 {
-    private readonly Counter<long> _limitsAbgelehnt;
-    private readonly Counter<long> _engineFehler;
-
-    public SchachZaehler(IMeterFactory meterFactory)
-    {
-        ArgumentNullException.ThrowIfNull(meterFactory);
-        var meter = meterFactory.Create(SchachMetrics.MeterName);
-        _limitsAbgelehnt = meter.CreateCounter<long>(SchachMetrics.LimitsAbgelehnt, description: "Abgelehnte Anfragen je Limit-Policy");
-        _engineFehler = meter.CreateCounter<long>(SchachMetrics.EngineFehler, description: "Fehler und Ersatz-Engine-Aufrufe des Engine-Clients");
-    }
+    private readonly SchachMeter _meter = new(meterFactory);
 
     /// <summary>Eine Anfrage wurde von der genannten Policy abgelehnt.</summary>
-    public void LimitAbgelehnt(string policy) =>
-        _limitsAbgelehnt.Add(1, new KeyValuePair<string, object?>("policy", policy));
+    public void LimitAbgelehnt(string policy) => _meter.LimitAbgelehnt(policy);
 
     /// <summary>Ein Engine-Aufruf schlug fehl oder wich auf Fairy-Stockfish aus.</summary>
-    public void EngineFehler(string art) =>
-        _engineFehler.Add(1, new KeyValuePair<string, object?>("art", art));
+    public void EngineFehler(string art) => _meter.EngineFehler(art);
 }

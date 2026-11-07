@@ -1,5 +1,7 @@
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Schach.Application.Betrieb;
 
 namespace Schach.Infrastructure.Engine;
 
@@ -17,13 +19,15 @@ public sealed class EngineUeberlastOptions
 /// Erkennt Engine-Ueberlast (SCHACH-SPEC 11.2, Abbau unter Last Schritt 1): der Engine-Client meldet
 /// jeden Ausfall (503, Zeitueberschreitung, keine Verbindung). Erreichen die Ausfaelle der letzten
 /// 30 s die Schwelle, ist fuer <see cref="EngineUeberlastOptions.UeberlastSperreSekunden"/> gesperrt.
-/// Die Warn-Logzeile <c>EngineUeberlast</c> erscheint einmal je Sperre (SCHACH-SPEC 14.2).
+/// Jede neue Sperre geht an <c>IBetriebsWarner</c> (S2d: Warnzeile einmal je Fenster, Betreibermail);
+/// ohne ihn schreibt der Waechter die Warnzeile <c>EngineUeberlast</c> selbst (SCHACH-SPEC 14.2).
 /// Singleton, nur im Speicher.
 /// </summary>
 public sealed partial class EngineUeberlastWaechter(
     IOptions<EngineUeberlastOptions> options,
     TimeProvider zeit,
-    ILogger<EngineUeberlastWaechter> logger)
+    ILogger<EngineUeberlastWaechter> logger,
+    IBetriebsWarner? warner = null)
 {
     private static readonly TimeSpan Fenster = TimeSpan.FromSeconds(30);
 
@@ -64,7 +68,20 @@ public sealed partial class EngineUeberlastWaechter(
             }
         }
 
-        if (neueSperre)
+        if (!neueSperre)
+        {
+            return;
+        }
+
+        // Mit S2d (AddSchachBetrieb) regelt der Betriebswarner Fenster, Logzeile und Betreibermail.
+        if (warner is not null)
+        {
+            warner.Melden(
+                BetriebsWarnung.EngineUeberlast,
+                string.Create(CultureInfo.InvariantCulture,
+                    $"mindestens {_options.UeberlastFehlerIn30s} Engine-Ausfaelle in 30 s, neue Gast-Partien fuer {_options.UeberlastSperreSekunden} s gesperrt"));
+        }
+        else
         {
             EngineUeberlast(logger, _options.UeberlastFehlerIn30s, _options.UeberlastSperreSekunden);
         }

@@ -15,7 +15,10 @@ namespace Schach.Infrastructure.Email;
 /// Logzeile ist <c>mail.send outcome=… status=… duration_ms=…</c>.
 /// </summary>
 public sealed partial class LettermintEmailSender(
-    HttpClient http, IOptions<EmailOptionen> optionen, ILogger<LettermintEmailSender> log) : IEmailSender
+    HttpClient http,
+    IOptions<EmailOptionen> optionen,
+    ILogger<LettermintEmailSender> log,
+    SchachMeter? meter = null) : IEmailSender
 {
     public async Task<bool> SendAsync(OutboundEmail email, CancellationToken cancellationToken = default)
     {
@@ -50,7 +53,7 @@ public sealed partial class LettermintEmailSender(
             if (antwort.IsSuccessStatusCode)
             {
                 Ergebnis(log, "accepted", status, uhr.ElapsedMilliseconds);
-                MailMetrik.Gesendet();
+                meter?.MailGesendet();
                 return true;
             }
 

@@ -1,9 +1,9 @@
 namespace Schach.Infrastructure.Telemetry;
 
 /// <summary>
-/// Namen des Meters und seiner Instrumente (SCHACH-SPEC 14.2). Phase 0a legt nur die Namen fest;
-/// die Instrumente erzeugt die Session, die sie zuerst zaehlt (S2b Limits und Engine, S2c LLM,
-/// S2a Mail). Nie eine IP oder E-Mail-Adresse als Tag.
+/// Namen des Meters und seiner Instrumente (SCHACH-SPEC 14.2). Die Instrumente selbst legt S2d in
+/// <see cref="SchachMeter"/> an; S2b (Limits, Engine), S2c (LLM) und S2a (Mail) zaehlen ueber dessen
+/// Methoden. Nie eine IP oder E-Mail-Adresse als Tag.
 /// </summary>
 public static class SchachMetrics
 {
