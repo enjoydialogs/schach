@@ -1,0 +1,30 @@
+# Engine-Dienst (SCHACH-SPEC 5.2), AGPL-3.0-or-later (engine/LICENSE). Vertrag: engine/API.md.
+# Phase 0c: Stub mit Fixture-Antworten. Maia-3, Stockfish und Fairy-Stockfish bringt S4a.
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "schach-engine"
+version = "0.0.0"
+description = "Engine-Dienst fuer Schach: Maia-3, Stockfish und Fairy-Stockfish hinter HTTP"
+license = "AGPL-3.0-or-later"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.162.1",
+  "uvicorn>=0.54.0",
+  "chess>=1.11.2",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=9.2.0",
+  "httpx>=0.28.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

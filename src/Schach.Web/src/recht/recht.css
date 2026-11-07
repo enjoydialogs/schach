@@ -1,0 +1,65 @@
+/* Rechtstexte (SCHACH-SPEC 10.12), nach GladiusEtPilum `_LegalLayout.cshtml`. */
+.recht {
+  max-width: 46rem;
+  padding-bottom: 16px;
+}
+
+.recht__stand {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.recht h2 {
+  margin: 32px 0 8px;
+  font-size: 20px;
+}
+
+.recht p,
+.recht li {
+  line-height: 1.5;
+}
+
+.recht ul {
+  padding-left: 20px;
+}
+
+.recht li {
+  margin-bottom: 6px;
+}
+
+.recht address {
+  font-style: normal;
+  line-height: 1.6;
+  margin: 0 0 16px;
+}
+
+.recht code {
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+
+.recht__tabelle-rahmen {
+  overflow-x: auto;
+  margin: 8px 0 16px;
+}
+
+.recht table {
+  border-collapse: collapse;
+  font-size: 14px;
+  width: 100%;
+}
+
+.recht th,
+.recht td {
+  text-align: left;
+  vertical-align: top;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--text-muted);
+}
+
+.recht__widerspruch {
+  border-left: 3px solid var(--accent);
+  padding: 2px 0 2px 16px;
+  margin: 24px 0;
+}
