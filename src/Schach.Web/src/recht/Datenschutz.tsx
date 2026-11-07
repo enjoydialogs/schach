@@ -8,16 +8,19 @@
 // - §3: Gast-Partien werden beim Ende gelöscht, offen nach 24 h ohne Zug (Sweep C, 8.9).
 // - §4: Tabellen `Anmeldung`, `AnmeldungVersuch`, `Spieler`, `Partie`, `Zug`, `Spruch`, `Bilanz`
 //   (8.12); Sweep D; Konto löschen und Export (9.7, 12.4). S2a muss das gegen den Code prüfen.
-// - §5: Lettermint mit abgeschaltetem Öffnungs- und Klick-Tracking (9.6).
+// - §5: Lettermint mit abgeschaltetem Öffnungs- und Klick-Tracking (9.6); Reply-To support@.
+// - §7: Kontakt nur per E-Mail, kein Formular, kein Aidbase (Betreiber, PR #45).
 // - §6: die Datenfelder aus 6.3 Punkt 4, wörtlich in Worten; nie FEN, nie Spieler-Identität.
 //   Ein neues Feld im Prompt heißt ein neuer Punkt in der Liste hier.
 // - §8: genau die Speicher aus 12.3 (`SpeicherSchluessel`). Ein neuer Schlüssel, ein neues Cookie
 //   oder eine fremde Ressource heißt eine neue Zeile hier und womöglich ein Banner nach § 25 TDDDG.
-// - §9: Hostinger (Rechenzentrum Deutschland), Backup nach Hetzner Object Storage, 30 Tage (14.1).
+// - §9: Hostinger (Rechenzentrum Deutschland), Backup nach Hetzner Object Storage in Falkenstein,
+//   30 Tage (14.1; Standort vom Betreiber bestätigt, PR #45).
 // Im Zweifel beschreibt dieser Text mehr, als geschieht, nie weniger.
 
 import { t } from '../i18n/de'
 import { Betreiber } from './Betreiber'
+import { SUPPORT_EMAIL } from './kontakt'
 import { Rechtstext } from './Rechtstext'
 
 const SPEICHER: { name: string; art: string; zweck: string; dauer: string }[] = [
@@ -164,7 +167,8 @@ export function Datenschutz() {
       <h2>5. E-Mails</h2>
       <p>
         Wir schreiben Ihnen nur, wenn Sie sich anmelden: eine Mail mit Link und Code. Newsletter oder
-        Werbung versenden wir nicht.
+        Werbung versenden wir nicht. Antworten Sie auf diese Mail, geht Ihre Antwort an{' '}
+        <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>; für sie gilt Abschnitt 7.
       </p>
       <p>
         Für den Versand nutzen wir Lettermint der Lettermint B.V., Willemsvaart 16 B, 8019 AB Zwolle,
@@ -211,13 +215,8 @@ export function Datenschutz() {
 
       <h2>7. Kontakt</h2>
       <p>
-        Wenn Sie uns per E-Mail schreiben, verarbeiten wir Ihre E-Mail-Adresse, Ihre Nachricht und die
-        Angaben, die Sie selbst machen. Unser Kontaktformular ist ein Formular des Dienstes Aidbase der
-        Highware GmbH, Baar (Schweiz). Es öffnet sich auf deren Seite <code>hosted.aidbase.ai</code>;
-        unsere eigenen Seiten laden nichts von Aidbase. Was Sie dort eingeben (etwa Name,
-        E-Mail-Adresse und Nachricht), verarbeitet Aidbase zusammen mit technisch nötigen
-        Verbindungsdaten wie Ihrer IP-Adresse in unserem Auftrag (Art. 28 DSGVO). Für die Schweiz
-        besteht ein Angemessenheitsbeschluss der EU-Kommission (Art. 45 DSGVO).
+        Sie erreichen uns per E-Mail; ein Kontaktformular gibt es nicht. Wenn Sie uns schreiben,
+        verarbeiten wir Ihre E-Mail-Adresse, Ihre Nachricht und die Angaben, die Sie selbst machen.
       </p>
       <p>
         Wir nutzen diese Daten nur, um Ihre Anfrage zu beantworten, und löschen sie, sobald sie
@@ -268,7 +267,8 @@ export function Datenschutz() {
       <p>
         Die Website und ihre Datenbank laufen auf einem Server der Hostinger International Ltd.,
         61 Lordou Vironos Street, 6023 Larnaca, Zypern, in einem Rechenzentrum in Deutschland. Die
-        Datenbank sichern wir täglich in einen Speicher der Hetzner Online GmbH (Deutschland). Jede
+        Datenbank sichern wir täglich in einen Speicher der Hetzner Online GmbH in Falkenstein
+        (Deutschland). Jede
         Sicherung wird nach spätestens 30 Tagen gelöscht; bis dahin kann sie noch Daten eines
         inzwischen gelöschten Kontos enthalten. Hostinger und Hetzner verarbeiten die Daten
         ausschließlich in unserem Auftrag (Art. 28 DSGVO).
