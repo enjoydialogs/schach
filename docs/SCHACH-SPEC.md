@@ -205,15 +205,15 @@ Alle Gegner tragen nur Vornamen und sprechen in Du-Form.
 ### 4.4 Avatar
 
 - Anfangsbuchstabe im Kreis.
-- Ein Akzentton (Hue 218°) in 5 Abstufungen, eine je Spielstärke (Anfänger hell bis Meister dunkel). Alle Paare erreichen mindestens 4,5:1.
+- Ein Akzentton (Minze, Hue 164°) in 5 Abstufungen, eine je Spielstärke (Anfänger hell bis Meister dunkel). Alle Paare erreichen mindestens 4,5:1.
 
 | Variable | Hintergrund | Schrift |
 |---|---|---|
-| `--avatar-anfaenger` | `#AAC3EE` | `#1E2329` |
-| `--avatar-hobbyspieler` | `#779EE4` | `#1E2329` |
-| `--avatar-vereinsspieler` | `#2E6BD6` | `#FFFFFF` |
-| `--avatar-turnierspieler` | `#1E4B99` | `#FFFFFF` |
-| `--avatar-meister` | `#122E5E` | `#FFFFFF` |
+| `--avatar-anfaenger` | `#C9EFE0` | `#26222F` |
+| `--avatar-hobbyspieler` | `#8FD6BC` | `#26222F` |
+| `--avatar-vereinsspieler` | `#1E7A62` | `#FFFFFF` |
+| `--avatar-turnierspieler` | `#155443` | `#FFFFFF` |
+| `--avatar-meister` | `#0E3A2F` | `#FFFFFF` |
 
 - 48 px in der Gegnerwahl, 40 px im Partie-Kopf.
 - Besiegt: Häkchen unten rechts am Kreis.
@@ -744,26 +744,28 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 
 **Menü** (Bottom-Sheet, Zeilen 48 px): Schalter „Erlaubte Züge anzeigen“, „Vor ungedeckten Figuren warnen“, „Töne und Vibration“ (alle Standard an, localStorage), „Partie verlassen“ (Partie bleibt offen).
 
-**Farben** (nur hell, CSS-Variablen):
+**Farben** (Palette „Sorbet“, nur hell, CSS-Variablen in `src/styles/palette.css`): Fliedernebel als Grund, Minze für Aktionen, Fliederbrett. Pastell nur für Flächen; Text und Knöpfe nutzen die kräftigen Töne, alle Paare mindestens 4,5:1.
 
 | Variable | Wert |
 |---|---|
-| `--bg` | `#F6F4EE` |
+| `--bg` | `#F4F2FB` |
 | `--surface` | `#FFFFFF` |
-| `--text` | `#1E2329` |
-| `--text-muted` | `#6B7178` |
-| `--border` | `#D9D4C7` |
-| `--accent` | `#2E6BD6` |
-| `--accent-tint` | `#E6EEFB` |
-| `--warning` | `#F0A500` |
-| `--warning-tint` | `#FFF3D6` |
-| `--warning-text` | `#7A4F00` |
-| `--danger` | `#C0392B` |
-| `--danger-tint` | `#FBE9E7` |
-| `--board-light` | `#F0D9B5` |
-| `--board-dark` | `#B58863` |
+| `--text` | `#26222F` |
+| `--text-muted` | `#67617A` |
+| `--border` | `#DDD8EA` |
+| `--accent` | `#1E7A62` |
+| `--accent-tint` | `#DDF4EA` |
+| `--warning` | `#E9A23B` |
+| `--warning-tint` | `#FFF0D9` |
+| `--warning-text` | `#7A4600` |
+| `--danger` | `#C4423A` |
+| `--danger-tint` | `#FDE6E2` |
+| `--board-light` | `#EEE9FB` |
+| `--board-dark` | `#A898D8` |
 
-Overlays: Auswahl `rgba(46,107,214,.45)`, letzter Zug `rgba(46,107,214,.28)`, Zielpunkt und Schlagring dunkel 30 %, Schach roter Radialverlauf, Warnung `rgba(240,165,0,.55)`, Tipp-Ring `inset 0 0 0 4px #2E6BD6`, Tipp-Pfeil in Akzentfarbe. `theme-color #F6F4EE`. Schrift Inter, selbst gehostet.
+Overlays: Auswahl `rgba(30,122,98,.5)`, letzter Zug `rgba(30,122,98,.3)`, Zielpunkt und Schlagring dunkel 30 %, Schach roter Radialverlauf, Warnung `rgba(233,162,59,.6)`, Tipp-Ring `inset 0 0 0 4px #1E7A62`, Tipp-Pfeil in Akzentfarbe, Brettkoordinaten in der Gegenfarbe des Feldes. `theme-color #F4F2FB`. Schrift Inter, selbst gehostet.
+
+**Glas:** Karten, Listen, Dialoge, Sheets und die Bedienelemente der Partie sind halbtransparente weiße Flächen (Deckkraft mindestens 0,72) mit Hintergrundunschärfe über `--bg` mit weichen Farbflecken in Pfirsich, Flieder und Minze. Das Brett bleibt deckend. Ohne `backdrop-filter` oder bei `prefers-reduced-transparency` deckende Flächen.
 
 **Dialoge:**
 - **Aufgeben bestätigen:** Titel „Partie aufgeben?“, Knöpfe „Aufgeben“ (rot) und „Abbrechen“. Text:
@@ -878,7 +880,7 @@ Passiv an drei Stellen:
 - `vite-plugin-pwa` mit `generateSW`, `registerType: 'prompt'`, manuelle Registrierung (CSP ohne Inline-Skripte). API-Namen beim Bau gegen die aktuelle Doku prüfen.
 - Precache: App-Shell, Inter woff2, Cburnett-SVGs, Rechtstexte. `navigateFallback /index.html`. `/api/` cacht der Service Worker nie.
 - Beendete Partien verwaltet die App im Cache `schach-partien-v1` (Partienliste und Nachspielen per `put`/`match`). Gelöscht bei Abmelden und Konto löschen.
-- Manifest: `name`/`short_name` „Schach“, `lang` de, `id`/`start_url`/`scope` `/`, `display: standalone`, `orientation: portrait`, Farben `#F6F4EE`, Icons 192/512 plus 512 maskable.
+- Manifest: `name`/`short_name` „Schach“, `lang` de, `id`/`start_url`/`scope` `/`, `display: standalone`, `orientation: portrait`, Farben `#F4F2FB`, Icons 192/512 plus 512 maskable.
 - Offline-Banner auf jeder `Seite`: „Keine Verbindung. Spielen braucht Internet, Nachspielen geht auch offline.“
 - **Install-Karte** nur auf Start, wenn `beforeinstallprompt` gefangen ist, die App nicht standalone läuft, mindestens eine beendete Partie existiert und „Später“ nicht jünger als 14 Tage ist (Zeitpunkt in localStorage, `installHinweis`).
 - **Update:** `registration.update()` bei Sichtbarkeit, höchstens stündlich. Hinweis „Neue Version verfügbar“ plus „Neu laden“ nur in `Seite`-Layouts, nie in Partie oder Nachspielen.
