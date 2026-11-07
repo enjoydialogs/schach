@@ -1,0 +1,37 @@
+# gitleaks-Konfiguration fuer schach (oeffentliches Repo, gitleaks ist Pflicht: SCHACH-SPEC 13.5).
+#
+# Erbt den Standard-Regelsatz. Die Allowlist nimmt nur Platzhalter und Pfade aus, die nie
+# ausgeliefert werden. Alles andere, was wie ein Geheimnis aussieht, laesst die Stufe scheitern.
+
+title = "schach gitleaks policy"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Platzhalter in Beispieldateien und lokale Laufzeitordner"
+
+# Platzhalter, die Beispiel-.env-Dateien und Tests bewusst tragen. Neue Platzhalter hier spiegeln.
+regexes = [
+  '''\bplaceholder\b''',
+  '''\bexample\.invalid\b''',
+  '''\bghcr\.io/example\b''',
+]
+
+paths = [
+  '''\.env\.(dokploy|local)\.example$''',
+  '''\.gitleaks\.toml$''',
+
+  # Claude-Code-Worktrees sind vollstaendige Checkouts; der Scan des Haupt-Checkouts deckt sie ab.
+  '''\.claude/worktrees/.*''',
+
+  # Eigene Laufausgabe von ci/local-ci.ps1 (gitignored). Die Berichte enthalten Fundwerte.
+  '''\.local-ci/.*''',
+
+  # Lokale Notizen, nie committet (.gitignore). Werden nie gelesen oder kopiert.
+  '''\.local/.*''',
+
+  # Abhaengigkeiten und Bauausgabe.
+  '''(^|/)node_modules/.*''',
+  '''(^|/)(bin|obj|dist|TestResults)/.*''',
+]

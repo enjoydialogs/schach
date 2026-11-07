@@ -1,0 +1,39 @@
+/* Palette nach SCHACH-SPEC 10.3 (nur hell) und Avatar-Abstufungen nach 4.4.
+   Komponenten lesen nur diese Variablen, nie Hex-Werte. */
+:root {
+  --bg: #f6f4ee;
+  --surface: #ffffff;
+  --text: #1e2329;
+  --text-muted: #6b7178;
+  --border: #d9d4c7;
+  --accent: #2e6bd6;
+  --accent-tint: #e6eefb;
+  --warning: #f0a500;
+  --warning-tint: #fff3d6;
+  --warning-text: #7a4f00;
+  --danger: #c0392b;
+  --danger-tint: #fbe9e7;
+  --board-light: #f0d9b5;
+  --board-dark: #b58863;
+
+  /* Brett-Overlays (10.3) */
+  --overlay-auswahl: rgba(46, 107, 214, 0.45);
+  --overlay-letzter-zug: rgba(46, 107, 214, 0.28);
+  --overlay-ziel: rgba(0, 0, 0, 0.3);
+  --overlay-warnung: rgba(240, 165, 0, 0.55);
+  --tipp-ring: inset 0 0 0 4px #2e6bd6;
+
+  /* Avatar je Spielstaerke (4.4): Hintergrund und Schrift */
+  --avatar-anfaenger: #aac3ee;
+  --avatar-anfaenger-text: #1e2329;
+  --avatar-hobbyspieler: #779ee4;
+  --avatar-hobbyspieler-text: #1e2329;
+  --avatar-vereinsspieler: #2e6bd6;
+  --avatar-vereinsspieler-text: #ffffff;
+  --avatar-turnierspieler: #1e4b99;
+  --avatar-turnierspieler-text: #ffffff;
+  --avatar-meister: #122e5e;
+  --avatar-meister-text: #ffffff;
+
+  color-scheme: light;
+}

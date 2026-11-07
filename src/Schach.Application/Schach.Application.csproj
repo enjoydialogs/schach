@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Use Cases plus Abstractions/ (eingefroren ab Phase 0, SCHACH-SPEC 15.1 Regel 4). -->
+
+  <ItemGroup>
+    <!-- Nur fuer DbSet<T> in IAppDbContext. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Schach.Domain\Schach.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Schach.Application.Tests" />
+  </ItemGroup>
+
+</Project>

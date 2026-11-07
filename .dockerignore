@@ -1,0 +1,21 @@
+# Was die Dockerfiles nicht brauchen, bleibt draussen. NICHT ausschliessen: prompts/ (PromptCatalog
+# und Ersatzsprueche lesen sie relativ zu AppContext.BaseDirectory).
+**/bin
+**/obj
+**/node_modules
+**/dist
+**/wwwroot
+**/TestResults
+.git
+.github
+.claude
+.agents
+.local
+.local-ci
+docs
+tests
+ci
+deploy
+tools
+*.md
+!prompts/**/*.md

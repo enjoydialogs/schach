@@ -1,0 +1,70 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  -webkit-text-size-adjust: 100%;
+}
+
+a {
+  color: var(--accent);
+}
+
+/* Layout "Seite" (10.1): scrollt, 16 px Rand, Kopf- und Fusszeile. */
+.seite {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: 0 16px env(safe-area-inset-bottom);
+}
+
+.seite__inhalt {
+  flex: 1;
+}
+
+.wortmarke {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 24px 0 8px;
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.knopf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  min-width: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Fusszeile 12 px (10.1) */
+.fusszeile {
+  padding: 16px 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.fusszeile a {
+  color: inherit;
+}

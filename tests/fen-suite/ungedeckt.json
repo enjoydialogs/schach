@@ -1,0 +1,12 @@
+{
+  "kategorie": "ungedeckt",
+  "faelle": [
+    {
+      "id": "ungedeckt-springer-c3",
+      "beschreibung": "Der weiße Springer auf c3 wird vom Läufer a1 angegriffen und ist ungedeckt.",
+      "fen": "4k3/8/8/8/8/2N5/8/b3K3 w - - 0 1",
+      "seite": "Weiss",
+      "ungedeckt": ["c3"]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Fachkern: Partie, Zugfolge, Uhr, Elo, Remisregeln, Gegner-Katalog, Zugmerkmale, Stil
+       (SCHACH-SPEC 13.2). Einzige Abhaengigkeit: Gera.Chess. -->
+
+  <ItemGroup>
+    <PackageReference Include="Gera.Chess" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Schach.Domain.Tests" />
+  </ItemGroup>
+
+</Project>

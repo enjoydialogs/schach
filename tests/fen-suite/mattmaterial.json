@@ -1,0 +1,12 @@
+{
+  "kategorie": "mattmaterial",
+  "faelle": [
+    {
+      "id": "mattmaterial-springer",
+      "beschreibung": "König und Springer gegen König: keine Seite hat Mattmaterial.",
+      "fen": "8/8/4k3/8/8/3NK3/8/8 w - - 0 1",
+      "weissHatMattmaterial": false,
+      "schwarzHatMattmaterial": false
+    }
+  ]
+}

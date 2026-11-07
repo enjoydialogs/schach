@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Schach.Domain\Schach.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Die gemeinsame FEN-Suite liegt neben den Testprojekten und wird in die Ausgabe kopiert. -->
+    <Content Include="..\fen-suite\*.json" LinkBase="fen-suite" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

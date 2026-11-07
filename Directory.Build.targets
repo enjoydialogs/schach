@@ -1,0 +1,17 @@
+<Project>
+  <!--
+    Versionsstempel fuer AssemblyInformationalVersion, aus Kronrat uebernommen.
+
+    Quelle:
+      1. $(InformationalVersion), wenn auf der Kommandozeile gesetzt (ci/stages/build.ps1 liest
+         dafuer .local-ci/version.txt, das ci/version.ps1 schreibt).
+      2. Sonst $(Version)+build.local.sha.unknown, damit auch ein nacktes `dotnet build` ein
+         erkennbares Artefakt erzeugt.
+
+    Hier wird kein git gelesen. Die Version entsteht nur in ci/version.ps1.
+  -->
+  <PropertyGroup>
+    <InformationalVersion Condition="'$(InformationalVersion)' == ''">$(Version)+build.local.sha.unknown</InformationalVersion>
+    <AssemblyInformationalVersion>$(InformationalVersion)</AssemblyInformationalVersion>
+  </PropertyGroup>
+</Project>
