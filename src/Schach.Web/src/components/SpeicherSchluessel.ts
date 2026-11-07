@@ -3,7 +3,7 @@
  * braucht einen Eintrag in der Datenschutzerklaerung (12.1, recht/Datenschutz.tsx).
  */
 export const SpeicherSchluessel = {
-  /** localStorage: JSON der drei Schalter (7.4). */
+  /** localStorage: JSON der vier Schalter (7.4, 6.9). */
   einstellungen: 'einstellungen',
   /** localStorage: Id der laufenden Gast-Partie. */
   gastPartieId: 'gastPartieId',

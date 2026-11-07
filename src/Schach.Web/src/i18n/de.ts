@@ -37,6 +37,7 @@ export const de = {
   },
   partie: {
     elo: 'Elo {elo}',
+    spruchVorlesen: 'Nochmal vorlesen: {text}',
     du: 'Du',
     menue: 'Menü',
     amZug: 'am Zug',
@@ -93,6 +94,7 @@ export const de = {
     erlaubteZuegeAnzeigen: 'Erlaubte Züge anzeigen',
     vorUngedecktenWarnen: 'Vor ungedeckten Figuren warnen',
     toeneUndVibration: 'Töne und Vibration',
+    spruecheVorlesen: 'Sprüche vorlesen',
     partieVerlassen: 'Partie verlassen',
     schliessen: 'Schließen',
   },

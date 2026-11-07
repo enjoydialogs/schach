@@ -11,6 +11,7 @@
 // - §5: Lettermint mit abgeschaltetem Öffnungs- und Klick-Tracking (9.6); Reply-To support@.
 // - §7: Kontakt nur per E-Mail, kein Formular, kein Aidbase (Betreiber, PR #45).
 // - §6: die Datenfelder aus 6.3 Punkt 4, wörtlich in Worten; nie FEN, nie Spieler-Identität.
+//   Sprachausgabe (6.9): nur Spruchtext und Voice-Id; Ton-Cache ohne Personenbezug, 90 Tage.
 //   Ein neues Feld im Prompt heißt ein neuer Punkt in der Liste hier.
 // - §8: genau die Speicher aus 12.3 (`SpeicherSchluessel`). Ein neuer Schlüssel, ein neues Cookie
 //   oder eine fremde Ressource heißt eine neue Zeile hier und womöglich ein Banner nach § 25 TDDDG.
@@ -57,7 +58,7 @@ const SPEICHER: { name: string; art: string; zweck: string; dauer: string }[] = 
   {
     name: 'einstellungen',
     art: 'localStorage',
-    zweck: 'Ihre Einstellungen: erlaubte Züge anzeigen, vor ungedeckten Figuren warnen, Töne und Vibration.',
+    zweck: 'Ihre Einstellungen: erlaubte Züge anzeigen, vor ungedeckten Figuren warnen, Töne und Vibration, Sprüche vorlesen.',
     dauer: 'Bis Sie die Websitedaten löschen',
   },
   {
@@ -216,6 +217,14 @@ export function Datenschutz() {
         Wir nutzen bei Mistral einen eigenen Arbeitsbereich nur für dieses Spiel, in dem die
         Datenweitergabe abgeschaltet ist. Ist Mistral nicht erreichbar oder zu langsam, zeigt das Spiel
         einen vorbereiteten Spruch. Die Sprüche speichern wir mit der Partie (Abschnitte 3 und 4).
+      </p>
+      <p>
+        <strong>Sprachausgabe.</strong> Ist der Schalter „Sprüche vorlesen“ an, spricht der Gegner
+        seine Sprüche hörbar. Dazu sendet unser Server den Text des Spruchs und die Kennung der Stimme
+        des Gegners an die Sprachausgabe von Mistral, ebenfalls über <code>api.eu.mistral.ai</code>.
+        Weitere Daten gehen dabei nicht an Mistral. Den erzeugten Ton speichern wir ohne Bezug zu
+        Ihnen oder Ihrer Partie auf unserem Server und löschen ihn, wenn er 90 Tage nicht abgerufen
+        wurde. Ihr Browser lädt den Ton nur von unserem Server.
       </p>
       <p>Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO: Die Sprüche sind Teil des Spiels.</p>
 

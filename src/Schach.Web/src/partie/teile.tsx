@@ -74,10 +74,18 @@ export function Kopfzeile({
   )
 }
 
-export function Spruchblase({ text }: { text: string | null }) {
+/** Mit `onTipp` ist die Blase ein Knopf, der den Spruch erneut vorliest (6.9). */
+export function Spruchblase({ text, onTipp }: { text: string | null; onTipp?: () => void }) {
   return (
     <div className="partie__spruch" aria-live="polite">
-      {text !== null && <p className="spruchblase">{text}</p>}
+      {text !== null &&
+        (onTipp ? (
+          <button type="button" className="spruchblase spruchblase--knopf" aria-label={fuelle(de.partie.spruchVorlesen, { text })} onClick={onTipp}>
+            {text}
+          </button>
+        ) : (
+          <p className="spruchblase">{text}</p>
+        ))}
     </div>
   )
 }

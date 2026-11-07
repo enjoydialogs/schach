@@ -138,6 +138,13 @@ body:has(.partie) {
   padding: 0 16px;
 }
 
+.spruchblase--knopf {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
 .spruchblase {
   margin: 0;
   padding: 6px 12px;
