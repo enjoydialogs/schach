@@ -14,6 +14,19 @@ export function setCsrfToken(token: string | null): void {
 }
 
 /**
+ * Holt ein frisches CSRF-Token. Standard: `GET /sitzung` direkt; `sitzung.ts` setzt hier
+ * `ladeSitzung` ein, damit der Sitzungsspeicher mitlaeuft (beide setzen das Token).
+ */
+let csrfLader: () => Promise<unknown> = async () => {
+  const s = await anfrage<{ csrfToken?: string }>('GET', '/sitzung')
+  if (typeof s?.csrfToken === 'string') setCsrfToken(s.csrfToken)
+}
+
+export function setzeCsrfLader(lader: () => Promise<unknown>): void {
+  csrfLader = lader
+}
+
+/**
  * Ein Fehler der API. `fehler` ist der Code aus der Antwort (8.5), falls der Server einen schickt;
  * `antwort` der vollstaendige Body, damit der Aufrufer bei 409 den mitgeschickten Zustand
  * uebernimmt. `retryAfterSekunden` aus dem Header `Retry-After` bei 429.
@@ -62,8 +75,33 @@ async function anfrage<T>(methode: string, pfad: string, body?: unknown): Promis
   return (text.length > 0 ? JSON.parse(text) : undefined) as T
 }
 
+async function ladeCsrf(): Promise<void> {
+  try {
+    await csrfLader()
+  } catch {
+    // Sitzung nicht lesbar: ohne Token weiter, der Server antwortet dann selbst.
+  }
+}
+
+/**
+ * Nicht-GET mit CSRF (9.4). Fehlt das Token (Direktaufruf von `/partie/:id`, PWA-Start), wird es
+ * vorher geholt. Ein 400 ohne `fehler`-Code ist eine Antiforgery-Ablehnung (Token aus der Zeit vor
+ * An- oder Abmeldung) oder ein Formfehler; beide laufen vor der Aktion, ein zweiter Versuch mit
+ * frischem Token ist also gefahrlos.
+ */
+async function schreibend<T>(methode: string, pfad: string, body?: unknown): Promise<T> {
+  if (csrfToken === null) await ladeCsrf()
+  try {
+    return await anfrage<T>(methode, pfad, body)
+  } catch (e) {
+    if (!(e instanceof ApiFehler) || e.status !== 400 || e.fehler !== null) throw e
+    await ladeCsrf()
+    return anfrage<T>(methode, pfad, body)
+  }
+}
+
 export const api = {
   get: <T>(pfad: string) => anfrage<T>('GET', pfad),
-  post: <T>(pfad: string, body?: unknown) => anfrage<T>('POST', pfad, body),
-  del: <T>(pfad: string) => anfrage<T>('DELETE', pfad),
+  post: <T>(pfad: string, body?: unknown) => schreibend<T>('POST', pfad, body),
+  del: <T>(pfad: string) => schreibend<T>('DELETE', pfad),
 }

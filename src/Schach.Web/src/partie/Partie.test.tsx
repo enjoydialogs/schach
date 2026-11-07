@@ -6,6 +6,7 @@ import type { Bedenkzeit, ZustandDto } from '../api/types'
 import { FakeServer } from '../fake/fakeServer'
 import { fakeHandlers } from '../fake/handlers'
 import { Partie } from './Partie'
+import { setzeSitzungZurueck } from '../components/sitzung'
 
 // Partie-Bildschirm gegen den Fake-Server ueber msw/node: derselbe Vertrag wie im Browser.
 
@@ -26,6 +27,7 @@ beforeEach(() => {
   // Uhr des Fakes 10 s zurueck: der Gegnerzug ist sofort sichtbar, die Tests warten nicht.
   fake = new FakeServer({ jetzt: () => Date.now() - 10_000, zufall: () => 0.25 })
   server.resetHandlers(...fakeHandlers(fake))
+  setzeSitzungZurueck()
 })
 afterEach(() => localStorage.clear())
 
