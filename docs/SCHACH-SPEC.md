@@ -583,7 +583,7 @@ PostgreSQL 17, EF Core 10. Eine Migration `0001_Schema` legt alles an.
 | `Bilanz` | `SpielerId, GegnerId, Siege, Remis, Niederlagen, BesiegtAm?` |
 | `Spieler` | `Id uuid PK, Email text UNIQUE (trim + lowercase), ErstelltAm, ZuletztAngemeldetAm?, Sicherheitsstempel uuid, Elo int` |
 | `Anmeldung` | `Id uuid PK (Zufall v4), Email, TokenHash bytea(32) UNIQUE, CodeHash bytea(32), Fehlversuche smallint, ErstelltAm, LaeuftAbAm` |
-| `AnmeldungVersuch` | `Id uuid PK, EmailNormalisiert text, ErstelltAm` (eine Zeile je angenommener Anfrage, Zählbasis der Mail-Limits je Adresse) |
+| `AnmeldungVersuch` | `Id uuid PK, EmailHash bytea(32), ErstelltAm`. Eine Zeile je angenommener Anfrage für die Mail-Limits je Adresse (Abschnitt 11.3). `EmailHash` = SHA-256 der normalisierten Adresse (lowercase, `+tag` gestrichen), nie die Adresse selbst. Bleibt 24 h, weil `Anmeldung`-Zeilen nach 1 h oder bei neuer Anfrage verschwinden. |
 | `LlmVerbrauch` | `Monat PK, PromptTokens, CompletionTokens, Aufrufe, Zeitueberschreitungen, Fehler, WarnGemeldetAm?, ErschoepftGemeldetAm?` |
 | Data-Protection-Schlüssel | über `PersistKeysToDbContext<SchachDbContext>()` |
 
@@ -592,7 +592,7 @@ Indizes:
 - gefiltert unique `Partie(SpielerId) WHERE Status = Offen`
 - `Partie(Status, LetzterZugAm)`
 - `Anmeldung(Email)`, `Anmeldung(ErstelltAm)`, unique `Anmeldung(TokenHash)`
-- `AnmeldungVersuch(EmailNormalisiert, ErstelltAm)`
+- `AnmeldungVersuch(EmailHash, ErstelltAm)`, `AnmeldungVersuch(ErstelltAm)`
 - unique `Spieler(Email)`
 - kein Unique-Index auf `Spruch(PartieId, NachHalbzug)`
 
@@ -670,7 +670,7 @@ Logs enthalten nur `anmeldungId` und Ergebnis.
 ### 9.7 Konto löschen und Export
 
 - Selbstbedienung im Profil mit Bestätigungsdialog.
-- Eine Transaktion löscht hart alles zum Konto: Cascade auf `Spieler` (offene Partie, alle Partien, Züge, Sprüche, Elo, Bilanz) plus `DELETE Anmeldung WHERE Email = …` und `DELETE AnmeldungVersuch WHERE EmailNormalisiert = …`.
+- Eine Transaktion löscht hart alles zum Konto: Cascade auf `Spieler` (offene Partie, alle Partien, Züge, Sprüche, Elo, Bilanz) plus `DELETE Anmeldung WHERE Email = …` und `DELETE AnmeldungVersuch WHERE EmailHash = …`.
 - Danach abmelden. Andere Sitzungen werden über den Sicherheitsstempel ungültig.
 - Integrationstest: null Zeilen zur Konto-ID.
 - Derselbe Dienst ist als Admin-Befehl aufrufbar.
@@ -963,7 +963,7 @@ Budgetwächter nach Kronrat `LlmBudgetGuard` / `BudgetMath`.
 | `Mail:MaxJeStunde` | `40` | global, Speicherzähler im Dienst `MailKontingent`; darüber 503 `MailKontingentErschoepft` |
 | `Mail:MaxJeTag` | `200` | wie oben |
 
-- Die Adresse wird für die Zählung normalisiert (`EmailNormalisiert`: lowercase, `+tag` gestrichen).
+- Die Adresse wird für die Zählung normalisiert (lowercase, `+tag` gestrichen) und nur als SHA-256 (`EmailHash`) gespeichert.
 - Der Knopf im Client ist 60 s gesperrt.
 - `Mail:MaxJeTag` an den gebuchten Lettermint-Tarif anpassen (Free-Tarif: 300 Mails im Monat).
 
@@ -1043,7 +1043,7 @@ localStorage- und sessionStorage-Schlüssel stehen ohne Präfix in der Konstante
 ### 12.5 Aufbewahrung
 
 - Unbestätigte Magic-Link-Anfragen höchstens 24 h (praktisch 1 h über Sweep D).
-- `AnmeldungVersuch` (normalisierte Adresse und Zeitpunkt) höchstens 24 h.
+- Limit-Zähler `AnmeldungVersuch` höchstens 24 h, nur als Hash der Adresse (Sweep D).
 - App-Logs ohne IP und ohne E-Mail.
 - Konten bis zur Selbstlöschung.
 
