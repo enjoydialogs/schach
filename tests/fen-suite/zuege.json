@@ -1,0 +1,26 @@
+{
+  "kategorie": "zuege",
+  "faelle": [
+    {
+      "id": "zuege-en-passant",
+      "beschreibung": "Weiß darf f5 en passant schlagen, aber nicht auf d6.",
+      "fen": "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3",
+      "enthaelt": ["e5f6"],
+      "enthaeltNicht": ["e5d6"]
+    },
+    {
+      "id": "zuege-rochade-durch-schach",
+      "beschreibung": "Kurze Rochade über das angegriffene f1 ist verboten, lange erlaubt.",
+      "fen": "r3k2r/8/8/8/8/8/5r2/R3K2R w KQkq - 0 1",
+      "enthaelt": ["e1c1"],
+      "enthaeltNicht": ["e1g1"]
+    },
+    {
+      "id": "zuege-umwandlung",
+      "beschreibung": "Bauer auf a7 wandelt in vier Figuren um, dazu drei Königszüge.",
+      "fen": "8/P7/8/8/8/8/8/k6K w - - 0 1",
+      "anzahl": 7,
+      "enthaelt": ["a7a8q", "a7a8r", "a7a8b", "a7a8n"]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+<Project>
+
+  <!-- Gemeinsame Vorgaben aller Testprojekte, zusaetzlich zur Root-Datei. -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <!-- xUnit v3 auf Microsoft.Testing.Platform: eigenstaendiges Programm, kein VSTest-Host.
+         `dotnet test` findet die Projekte ueber den test.runner-Block in global.json. -->
+    <OutputType>Exe</OutputType>
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+    <!-- CA1515 (Typen internal machen) passt nicht zu xUnit-Testklassen. -->
+    <NoWarn>$(NoWarn);CA1515</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" />
+    <PackageReference Include="AwesomeAssertions" />
+    <Using Include="Xunit" />
+    <Using Include="AwesomeAssertions" />
+  </ItemGroup>
+
+</Project>

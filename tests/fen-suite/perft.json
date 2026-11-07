@@ -1,0 +1,23 @@
+{
+  "kategorie": "perft",
+  "faelle": [
+    {
+      "id": "perft-grundstellung",
+      "beschreibung": "Grundstellung.",
+      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "perft": { "1": 20, "2": 400, "3": 8902 }
+    },
+    {
+      "id": "perft-kiwipete",
+      "beschreibung": "Kiwipete: Rochaden, En passant und Fesselungen gemischt.",
+      "fen": "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+      "perft": { "1": 48, "2": 2039, "3": 97862 }
+    },
+    {
+      "id": "perft-position3",
+      "beschreibung": "Endspiel mit Bauernschlag en passant und Schach auf der Reihe.",
+      "fen": "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",
+      "perft": { "1": 14, "2": 191, "3": 2812 }
+    }
+  ]
+}
