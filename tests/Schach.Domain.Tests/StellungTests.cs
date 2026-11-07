@@ -55,6 +55,13 @@ public sealed class StellungTests
     }
 
     [Fact]
+    public void Zugnummer_steigt_nach_dem_schwarzen_Zug()
+    {
+        Stellung.AusFen(SchachDomain.GrundstellungFen).Ziehe("e2e4", "e7e5", "g1f3").Fen
+            .Should().Be("rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2");
+    }
+
+    [Fact]
     public void Unzulaessiger_Zug_wirft_ZugUnzulaessig()
     {
         var stellung = Stellung.AusFen(SchachDomain.GrundstellungFen);
@@ -82,6 +89,12 @@ public sealed class StellungTests
         matt.IstPatt.Should().BeFalse();
         matt.AmZug.Should().Be(Farbe.Weiss);
         matt.ErlaubteZuege().Should().BeEmpty();
+
+        var mattAusFen = Stellung.AusFen("rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3");
+        mattAusFen.IstMatt.Should().BeTrue();
+        mattAusFen.IstPatt.Should().BeFalse();
+
+        Stellung.AusFen("4k3/8/8/8/8/8/3q4/4K3 w - - 0 1").IstSchach.Should().BeTrue();
 
         var patt = Stellung.AusFen("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
         patt.IstPatt.Should().BeTrue();

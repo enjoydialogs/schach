@@ -104,6 +104,19 @@
       "fen": "4k3/3p4/8/4P3/8/8/8/R3K3 b - - 0 1",
       "zugfolge": ["d7d5", "a1a2", "e8d8", "a2a1", "d8e8", "a1a2", "e8d8", "a2a1", "d8e8", "a1a2", "e8d8", "a2a1", "d8e8"],
       "erwartet": "Wiederholung"
+    },
+    {
+      "id": "remis-matt-aus-fen",
+      "beschreibung": "Narrenmatt direkt aus der FEN geladen: Matt, kein Patt und kein Remis.",
+      "fen": "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3",
+      "erwartet": null
+    },
+    {
+      "id": "remis-wiederholung-vor-fuenfzig-zuegen",
+      "beschreibung": "Nach dem Königsdreieck steht der Zähler auf 100 und die Stellung zum dritten Mal: Wiederholung wird vor der 50-Züge-Regel geprüft.",
+      "fen": "4k3/8/8/8/8/8/8/R3K3 w - - 88 60",
+      "zugfolge": ["e1d1", "e8d8", "d1d2", "d8d7", "d2e1", "d7e8", "e1d1", "e8d8", "d1d2", "d8d7", "d2e1", "d7e8"],
+      "erwartet": "Wiederholung"
     }
   ]
 }

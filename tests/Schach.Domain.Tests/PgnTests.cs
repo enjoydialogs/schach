@@ -62,6 +62,15 @@ public sealed class PgnTests
             .And.EndWith("30... bxa1=Q+ 31. Kf2 O-O-O *\n");
     }
 
+    [Theory]
+    [InlineData(new[] { "e2e4", "a7a6", "e4e5", "d7d5", "e5d6" }, "1. e4 a6 2. e5 d5 3. exd6 *\n")]
+    [InlineData(new[] { "g1f3", "e7e5", "d2d3", "d7d5", "b1d2" }, "1. Nf3 e5 2. d3 d5 3. Nbd2 *\n")]
+    [InlineData(new[] { "e2e4", "e7e5", "g1f3", "b8c6", "f1c4", "g8f6", "e1g1" }, "1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. O-O *\n")]
+    public void SAN_ist_Standard_fuer_en_passant_Mehrdeutigkeit_und_Rochade(string[] zuege, string zugtext)
+    {
+        Pgn.Erzeuge(Kopf, zuege, ende: null).Should().EndWith("\n\n" + zugtext);
+    }
+
     [Fact]
     public void Erzeugtes_PGN_laesst_sich_wieder_laden()
     {
