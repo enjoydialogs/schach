@@ -49,6 +49,7 @@ Begriffe wie *Gegner*, *Partie* oder *Lernhilfe* sind in [`GLOSSARY.md`](GLOSSAR
 | 🌐 `src/Schach.Api` | HTTP-API, Auth, Rate-Limits, liefert die Web-App aus |
 | 🎨 `src/Schach.Web` | React 19, Vite, TypeScript |
 | ♞ `engine/` | Engine-Dienst in Python, **AGPL-3.0-or-later** |
+| 🛠️ `tools/` | Hilfswerkzeuge, z. B. die Spruch-Probe |
 | 🧪 `tests/` | .NET-Tests und die gemeinsame FEN-Suite |
 | 🚦 `ci/` | Ein CI-Skript für lokal und Cloud |
 | 🚀 `deploy/` | Betrieb über Dokploy |
