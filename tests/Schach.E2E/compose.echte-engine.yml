@@ -1,0 +1,14 @@
+# Dritte Compose-Datei fuer den E2E-Lauf mit echter Engine (SCHACH-SPEC 15.3 Phase 2: "lokal
+# komplette Gast-Partie mit echter Engine", Ticket #38). Nur nach compose.e2e.yml angeben, die
+# letzte Datei gewinnt:
+#
+#   docker compose -f docker-compose.yml -f tests/Schach.E2E/compose.e2e.yml \
+#     -f tests/Schach.E2E/compose.echte-engine.yml --profile full up -d --wait
+#
+# Leer heisst: Maia-3 statt Fixture. Die Engine laedt maia3-5m.pt beim ersten Start von Hugging Face
+# (engine/README.md). Startet .github/workflows/e2e.yml per Hand mit `echte_engine: true`.
+
+services:
+  engine:
+    environment:
+      SCHACH_ENGINE_FAKE_MODEL: ""
