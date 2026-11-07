@@ -97,3 +97,34 @@ def test_fehlendes_archivmitglied_bricht_ab(tmp_path):
 
     with pytest.raises(ValueError, match="stockfish/anders"):
         hole_binaries.hole(q, tmp_path / "bin")
+
+
+def test_lizenztext_aus_dem_archiv_landet_als_copying(tmp_path):
+    archiv = tar_gz({"stockfish/Copying.txt": b"GNU GENERAL PUBLIC LICENSE",
+                     "stockfish/stockfish-linux-x86-64-universal": b"\x7fELF sf"})
+    (tmp_path / "sf.tar.gz").write_bytes(archiv)
+    q = hole_binaries.Quelle("stockfish", (tmp_path / "sf.tar.gz").as_uri(), sha(archiv),
+                             archiv_mitglied="stockfish-linux-x86-64-universal", lizenz_mitglied="Copying.txt")
+
+    hole_binaries.hole(q, tmp_path / "bin", tmp_path / "doc")
+
+    assert (tmp_path / "doc" / "COPYING").read_bytes() == b"GNU GENERAL PUBLIC LICENSE"
+
+
+def test_stockfish_liefert_den_gpl_text_mit():
+    assert hole_binaries.STOCKFISH.lizenz_mitglied == "Copying.txt"
+
+
+@pytest.mark.parametrize("arch", ["x86-64-avx2", "x86-64-avx512"])
+def test_hinweise_nennen_tags_urls_pruefsummen_und_quellen(arch):
+    text = hole_binaries.hinweise(arch)
+
+    for q in hole_binaries.quellen(arch):
+        assert f"`{q.tag}`" in text
+        assert q.url in text
+        assert q.sha256 in text
+    assert "https://github.com/official-stockfish/Stockfish/tree/sf_19" in text
+    assert "https://github.com/fairy-stockfish/Fairy-Stockfish/tree/fairy_sf_14" in text
+    assert hole_binaries.MAIA3_COMMIT in text
+    assert "PyTorch @TORCH_VERSION@ (CPU), BSD-3-Clause" in text
+    assert "https://github.com/enjoydialogs/schach/tree/@COMMIT_SHA@/engine" in text

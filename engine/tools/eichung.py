@@ -319,22 +319,49 @@ def suche(
 def engine_eichung(ergebnisse: dict[str, Treffer]) -> dict[str, Any]:
     """Block `Engine:Eichung` je Gegner-Key, Form wie `Schach.Domain.Eichung(SelfElo, Temperatur, Engine)`.
 
-    Nicht im Band: Anfaenger (600/800) bekommen Fairy-Stockfish mit `SelfElo` = Gegner-Elo als
-    `fairy_skill` (5.4 a), alle anderen bleiben bei der Identitaet und stehen in `nicht_im_band`.
+    Verfehlt ein Anfaenger (600/800) das Band, spielt die ganze Spielstaerke Anfaenger mit
+    Fairy-Stockfish, `SelfElo` = Gegner-Elo als `fairy_skill` (5.1, 5.4 a). Alle anderen Gegner
+    ausserhalb des Bandes bleiben bei der Identitaet und stehen in `nicht_im_band`.
+    `tau_abweichung` nennt Spielstaerken, deren Gegner verschiedene Temperaturen bekamen (5.3
+    Schritt 2: tau nur je Spielstaerke); dann von Hand eine gemeinsame waehlen und nachmessen.
     """
     block: dict[str, dict[str, Any]] = {}
     nicht: list[str] = []
+    anfaenger = s.SPIELSTAERKEN["anfaenger"]
+    anfaenger_fairy = any(k in anfaenger and not t.im_band for k, t in ergebnisse.items())
     for key, t in ergebnisse.items():
         elo = s.gegner(key).elo
-        if t.im_band:
-            block[key] = {"SelfElo": t.self_elo, "Temperatur": t.temperatur, "Engine": "Maia"}
-            continue
-        nicht.append(key)
-        if elo in ANFAENGER_ELOS:
+        if not t.im_band:
+            nicht.append(key)
+        if key in anfaenger and anfaenger_fairy:
             block[key] = {"SelfElo": max(elo, FAIRY_MIN_ELO), "Temperatur": 1.0, "Engine": "Fairy"}
+        elif t.im_band:
+            block[key] = {"SelfElo": t.self_elo, "Temperatur": t.temperatur, "Engine": "Maia"}
         else:
             block[key] = {"SelfElo": elo, "Temperatur": 1.0, "Engine": "Maia"}
-    return {"Engine": {"Eichung": block}, "nicht_im_band": nicht}
+    abweichung = [
+        stufe
+        for stufe, keys in s.SPIELSTAERKEN.items()
+        if len({block[k]["Temperatur"] for k in keys if k in block and block[k]["Engine"] == "Maia"}) > 1
+    ]
+    return {"Engine": {"Eichung": block}, "nicht_im_band": nicht, "tau_abweichung": abweichung}
+
+
+def pruefe_uci_anker(pfad: str | Sequence[str], anker_elos: Iterable[int]) -> None:
+    """Bricht vor dem Spielen ab, wenn ein Anker ausserhalb von `UCI_Elo` liegt (nicht kappen:
+    sonst stuende eine falsche Anker-Elo in den Ergebnissen)."""
+    import chess.engine
+
+    engine = chess.engine.SimpleEngine.popen_uci(pfad if isinstance(pfad, str) else list(pfad))
+    try:
+        option = engine.options.get("UCI_Elo")
+        if option is None or "UCI_LimitStrength" not in engine.options:
+            raise ValueError("UCI anchor has no UCI_Elo / UCI_LimitStrength")
+        ausserhalb = [a for a in anker_elos if a < (option.min or a) or a > (option.max or a)]
+        if ausserhalb:
+            raise ValueError(f"UCI_Elo range {option.min}..{option.max} excludes anchors {ausserhalb}")
+    finally:
+        engine.quit()
 
 
 # --- Sichtbarkeit --------------------------------------------------------------------------
@@ -387,10 +414,18 @@ class Lauf:
         self._lock = threading.Lock()
         self._fertig: dict[str, dict[str, Any]] = {}
         if spiele.exists():
-            for zeile in spiele.read_text(encoding="utf-8").splitlines():
-                if zeile.strip():
+            text = spiele.read_text(encoding="utf-8")
+            if text and not text.endswith("\n"):
+                with spiele.open("a", encoding="utf-8", newline="\n") as f:
+                    f.write("\n")  # angefangene Zeile abschliessen, damit die naechste sauber beginnt
+            for zeile in text.splitlines():
+                if not zeile.strip():
+                    continue
+                try:
                     d = json.loads(zeile)
-                    self._fertig[d["id"]] = d
+                except ValueError:
+                    continue  # beim Abbruch halb geschriebene Zeile; die Partie wird neu gespielt
+                self._fertig[d["id"]] = d
 
     def _speichern(self, zeile: dict[str, Any]) -> None:
         with self._lock:
@@ -646,7 +681,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         temperaturen = [float(x) for x in args.temperaturen.split(",") if x.strip()]
         stufen: dict[str, Any] = {}
         treffer: dict[str, Treffer] = {}
-        for key in _gegner_liste(args.gegner):
+        gegner_keys = _gegner_liste(args.gegner)
+        if args.anker == "uci":
+            alle_anker = sorted({x for k in gegner_keys for x in _anker_elos(s.gegner(k).elo, args.anker_elos)})
+            try:
+                pruefe_uci_anker(args.anker_pfad, alle_anker)
+            except ValueError as fehler:
+                a.error(f"{fehler}; choose --anker-elos inside the range or use --anker fairy")
+        for key in gegner_keys:
             ziel = s.gegner(key).elo
             anker = _anker_elos(ziel, args.anker_elos)
             versuche: list[dict[str, Any]] = []
@@ -665,6 +707,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     berichte = {}
     for key in _gegner_liste(args.gegner):
         e_ = block.get(key, {"SelfElo": s.gegner(key).elo, "Temperatur": 1.0, "Engine": "Maia"})
+        if e_.get("Engine", "Maia") != "Maia":
+            print(f"{key}: engine {e_['Engine']} has no style, skipped", file=sys.stderr)
+            berichte[key] = {"uebersprungen": f"Engine {e_['Engine']} hat keinen Stil"}
+            continue
         berichte[key] = lauf.stil_ab(key, int(e_["SelfElo"]), float(e_["Temperatur"]), args.partien, args.gewicht_max, args.band_faktor)
     schreiben({"stil": berichte})
     return 0
