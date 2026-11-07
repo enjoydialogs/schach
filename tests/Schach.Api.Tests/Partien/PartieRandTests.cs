@@ -298,7 +298,7 @@ public sealed class PartieRandTests
             {
                 using var mia = new ApiSitzung(factory);
                 await mia.AnmeldenAsync("mia@example.test");
-                var zustand = await StartenAsync(mia, "sementa", FarbeWahl.Weiss, Bedenkzeit.Fischer5Plus3);
+                var zustand = await StartenAsync(mia, "ilse", FarbeWahl.Weiss, Bedenkzeit.Fischer5Plus3);
 
                 (await SweepAsync(factory, s => s.UhrenAsync(Ct))).Should().Be(0);
                 zeit.Advance(TimeSpan.FromMinutes(6));

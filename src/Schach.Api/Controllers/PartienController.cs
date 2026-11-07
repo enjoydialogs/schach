@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.RateLimiting;
 using Schach.Api.Auth;
 using Schach.Api.Contracts;
 using Schach.Api.RateLimiting;
-using Schach.Infrastructure.Identity;
 using Schach.Application.Partien;
+using Schach.Infrastructure.Identity;
 using Domain = Schach.Domain;
 using Entitaeten = Schach.Domain.Entitaeten;
 
