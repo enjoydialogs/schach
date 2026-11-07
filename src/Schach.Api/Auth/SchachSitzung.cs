@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +9,7 @@ namespace Schach.Api.Auth;
 
 /// <summary>
 /// Sitzung per Cookie <c>schach_sitzung</c>, Stempelpruefung und CSRF (SCHACH-SPEC 9.1, 9.4) plus
-/// Limiter <c>magic-link-je-ip</c> (SCHACH-SPEC 11.3, 11.4).
+/// den Namen des Limiters <c>magic-link-je-ip</c> (SCHACH-SPEC 11.3, 11.4; registriert in <c>SchachRateLimits</c>).
 /// </summary>
 internal static partial class SchachSitzung
 {
@@ -18,10 +17,11 @@ internal static partial class SchachSitzung
     public const string CsrfHeader = "X-CSRF-TOKEN";
     public const string ClaimSpieler = "sub";
     public const string ClaimStempel = "stempel";
-    public const string MagicLinkJeIp = "magic-link-je-ip";
+    public const string MagicLinkJeIp = RateLimiting.SchachRateLimits.MagicLinkJeIp;
 
     public static IServiceCollection AddSchachSitzung(this IServiceCollection services, IConfiguration configuration)
     {
+        ArgumentNullException.ThrowIfNull(configuration);
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(o =>
             {
@@ -52,20 +52,8 @@ internal static partial class SchachSitzung
         services.AddMvcCore().AddViews();
         services.Configure<MvcOptions>(o => o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
 
-        var jeIp = configuration.GetValue("Limits:AnmeldungenJeIpUnd10Minuten", new AnmeldungOptionen().AnmeldungenJeIpUnd10Minuten);
-        services.AddRateLimiter(o =>
-        {
-            o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-            o.AddPolicy(MagicLinkJeIp, ctx => RateLimitPartition.GetFixedWindowLimiter(
-                ctx.Connection.RemoteIpAddress?.ToString() ?? "unbekannt",
-                _ => new FixedWindowRateLimiterOptions
-                {
-                    PermitLimit = jeIp,
-                    Window = TimeSpan.FromMinutes(10),
-                    QueueLimit = 0,
-                }));
-        });
-
+        // Der Limiter magic-link-je-ip steht mit allen anderen Policies in SchachRateLimits (S2b),
+        // damit OnRejected (Retry-After, Meter) fuer alle gilt und keine Policy doppelt registriert wird.
         return services;
     }
 
