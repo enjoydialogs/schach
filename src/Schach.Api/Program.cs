@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Schach.Api.Contracts;
 using Schach.Api.Middleware;
+using Schach.Api.RateLimiting;
 using Schach.Api.Telemetry;
 using Schach.Infrastructure;
+using Schach.Infrastructure.Engine;
 using Schach.Infrastructure.Persistence;
 
 // Program.cs ist ein Append-Register (SCHACH-SPEC 15.1 Regel 5): jede Session haengt genau einen
@@ -62,6 +64,11 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // S2b: Engine-Client, Rate-Limiter (AddRateLimiter), Meter
 // S2c: Sprueche, LLM, Budgetwaechter
 
+// S2b: Engine-Client (Engine:BaseUrl), Limits und Ueberlastsperre, Rate-Limiter, Meter (SCHACH-SPEC 5.2, 11.2, 11.4, 14.2).
+builder.Services.AddSchachEngine(builder.Configuration);
+builder.Services.AddSchachRateLimiter(builder.Configuration);
+builder.Services.AddHostedService<ForwardedHeadersPruefung>();
+
 var app = builder.Build();
 
 if (telemetryEnabled)
@@ -102,7 +109,7 @@ app.UseStaticFiles(spaFiles);
 // Rueckfallroute, und StaticFileMiddleware tritt beiseite (Kronrat, Erst-Deploy 2026-08-10).
 // Reihenfolge danach nach SCHACH-SPEC 11.4: Routing, RateLimiter (S2b), Authentication (S2a).
 app.UseRouting();
-// S2b: app.UseRateLimiter();
+app.UseRateLimiter();
 // S2a: app.UseAuthentication(); app.UseAuthorization();
 
 app.MapControllers();
