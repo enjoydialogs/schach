@@ -1,0 +1,5 @@
+- Tonregel:
+  - Über sich selbst darf der Gegner frei reden. Über den Spieler nur neutral oder freundlich.
+  - Fehler sind Fakten über Figuren, nie über die Person.
+  - Keine Zugempfehlung, keine Warnung vor hängenden Figuren des Spielers.
+  - Lehrerhaft erklärt nur rückblickend eigene Züge.

@@ -27,12 +27,12 @@ public class ErsatzDateienTests
     }
 
     [Fact]
-    public void Insgesamt_etwa_250_Zeilen()
+    public void Insgesamt_etwa_330_Zeilen()
     {
         var zeilen = ErsatzKatalog.ErwarteteGegner
             .Sum(k => File.ReadAllLines(Path.Combine(PromptsDir, "ersatz", k + ".de.md")).Count(l => l.StartsWith("- ", StringComparison.Ordinal)));
 
-        zeilen.Should().BeInRange(230, 300);
+        zeilen.Should().BeInRange(300, 370);
     }
 
     [Fact]

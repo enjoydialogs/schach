@@ -1,5 +1,7 @@
+using System.Text.Json;
 using Schach.Application.Abstractions;
 using Schach.Application.Sprueche;
+using Schach.Domain;
 using Schach.Infrastructure.Llm;
 using Schach.SpruchProbe;
 
@@ -32,6 +34,33 @@ public sealed class SpruchProbeTests
         provider.Aufrufe.Should().Be(224);
         zeilen.Should().OnlyContain(z => z.Quelle == "Mistral" && z.Text == "Attacke, mein Springer!");
         zeilen.Select(z => z.Gegner).Distinct().Should().BeEquivalentTo(ErsatzKatalog.ErwarteteGegner);
+    }
+
+    [Fact]
+    public async Task Jeder_Aufruf_traegt_Tonregel_und_Laune_seines_Gegners()
+    {
+        var anfragen = new List<LlmRequest>();
+        var provider = new FakeProvider(a =>
+        {
+            anfragen.Add(a);
+            return "Attacke, mein Springer!";
+        });
+
+        var zeilen = await Lauf(provider).AusfuehrenAsync(Ct);
+
+        anfragen.Should().HaveCount(zeilen.Count);
+        for (var i = 0; i < zeilen.Count; i++)
+        {
+            var zeile = zeilen[i];
+            anfragen[i].Variables["tonregel"].Should().Be("Tonregel " + zeile.Gegner);
+            using var daten = JsonDocument.Parse(anfragen[i].Variables["daten"]);
+            daten.RootElement.GetProperty("laune").GetString().Should().Be(zeile.Laune);
+        }
+
+        // Stufe-0-Gegner bleiben unter vorlaut, Stufe-2-Gegner zeigen auch genervt.
+        zeilen.Where(z => GegnerKatalog.Finde(z.Gegner)!.Frechheit == Frechheit.Freundlich)
+            .Should().OnlyContain(z => z.Laune == "trocken" || z.Laune == "lustig");
+        zeilen.Select(z => z.Laune).Distinct().Should().HaveCountGreaterThan(2);
     }
 
     [Fact]
@@ -82,7 +111,8 @@ public sealed class SpruchProbeTests
         var csv = ProbeCsv.Schreibe([Zeile(roh: "Ach; \"na\" gut\nzwei")]);
 
         var zeilen = csv.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        zeilen[0].Should().Be("gegner;szenario;durchlauf;ms;quelle;roh;text;rohUeber100;sperrliste;fehler");
+        zeilen[0].Should().Be("gegner;szenario;durchlauf;laune;ms;quelle;roh;text;rohUeber100;sperrliste;fehler");
+        zeilen[1].Should().StartWith("finn;zug;1;vorlaut;500;");
         csv.Should().Contain("\"Ach; \"\"na\"\" gut zwei\"");
     }
 
@@ -95,11 +125,13 @@ public sealed class SpruchProbeTests
     }
 
     private static ProbeZeile Zeile(int ms = 500, string quelle = "Mistral", bool lang = false, bool sperr = false, string roh = "Hallo.") =>
-        new("finn", "zug", 1, ms, quelle, roh, "Hallo.", lang, sperr, "");
+        new("finn", "zug", 1, "vorlaut", ms, quelle, roh, "Hallo.", lang, sperr, "");
 
     private sealed class FestePersona : IPersonaQuelle
     {
         public string Persona(string gegnerKey) => "Persona " + gegnerKey;
+
+        public string Tonregel(string gegnerKey) => "Tonregel " + gegnerKey;
     }
 
     private sealed class FakeProvider(Func<LlmRequest, string> antwort) : ILlmProvider

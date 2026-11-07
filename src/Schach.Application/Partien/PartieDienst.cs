@@ -282,7 +282,7 @@ public sealed class PartieDienst(
         }
 
         var ereignis = SpruchAuswahl.NachZuruecknahme(
-            danach.Sprueche, danach.Zugfolge, danach.Partie.SpielerFarbe, schonZurueckgenommen, spruchOptionen);
+            danach.Sprueche, danach.Zugfolge, danach.Partie.SpielerFarbe, schonZurueckgenommen, spruchOptionen.FuerGegner(danach.Partie.GegnerId));
         return ereignis is { } e
             ? new PartieErgebnis(await SpruchNachtragenAsync(danach, e, danach.Partie.Halbzuege, null, ct))
             : ergebnis;
@@ -687,7 +687,7 @@ public sealed class PartieDienst(
                     Spruchbau.Lage(sicht.Zugfolge, farbe),
                     SpruchAuswahl.GegnerzuegeSeitSpruch(sicht.Zugfolge, sicht.Sprueche, farbe),
                     SpruchAuswahl.NichtPflicht(sicht.Sprueche),
-                    spruchOptionen);
+                    spruchOptionen.FuerGegner(sicht.Partie.GegnerId));
                 return ereignis is { } e ? await SpruchNachtragenAsync(sicht, e, sicht.Partie.Halbzuege, null, ct) : sicht;
             default:
                 return sicht;

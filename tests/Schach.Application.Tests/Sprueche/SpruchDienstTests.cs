@@ -52,7 +52,7 @@ public sealed class SpruchDienstTests
 
     private static SpruchAnfrage Anfrage(Partie partie, SpruchEreignis ereignis = SpruchEreignis.Zug) => new(
         partie, "Finn", ereignis, 12,
-        new SpruchDaten(ereignis.ToString(), 6, "Eröffnung", "Weiss", partie.Bedenkzeit.ToString(), "e4", "e5", false, 0, 0, null, [], null, []),
+        new SpruchDaten(ereignis.ToString(), 6, "Eröffnung", "Weiss", partie.Bedenkzeit.ToString(), "e4", "e5", false, 0, 0, null, [], null, "trocken", []),
         new ErsatzWerte(null, 6), []);
 
     private Task<Spruch> Spruch(Partie partie, SpruchEreignis ereignis = SpruchEreignis.Zug) =>
@@ -97,8 +97,9 @@ public sealed class SpruchDienstTests
         _provider.LetzteAnfrage!.PromptFile.Should().Be("spruch.de.md");
         _provider.LetzteAnfrage.MaxTokens.Should().Be(80);
         _provider.LetzteAnfrage.Temperature.Should().Be(0.8);
-        _provider.LetzteAnfrage.Variables.Should().ContainKeys("name", "persona", "daten");
+        _provider.LetzteAnfrage.Variables.Should().ContainKeys("name", "persona", "tonregel", "daten");
         _provider.LetzteAnfrage.Variables["persona"].Should().Be("Persona finn");
+        _provider.LetzteAnfrage.Variables["tonregel"].Should().Be("Tonregel finn");
     }
 
     [Theory]
@@ -269,6 +270,8 @@ public sealed class SpruchDienstTests
     private sealed class FestePersona : IPersonaQuelle
     {
         public string Persona(string gegnerKey) => "Persona " + gegnerKey;
+
+        public string Tonregel(string gegnerKey) => "Tonregel " + gegnerKey;
     }
 
     private sealed class FakeGuard : ILlmBudgetGuard

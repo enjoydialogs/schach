@@ -7,6 +7,7 @@ public enum Zufallszweck
 {
     Zugwahl = 1,
     Denkzeit = 2,
+    Laune = 3,
 }
 
 /// <summary>

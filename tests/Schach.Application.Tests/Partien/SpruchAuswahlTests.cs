@@ -97,6 +97,34 @@ public sealed class SpruchAuswahlTests
     }
 
     [Fact]
+    public void Finn_und_Sementa_reden_mit_kuerzeren_Abstaenden()
+    {
+        foreach (var key in new[] { "finn", "sementa" })
+        {
+            var optionen = Optionen.FuerGegner(key);
+            SpruchAuswahl.NachGegnerzug(Lage(gibt: true), 1, 0, optionen).Should().Be(SpruchEreignis.SchachGegeben, key);
+            SpruchAuswahl.NachGegnerzug(Lage(), 1, 0, optionen).Should().BeNull(key);
+            SpruchAuswahl.NachGegnerzug(Lage(), 2, 0, optionen).Should().Be(SpruchEreignis.Zug, key);
+        }
+    }
+
+    [Fact]
+    public void Andere_Gegner_behalten_die_konfigurierten_Abstaende()
+    {
+        var konfiguriert = new SpruchOptions { AbstandTierB = 3, AbstandTierC = 5, MaxJePartie = 7 };
+
+        var ilse = konfiguriert.FuerGegner("ilse");
+        ilse.AbstandTierB.Should().Be(3);
+        ilse.AbstandTierC.Should().Be(5);
+        konfiguriert.FuerGegner("unbekannt").AbstandTierB.Should().Be(3);
+
+        // Nur die Abstaende aendern sich, Deckel bleiben (Spec 6.2).
+        var finn = konfiguriert.FuerGegner("finn");
+        (finn.AbstandTierB, finn.AbstandTierC, finn.MaxJePartie).Should().Be((1, 2, 7));
+        konfiguriert.AbstandTierB.Should().Be(3);
+    }
+
+    [Fact]
     public void Zaehler_aus_den_gespeicherten_Spruechen()
     {
         var folge = Folge("e2e4", "e7e5", "g1f3", "b8c6", "f1c4", "g8f6");
@@ -138,7 +166,7 @@ public sealed class SpruchAuswahlTests
     public void Anfrage_traegt_Daten_und_Ersatz_Figur()
     {
         var folge = Folge("e2e4", "e7e5", "d1h5", "b8c6", "h5f7", "e8f7");
-        var partie = new Partie { Id = Guid.NewGuid(), GegnerId = "finn", SpielerFarbe = Farbe.Weiss, Fen = folge[^1].FenDanach };
+        var partie = new Partie { Id = Guid.NewGuid(), GegnerId = "finn", SpielerFarbe = Farbe.Weiss, Fen = folge[^1].FenDanach, Seed = 99 };
 
         var anfrage = Spruchbau.Anfrage(partie, folge, [S(0, SpruchEreignis.Partiebeginn)], SpruchEreignis.FigurGewonnen, 6, null, nurErsatz: false);
 
@@ -151,5 +179,24 @@ public sealed class SpruchAuswahlTests
         anfrage.Daten.GegnerZugMerkmale.Should().Contain("Schlagzug");
         anfrage.Daten.Zugnummer.Should().Be(4);
         anfrage.BisherigeTexte.Should().Equal("Partiebeginn");
+    }
+
+    [Fact]
+    public void Anfrage_traegt_die_Laune_des_Gegners_zum_Halbzug()
+    {
+        var folge = Folge("e2e4", "e7e5");
+        var finn = GegnerKatalog.Finde("finn")!;
+        var launen = new HashSet<string>();
+        for (var seed = 0; seed < 40; seed++)
+        {
+            var partie = new Partie { Id = Guid.NewGuid(), GegnerId = "finn", SpielerFarbe = Farbe.Weiss, Fen = folge[^1].FenDanach, Seed = seed };
+            var anfrage = Spruchbau.Anfrage(partie, folge, [], SpruchEreignis.Zug, 2, null, nurErsatz: false);
+
+            var erwartet = Launenwahl.Waehle(finn, seed, 2);
+            anfrage.Daten.Laune.Should().Be(erwartet.ToString().ToLowerInvariant());
+            launen.Add(anfrage.Daten.Laune);
+        }
+
+        launen.Should().BeSubsetOf(["trocken", "lustig", "vorlaut", "genervt"]).And.HaveCountGreaterThan(1);
     }
 }

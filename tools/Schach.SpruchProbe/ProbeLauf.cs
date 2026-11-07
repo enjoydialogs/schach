@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text;
 using Schach.Application.Abstractions;
 using Schach.Application.Sprueche;
+using Schach.Domain;
 using Schach.Domain.Entitaeten;
 
 namespace Schach.SpruchProbe;
@@ -16,7 +17,7 @@ public static class ProbeSzenarien
     private static SpruchDaten D(
         SpruchEreignis e, int zug, string phase, string? spieler, string? gegner, bool schach = false,
         int aenderung = 0, int bilanz = 0, string? stellung = null, string[]? merkmale = null, string? grund = null) =>
-        new(e.ToString(), zug, phase, "Weiss", "OhneUhr", spieler, gegner, schach, aenderung, bilanz, stellung, merkmale ?? [], grund, []);
+        new(e.ToString(), zug, phase, "Weiss", "OhneUhr", spieler, gegner, schach, aenderung, bilanz, stellung, merkmale ?? [], grund, "trocken", []);
 
     public static readonly IReadOnlyList<ProbeSzenario> Alle =
     [
@@ -39,7 +40,7 @@ public static class ProbeSzenarien
 
 /// <summary>Eine Zeile der CSV.</summary>
 public sealed record ProbeZeile(
-    string Gegner, string Szenario, int Durchlauf, long Ms, string Quelle, string Roh, string Text,
+    string Gegner, string Szenario, int Durchlauf, string Laune, long Ms, string Quelle, string Roh, string Text,
     bool RohUeber100, bool Sperrliste, string Fehler);
 
 /// <summary>
@@ -69,12 +70,17 @@ public sealed class ProbeLauf(ILlmProvider provider, ErsatzKatalog ersatz, IPers
         return zeilen;
     }
 
+    /// <summary>Laune wie in der Partie (6.3): Durchlauf als Seed, Szenario als Halbzug.</summary>
+    internal static string Laune(string key, int durchlauf, int index) =>
+        Launenwahl.Waehle(GegnerKatalog.Finde(key)!, durchlauf, index + 1).ToString().ToLowerInvariant();
+
     private async Task<ProbeZeile> EinAufrufAsync(string key, string name, ProbeSzenario szenario, int index, int durchlauf, CancellationToken cancellationToken)
     {
         using var zeitlimit = new CancellationTokenSource(TimeSpan.FromMilliseconds(options.ZeitlimitMs), zeit);
         using var verbunden = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, zeitlimit.Token);
         var uhr = Stopwatch.StartNew();
         string roh = "", fehler = "";
+        var laune = Laune(key, durchlauf, index);
         SpruchPruefung? pruefung = null;
         try
         {
@@ -85,7 +91,8 @@ public sealed class ProbeLauf(ILlmProvider provider, ErsatzKatalog ersatz, IPers
                     {
                         ["name"] = name,
                         ["persona"] = persona.Persona(key),
-                        ["daten"] = szenario.Daten.AlsJson(),
+                        ["tonregel"] = persona.Tonregel(key),
+                        ["daten"] = (szenario.Daten with { Laune = laune }).AlsJson(),
                     },
                     options.MaxTokens,
                     options.Temperature),
@@ -108,7 +115,7 @@ public sealed class ProbeLauf(ILlmProvider provider, ErsatzKatalog ersatz, IPers
             ? pruefung!.Text
             : ersatz.Waehle(key, szenario.Ereignis, durchlauf, index, [], szenario.Werte);
         return new ProbeZeile(
-            key, szenario.Name, durchlauf, uhr.ElapsedMilliseconds, ok ? "Mistral" : "Ersatz", roh, text,
+            key, szenario.Name, durchlauf, laune, uhr.ElapsedMilliseconds, ok ? "Mistral" : "Ersatz", roh, text,
             pruefung?.RohLaengeUeber100 ?? false, pruefung?.Grund == SpruchAblehnung.Sperrliste, fehler);
     }
 }
@@ -148,7 +155,7 @@ public sealed record ProbeAuswertung(int Anzahl, long P95Ms, double Ersatzquote,
 /// <summary>CSV nach <c>.local/spruch-probe/&lt;datum&gt;.csv</c>, Semikolon, UTF-8.</summary>
 public static class ProbeCsv
 {
-    public const string Kopf = "gegner;szenario;durchlauf;ms;quelle;roh;text;rohUeber100;sperrliste;fehler";
+    public const string Kopf = "gegner;szenario;durchlauf;laune;ms;quelle;roh;text;rohUeber100;sperrliste;fehler";
 
     public static string Pfad(string repoRoot, DateOnly datum) =>
         Path.Combine(repoRoot, ".local", "spruch-probe", datum.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + ".csv");
@@ -160,7 +167,7 @@ public static class ProbeCsv
         foreach (var z in zeilen)
         {
             sb.AppendJoin(';',
-                Feld(z.Gegner), Feld(z.Szenario), z.Durchlauf.ToString(CultureInfo.InvariantCulture),
+                Feld(z.Gegner), Feld(z.Szenario), z.Durchlauf.ToString(CultureInfo.InvariantCulture), Feld(z.Laune),
                 z.Ms.ToString(CultureInfo.InvariantCulture), Feld(z.Quelle), Feld(z.Roh), Feld(z.Text),
                 z.RohUeber100 ? "1" : "0", z.Sperrliste ? "1" : "0", Feld(z.Fehler)).Append('\n');
         }

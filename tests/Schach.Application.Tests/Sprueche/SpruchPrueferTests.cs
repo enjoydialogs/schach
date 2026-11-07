@@ -143,4 +143,26 @@ public class SpruchPrueferTests
     [InlineData("Mein Turm hängte sich nie auf.")]
     public void Wortgrenzen_und_kleines_sie_loesen_keinen_Treffer_aus(string roh) =>
         Pruefe(roh).Ok.Should().BeTrue();
+
+    [Theory]
+    [InlineData("Der Zug war dumm.")]
+    [InlineData("So ein dummer Läufer!")]
+    [InlineData("Doof gelaufen für dich.")]
+    [InlineData("Was für ein doofer Zug.")]
+    [InlineData("Blöd für deinen Turm.")]
+    [InlineData("Der blöde Bauer ist weg.")]
+    [InlineData("Wie ein Idiot gezogen.")]
+    [InlineData("Na, du Trottel!")]
+    [InlineData("Danke, Versager.")]
+    [InlineData("Verloren, Loser!")]
+    [InlineData("Danke, du Depp.")]
+    public void Lehnt_Beleidigungen_ab(string roh) =>
+        Pruefe(roh).Grund.Should().Be(SpruchAblehnung.Sperrliste);
+
+    [Theory]
+    [InlineData("Echt jetzt, der Läufer?")]
+    [InlineData("Danke für die Dame, war lecker.")]
+    [InlineData("Ich spiel doch nicht auf Remis, ich will gewinnen.")]
+    public void Neckende_Saetze_ueber_Zuege_bleiben_erlaubt(string roh) =>
+        Pruefe(roh).Ok.Should().BeTrue();
 }

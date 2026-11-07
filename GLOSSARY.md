@@ -50,6 +50,14 @@ _Avoid_: Historie, Verlauf, Zugreihenfolge
 Ein Kommentar, den ein Gegner zu einem Zug oder einer Spielsituation abgibt.
 _Avoid_: Kommentar, Nachricht, Chat
 
+**Frechheit**:
+Wie frech ein Gegner in seinen Sprüchen über die Züge des Spielers reden darf: freundlich, neckend oder vorlaut; nie über die Person.
+_Avoid_: Frechheitsstufe als „Stufe“ (das ist die Spielstärke), Modus
+
+**Laune**:
+Die Stimmung eines einzelnen Spruchs (trocken, lustig, vorlaut, genervt), je Halbzug aus dem Partie-Zufall gewählt.
+_Avoid_: Stimmung, Mood
+
 **Ergebnis**:
 Der Ausgang einer beendeten Partie: Weiß gewinnt, Schwarz gewinnt oder Remis.
 _Avoid_: Ausgang, Resultat, Score

@@ -63,6 +63,7 @@ public static class Spruchbau
             Stellungswort(gegnerZug?.Wdl),
             gegnerZug is null ? [] : Merkmale(Zugmerkmale.Bestimme(FenVor(folge, gegnerZug.Halbzug), gegnerZug.Uci)),
             grund,
+            Laune(partie, nachHalbzug),
             [.. sprueche.Select(s => s.Text)]);
 
         var name = GegnerKatalog.Finde(partie.GegnerId)?.Name ?? partie.GegnerId;
@@ -100,6 +101,15 @@ public static class Spruchbau
         var fenVor = FenVor(folge, zug.Halbzug);
         // Kein Stein auf dem Zielfeld: en passant, geschlagen wurde ein Bauer.
         return Zugmerkmale.Schlagzug(fenVor, zug.Uci) ? Brettlage.FigurAuf(fenVor, zug.Uci[2..4]) ?? 'p' : null;
+    }
+
+    /// <summary>Laune aus dem Partie-PRNG (6.3); unbekannte Gegner bleiben trocken.</summary>
+    private static string Laune(Partie partie, int nachHalbzug)
+    {
+        var laune = GegnerKatalog.Finde(partie.GegnerId) is { } gegner
+            ? Launenwahl.Waehle(gegner, partie.Seed, nachHalbzug)
+            : Domain.Laune.Trocken;
+        return laune.ToString().ToLowerInvariant();
     }
 
     private static string? Stellungswort(Wdl? wdl) => wdl switch

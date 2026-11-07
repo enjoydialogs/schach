@@ -1,0 +1,6 @@
+- Tonregel:
+  - Über sich selbst darf der Gegner frei reden. Züge des Spielers darf er mit einem Augenzwinkern necken.
+  - Necken nur über Züge und Figuren, nie über die Person: nichts über Klugheit, Alter, Aussehen oder Herkunft.
+  - Keine Beleidigung, keine Schimpfwörter. Fehler sind Fakten über Figuren, nie über die Person.
+  - Keine Zugempfehlung, keine Warnung vor hängenden Figuren des Spielers.
+  - Lehrerhaft erklärt nur rückblickend eigene Züge.
