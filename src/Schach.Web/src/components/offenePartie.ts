@@ -9,7 +9,11 @@ import { gastPartieId } from './SpeicherSchluessel'
  */
 export async function ladeOffenePartie(gast: boolean): Promise<ZustandDto | null> {
   if (!gast) {
-    return api.get<ZustandDto>('/partien/offen').catch(() => null)
+    // 204 ohne offene Partie hat keinen Body; Gaeste bekommen 401.
+    return api.get<ZustandDto | undefined>('/partien/offen').then(
+      (z) => z ?? null,
+      () => null,
+    )
   }
   const id = gastPartieId.lies()
   if (id === null) return null

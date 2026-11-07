@@ -1,5 +1,5 @@
 import { useEffect, useSyncExternalStore } from 'react'
-import { api, setCsrfToken } from '../api/client'
+import { api, setCsrfToken, setzeCsrfLader } from '../api/client'
 import type { SitzungAntwort, SpielerDto } from '../api/types'
 
 // Sitzungsstatus der App (SCHACH-SPEC 10.1): `laedt | gast | spieler | unbekannt` (Netzfehler).
@@ -50,6 +50,10 @@ export function ladeSitzung(): Promise<Sitzung> {
     })
   return laufend
 }
+
+// S3e: Fehlt dem Client vor einem Nicht-GET das Token oder lehnt der Server es ab, laedt er die
+// Sitzung neu; so bleibt der Sitzungsstand (z. B. nach Abmeldung auf einem anderen Geraet) aktuell.
+setzeCsrfLader(ladeSitzung)
 
 /** Nur fuer Tests: zurueck auf den Anfang. */
 export function setzeSitzungZurueck(): void {

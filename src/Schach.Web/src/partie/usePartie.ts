@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, ApiFehler } from '../api/client'
-import type { SitzungAntwort, TippAntwort, ZustandDto } from '../api/types'
+import type { TippAntwort, ZustandDto } from '../api/types'
+import { gastPartieId } from '../components/SpeicherSchluessel'
+import { useSitzung } from '../components/sitzung'
 import { de } from '../i18n/de'
 import { nachZug, sichtbareStellung, type Anzeige } from './anzeige'
 import { spieleTon, vibriere, VIBRATION_ENDE, VIBRATION_ZUG } from './toene'
@@ -13,6 +15,11 @@ import { restMs, uhrVersatz } from './uhr'
 
 const POLL_MS = 3_000
 const HINWEIS_MS = 3_000
+/**
+ * Hoechstens so lange nach Empfang bleibt ein Gegnerzug unsichtbar. Die Denkzeit D ist hoechstens
+ * 3 s (8.6); ohne Uhr fehlt `serverZeit`, eine nachgehende Geraeteuhr verzoegerte ihn sonst beliebig.
+ */
+const SICHTBAR_MAX_MS = 3_500
 
 export type LadeStand = 'laedt' | 'bereit' | 'nichtGefunden' | 'fehler'
 
@@ -46,7 +53,8 @@ export interface PartieSteuerung {
 export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
   const [lade, setLade] = useState<LadeStand>('laedt')
   const [zustand, setZustand] = useState<ZustandDto | null>(null)
-  const [gast, setGast] = useState<boolean | null>(null)
+  const sitzung = useSitzung()
+  const gast = sitzung.status === 'gast' ? true : sitzung.status === 'spieler' ? false : null
   const [optimistisch, setOptimistisch] = useState<Optimistisch | null>(null)
   const [versatzMs, setVersatzMs] = useState(0)
   const [offline, setOffline] = useState(() => typeof navigator !== 'undefined' && navigator.onLine === false)
@@ -59,6 +67,8 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
   const [vorGegnerzug, setVorGegnerzug] = useState<{ halbzug: number; fen: string } | null>(null)
   const optimistischRef = useRef<Optimistisch | null>(null)
   const zustandRef = useRef<ZustandDto | null>(null)
+  // Clientzeit, ab der der Gegnerzug spaetestens sichtbar ist (SICHTBAR_MAX_MS nach Empfang).
+  const [sichtbarSpaetestens, setSichtbarSpaetestens] = useState<number | null>(null)
   const toeneRef = useRef(toeneAn)
   useEffect(() => {
     toeneRef.current = toeneAn
@@ -71,7 +81,9 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
     setOptimistisch(null)
     zustandRef.current = z
     setZustand(z)
-    if (z.uhr !== null) setVersatzMs(uhrVersatz(z.uhr, Date.now()))
+    const jetzt = Date.now()
+    if (z.uhr !== null) setVersatzMs(uhrVersatz(z.uhr, jetzt))
+    setSichtbarSpaetestens(z.gegnerZug !== null ? jetzt + SICHTBAR_MAX_MS : null)
     setLade('bereit')
   }, [])
 
@@ -97,26 +109,38 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
         (e: unknown) => {
           const vomServer = e instanceof ApiFehler
           setOffline(!vomServer)
-          if (zustandRef.current !== null) return
-          setLade(vomServer && e.status === 404 ? 'nichtGefunden' : 'fehler')
+          const gehalten = zustandRef.current
+          const weg = vomServer && e.status === 404
+          // Eine Gast-Partie wird beim Beenden geloescht (8.9). Hat der Sweep sie beendet, waehrend
+          // der Tab verborgen war, kommt nur noch 404: dann nicht mit dem alten Brett weiterspielen.
+          if (gehalten !== null && !(weg && gehalten.status === 'Offen')) return
+          if (weg) {
+            if (gastPartieId.lies() === id) gastPartieId.setze(null)
+            optimistischRef.current = null
+            setOptimistisch(null)
+            zustandRef.current = null
+            setZustand(null)
+          }
+          setLade(weg ? 'nichtGefunden' : 'fehler')
         },
       ),
     [id, uebernimm],
   )
 
+  /** Neu laden, ausser die Partie ist schon beendet (endgueltig, 8.2; Gast-Partien gibt es dann nicht mehr). */
+  const ladeWennOffen = useCallback(() => {
+    if (zustandRef.current?.status !== 'Beendet') void ladeZustand()
+  }, [ladeZustand])
+
   // Erstes Laden, Sitzung, Wiederaufnahme nach App-Wechsel und nach Verbindungsverlust.
   useEffect(() => {
     void ladeZustand()
-    api
-      .get<SitzungAntwort>('/sitzung')
-      .then((s) => setGast(!s.angemeldet))
-      .catch(() => setGast(null))
     const sichtbar = () => {
-      if (document.visibilityState === 'visible') void ladeZustand()
+      if (document.visibilityState === 'visible') ladeWennOffen()
     }
     const online = () => {
       setOffline(false)
-      void ladeZustand()
+      ladeWennOffen()
     }
     const weg = () => setOffline(true)
     document.addEventListener('visibilitychange', sichtbar)
@@ -127,13 +151,31 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
       window.removeEventListener('online', online)
       window.removeEventListener('offline', weg)
     }
-  }, [ladeZustand])
+  }, [ladeZustand, ladeWennOffen])
 
-  /** POST mit einheitlicher Fehlerbehandlung (8.5). 429 auf `/zuege` wird idempotent wiederholt. */
+  // Wiederholung nach 429; beim Verlassen des Bildschirms abbrechen.
+  const wiederholung = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(
+    () => () => {
+      if (wiederholung.current !== null) clearTimeout(wiederholung.current)
+    },
+    [],
+  )
+
+  /**
+   * POST mit einheitlicher Fehlerbehandlung (8.5, 11.4):
+   * - 409 mit Zustand: uebernehmen. Ohne Zustand (Concurrency-Konflikt, 5xx, Netz): neu laden,
+   *   denn der Zug kann schon gespeichert sein (T1, 8.8).
+   * - 429 auf `/zuege`: „<Name> denkt nach …“, nach `Retry-After` derselbe Body (idempotent, 8.8).
+   * - 429 und 503 auf `/tipp`: „Tipp gerade nicht verfuegbar“.
+   */
   const sende = useCallback(
     <T,>(pfad: string, body: unknown, verarbeite: (antwort: T) => void, fehlerText: string) => {
       setBeschaeftigt(true)
+      const istZug = pfad.endsWith('/zuege')
+      const istTipp = pfad.endsWith('/tipp')
       const versuche = (): void => {
+        wiederholung.current = null
         api.post<T>(pfad, body).then(
           (antwort) => {
             setOffline(false)
@@ -142,10 +184,12 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
             verarbeite(antwort)
           },
           (e: unknown) => {
-            if (e instanceof ApiFehler && e.status === 429 && pfad.endsWith('/zuege')) {
+            if (e instanceof ApiFehler && e.status === 429 && istZug) {
               setOffline(false)
               setLimitWartet(true)
-              setTimeout(versuche, (e.retryAfterSekunden ?? 2) * 1000)
+              const sekunden =
+                e.retryAfterSekunden !== null && Number.isFinite(e.retryAfterSekunden) ? e.retryAfterSekunden : 2
+              wiederholung.current = setTimeout(versuche, Math.max(1, sekunden) * 1000)
               return
             }
             setLimitWartet(false)
@@ -153,19 +197,25 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
             if (!(e instanceof ApiFehler)) {
               setOffline(true)
               verwerfeOptimistisch()
+              // Kam der Zug doch an, holt ihn das GET; sonst bleibt „Keine Verbindung“ stehen.
+              if (istZug) void ladeZustand()
               return
             }
             setOffline(false)
             const z = e.antwort?.zustand
+            const tippWeg = istTipp && (e.status === 429 || e.status === 503)
             if (z) uebernimm(z)
-            else verwerfeOptimistisch()
-            zeigeHinweis(e.fehler === 'TippNichtVerfuegbar' ? de.status.tippNichtVerfuegbar : fehlerText)
+            else {
+              verwerfeOptimistisch()
+              if (e.status !== 400 && e.status !== 429 && !tippWeg) void ladeZustand()
+            }
+            zeigeHinweis(tippWeg || e.fehler === 'TippNichtVerfuegbar' ? de.status.tippNichtVerfuegbar : fehlerText)
           },
         )
       }
       versuche()
     },
-    [uebernimm, verwerfeOptimistisch, zeigeHinweis],
+    [ladeZustand, uebernimm, verwerfeOptimistisch, zeigeHinweis],
   )
 
   const ziehe = useCallback(
@@ -218,11 +268,17 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
   const sichtbarAb = zustand?.gegnerZug?.sichtbarAb ?? null
   useEffect(() => {
     if (sichtbarAb === null) return
-    const warte = Math.max(0, Date.parse(sichtbarAb) - versatzMs - Date.now())
+    let ziel = Date.parse(sichtbarAb) - versatzMs
+    if (sichtbarSpaetestens !== null) ziel = Math.min(ziel, sichtbarSpaetestens)
+    const warte = Math.max(0, ziel - Date.now())
     const zeitgeber = setTimeout(() => setJetztClient(Date.now()), warte + 20)
     return () => clearTimeout(zeitgeber)
-  }, [sichtbarAb, versatzMs])
-  const jetztServer = jetztClient + versatzMs
+  }, [sichtbarAb, versatzMs, sichtbarSpaetestens])
+  // Nach SICHTBAR_MAX_MS gilt der Gegnerzug als sichtbar, auch wenn die Geraeteuhr nachgeht.
+  let jetztServer = jetztClient + versatzMs
+  if (sichtbarAb !== null && sichtbarSpaetestens !== null && jetztClient >= sichtbarSpaetestens) {
+    jetztServer = Math.max(jetztServer, Date.parse(sichtbarAb))
+  }
 
   let anzeige: Anzeige | null = null
   if (zustand !== null) {
@@ -250,7 +306,9 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
     return () => clearInterval(takt)
   }, [ausstehend, ladeZustand])
 
-  // Ein GET beim lokal berechneten Uhrablauf (8.1).
+  // Ein GET beim lokal berechneten Uhrablauf (8.1). Meldet der Server die Partie danach noch offen
+  // (Uhren nicht ganz gleich, Sweep noch nicht gelaufen), fragt der Client bei sichtbarem Tab im
+  // Poll-Takt nach, bis sie endet, statt bei 00:00 stehen zu bleiben.
   const ablaufGemeldet = useRef<number | null>(null)
   useEffect(() => {
     const uhr = zustand?.uhr
@@ -259,11 +317,15 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
     // Vor amZugSeit steht die Uhr; der Rest zaehlt erst ab dann.
     const start = uhr.amZugSeit === null ? 0 : Math.max(0, Date.parse(uhr.amZugSeit) - versatzMs - Date.now())
     const halbzug = zustand.halbzug
-    const zeitgeber = setTimeout(() => {
-      if (ablaufGemeldet.current === halbzug) return
-      ablaufGemeldet.current = halbzug
-      void ladeZustand()
-    }, start + rest + 50)
+    const nachfrage = ablaufGemeldet.current === halbzug
+    const zeitgeber = setTimeout(
+      () => {
+        if (nachfrage && document.visibilityState !== 'visible') return
+        ablaufGemeldet.current = halbzug
+        void ladeZustand()
+      },
+      Math.max(start + rest + 50, nachfrage ? POLL_MS : 0),
+    )
     return () => clearTimeout(zeitgeber)
   }, [zustand, versatzMs, ladeZustand])
 
