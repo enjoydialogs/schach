@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
 using Schach.Application.Limits;
+using Schach.Domain;
 using Schach.Domain.Entitaeten;
 using Schach.Infrastructure.Engine;
 using Schach.Infrastructure.Limits;

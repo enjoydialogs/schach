@@ -10,12 +10,15 @@ namespace Schach.Api.Tests;
 /// Mail geht an den <c>FileEmailSender</c> in einen eigenen Ordner (SCHACH-SPEC 15.2); Limits sind
 /// hoch gesetzt, ausser ein Test setzt sie per <paramref name="einstellungen"/>. <paramref name="zeit"/>
 /// ersetzt den <see cref="TimeProvider"/>.
-/// Erweiterungspunkt fuer spaetere Sessions: Fake-Engine.</summary>
+/// Die Engine ist immer die <see cref="FakeEngine"/> (<see cref="Engine"/>).</summary>
 internal sealed class SchachApiFactory(
     string connectionString, IReadOnlyDictionary<string, string>? einstellungen = null, TimeProvider? zeit = null)
     : WebApplicationFactory<Program>
 {
     public string MailOrdner { get; } = Path.Combine(Path.GetTempPath(), "schach-mail-" + Guid.NewGuid().ToString("N"));
+
+    /// <summary>S1c: deterministische Engine ohne Netz statt <c>EngineHttpClient</c>.</summary>
+    public FakeEngine Engine { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -33,6 +36,8 @@ internal sealed class SchachApiFactory(
         {
             builder.UseSetting(k, v);
         }
+
+        builder.ConfigureServices(s => s.AddSingleton<IEngineClient>(Engine));
 
         if (zeit is not null)
         {

@@ -80,6 +80,10 @@ builder.Services.AddSchachKonto(builder.Configuration);
 builder.Services.AddSchachSitzung(builder.Configuration);
 builder.Services.AddHostedService<SweepDienst>();
 
+// S1c: Partie-Kern (SCHACH-SPEC 3.1 bis 3.3, 8). Starten, Zug mit Gegnerantwort (T1/T2), Zuruecknehmen,
+// Aufgeben, Beenden mit Elo und Bilanz, GET /gegner.
+builder.Services.AddScoped<Schach.Application.Partien.PartieDienst>();
+
 // S2d: Betrieb (SCHACH-SPEC 14.2): Meter "Schach", Warnzeilen, Betreibermails, Tageszeile 06:00.
 builder.Services.AddSchachBetrieb(builder.Configuration);
 

@@ -24,11 +24,11 @@ public sealed class KontoTests
                 Id = partieId,
                 SpielerId = spielerId,
                 GegnerId = "oscar",
-                SpielerFarbe = E.Farbe.Weiss,
+                SpielerFarbe = Schach.Domain.Farbe.Weiss,
                 Bedenkzeit = E.Bedenkzeit.OhneUhr,
                 Status = E.PartieStatus.Beendet,
-                Ergebnis = E.Ergebnis.WeissGewinnt,
-                Grund = E.Grund.Aufgabe,
+                Ergebnis = Schach.Domain.Ergebnis.WeissGewinnt,
+                Grund = Schach.Domain.Grund.Aufgabe,
                 ErstelltAm = start,
                 LetzterZugAm = start.AddMinutes(1),
                 BeendetAm = start.AddMinutes(2),
@@ -40,8 +40,8 @@ public sealed class KontoTests
                 Seed = 42,
             });
             await db.SaveChangesAsync(Ct);
-            db.Add(new E.Zug { PartieId = partieId, Halbzug = 1, Seite = E.Farbe.Weiss, Uci = "e2e4", San = "e4", FenDanach = "x", GespieltAm = start });
-            db.Add(new E.Zug { PartieId = partieId, Halbzug = 2, Seite = E.Farbe.Schwarz, Uci = "e7e5", San = "e5", FenDanach = "y", GespieltAm = start, Engine = E.ZugEngine.Maia });
+            db.Add(new E.Zug { PartieId = partieId, Halbzug = 1, Seite = Schach.Domain.Farbe.Weiss, Uci = "e2e4", San = "e4", FenDanach = "x", GespieltAm = start });
+            db.Add(new E.Zug { PartieId = partieId, Halbzug = 2, Seite = Schach.Domain.Farbe.Schwarz, Uci = "e7e5", San = "e5", FenDanach = "y", GespieltAm = start, Engine = E.ZugEngine.Maia });
             db.Add(new E.Spruch { PartieId = partieId, NachHalbzug = 0, Ereignis = E.SpruchEreignis.Partiebeginn, Text = "Na dann!", Quelle = E.SpruchQuelle.Ersatz });
             db.Add(new E.Bilanz { SpielerId = spielerId, GegnerId = "oscar", Siege = 1, BesiegtAm = start.AddMinutes(2) });
             await db.SaveChangesAsync(Ct);

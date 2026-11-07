@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Schach.Domain;
 using Schach.Domain.Entitaeten;
 using Schach.Infrastructure.Persistence;
 using Schach.Tests.Shared;
