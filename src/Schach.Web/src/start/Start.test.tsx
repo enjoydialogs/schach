@@ -39,7 +39,7 @@ describe('Start', () => {
 
     expect(await screen.findByRole('link', { name: 'Anmelden' })).toHaveAttribute('href', '/anmelden')
     expect(
-      screen.getByText('Du spielst als Gast. Partien werden nicht gespeichert und zählen nicht für die Elo.'),
+      await screen.findByText('Du spielst als Gast. Partien werden nicht gespeichert und zählen nicht für die Elo.'),
     ).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Anmelden oder registrieren' })).toHaveAttribute('href', '/anmelden')
     expect(screen.queryByRole('link', { name: /Profil/ })).toBeNull()

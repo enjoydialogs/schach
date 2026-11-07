@@ -9,7 +9,7 @@ import { gibPartieAuf, ladeOffenePartie } from '../components/offenePartie'
 import { OffenePartieDialog } from '../components/OffenePartieDialog'
 import { InstallHinweis } from '../components/pwa'
 import { Seite } from '../components/Seite'
-import { useSitzung } from '../components/sitzung'
+import { ladeSitzung, useSitzung } from '../components/sitzung'
 import { de, t } from '../i18n/de'
 import { fuelle } from '../partie/text'
 
@@ -29,6 +29,8 @@ export function Start() {
 
   useEffect(() => {
     let aktiv = true
+    // Elo-Chip aktuell halten, z. B. nach einer gerade beendeten Partie.
+    void ladeSitzung()
     void Promise.all([ladeOffenePartie(false), ladeOffenePartie(true)]).then(([spieler, gast]) => {
       if (aktiv) setOffen({ spieler, gast })
     })

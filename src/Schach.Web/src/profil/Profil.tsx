@@ -31,6 +31,7 @@ export function Profil() {
   const [fehler, setFehler] = useState<string | null>(null)
 
   useEffect(() => {
+    void ladeSitzung()
     api.get<GegnerDto[]>('/gegner').then(
       (liste) => setGegner([...liste].sort((a, b) => a.elo - b.elo)),
       () => setGegner([]),

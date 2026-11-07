@@ -25,8 +25,13 @@ function sendeFehler(e: unknown): string {
  * der Code-Weg mit `anmeldungId` im sessionStorage.
  */
 export function Anmelden() {
-  const navigate = useNavigate()
+  // Ein neuer Link (anderes Fragment) beginnt frisch, auch ohne Neuladen der Seite.
   const { hash } = useLocation()
+  return <AnmeldenAblauf key={hash} hash={hash} />
+}
+
+function AnmeldenAblauf({ hash }: { hash: string }) {
+  const navigate = useNavigate()
   const sitzung = useSitzung()
   const token = linkToken(hash)
   const [phase, setPhase] = useState<Phase>(() =>
