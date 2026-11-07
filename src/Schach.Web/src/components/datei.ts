@@ -14,6 +14,13 @@ export function kurzDatum(zeitpunkt: string | number | Date): string {
   return new Intl.DateTimeFormat('de-DE', { timeZone: ZEITZONE, day: 'numeric', month: 'short' }).format(new Date(zeitpunkt))
 }
 
+/** `7. November 2026` in deutscher Zeit („Spieler seit …“, 10.9). */
+export function langDatum(zeitpunkt: string | number | Date): string {
+  return new Intl.DateTimeFormat('de-DE', { timeZone: ZEITZONE, day: 'numeric', month: 'long', year: 'numeric' }).format(
+    new Date(zeitpunkt),
+  )
+}
+
 /** Laedt Text als Datei herunter (Blob-URL, kein Fremd-Host). */
 export function ladeHerunter(inhalt: string, dateiname: string, typ: string): void {
   const url = URL.createObjectURL(new Blob([inhalt], { type: typ }))

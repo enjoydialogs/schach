@@ -510,7 +510,12 @@ export class FakeServer {
   }
 
   private spieler(): SpielerDto {
-    return { id: 'fake-spieler', email: this.daten.email ?? FAKE_EMAIL, elo: this.daten.elo }
+    return {
+      id: 'fake-spieler',
+      email: this.daten.email ?? FAKE_EMAIL,
+      elo: this.daten.elo,
+      erstelltAm: iso(this.daten.kontoErstelltAm ?? 0),
+    }
   }
 
   private legeKontoAn(email: string): void {

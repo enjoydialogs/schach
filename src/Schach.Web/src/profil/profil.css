@@ -26,6 +26,13 @@
   font-variant-numeric: tabular-nums;
 }
 
+.profil__seit {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
 .profil__schalter {
   padding-top: 4px;
   padding-bottom: 4px;

@@ -327,6 +327,10 @@ export const de = {
     installieren: 'Installieren',
     spaeter: 'Später',
   },
+  // Profil (10.9), nach #64 (SpielerDto.erstelltAm).
+  profilSeit: {
+    spielerSeit: 'Spieler seit {datum}',
+  },
 } as const
 
 type Pfade<T, P extends string = ''> = {
