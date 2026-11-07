@@ -31,7 +31,7 @@ Wie gut ein Gegner Schach spielt, von Anfänger bis Meister; unabhängig von sei
 _Avoid_: Schwierigkeit, Level, Stufe
 
 **Partie**:
-Ein einzelnes Schachspiel zwischen dem Spieler und einem Gegner, von der Grundstellung bis zum Ergebnis oder Abbruch.
+Ein einzelnes Schachspiel zwischen dem Spieler und einem Gegner, von der Grundstellung bis zum Ergebnis.
 _Avoid_: Spiel, Match, Game
 
 **Offene Partie**:
@@ -40,7 +40,7 @@ _Avoid_: laufendes Spiel, aktive Partie
 
 **Bedenkzeit**:
 Die optionale Zeitvorgabe einer Partie, beim Start gewählt; ohne sie wird ohne Uhr gespielt.
-_Avoid_: Timer, Zeitkontrolle, Uhr
+_Avoid_: Timer, Zeitkontrolle, Uhr (außer im UI-Label „Ohne Uhr“)
 
 **Zugfolge**:
 Die geordnete Liste aller Züge einer Partie.
@@ -49,6 +49,34 @@ _Avoid_: Historie, Verlauf, Zugreihenfolge
 **Spruch**:
 Ein Kommentar, den ein Gegner zu einem Zug oder einer Spielsituation abgibt.
 _Avoid_: Kommentar, Nachricht, Chat
+
+**Ergebnis**:
+Der Ausgang einer beendeten Partie: Weiß gewinnt, Schwarz gewinnt oder Remis.
+_Avoid_: Ausgang, Resultat, Score
+
+**Grund**:
+Warum eine Partie beendet wurde, z. B. Matt, Aufgabe, Zeit oder eine Remisregel.
+_Avoid_: Ursache, Termination
+
+**Remis**:
+Ein Ergebnis ohne Sieger, automatisch durch eine Remisregel oder durch ein angenommenes Angebot.
+_Avoid_: Unentschieden, Draw
+
+**Patt**:
+Die Seite am Zug hat keinen erlaubten Zug und steht nicht im Schach; die Partie endet Remis.
+_Avoid_: Stalemate
+
+**Mattmaterial**:
+Genug Figuren, um noch matt setzen zu können; es fehlt, wenn eine Seite nur den König oder König und eine Leichtfigur hat.
+_Avoid_: mating material
+
+**Zurücknehmen**:
+Den letzten eigenen Zug samt Gegnerantwort rückgängig machen; nur ohne Bedenkzeit, danach zählt die Partie nicht mehr für die Elo.
+_Avoid_: Undo, Takeback
+
+**Bilanz**:
+Siege, Remis und Niederlagen eines Spielers gegen einen Gegner; zählt jede beendete Partie.
+_Avoid_: Statistik, Head-to-head
 
 ### Lernen
 
@@ -59,3 +87,7 @@ _Avoid_: Hint, Coach, Tutorial
 **Nachspielen**:
 Das Ansehen einer beendeten Partie Zug für Zug.
 _Avoid_: Replay, Review, Analyse
+
+**Tipp**:
+Eine Lernhilfe, die auf Wunsch den besten Zug zeigt; nur ohne Bedenkzeit, und der erste Tipp nimmt die Partie aus der Elo.
+_Avoid_: Hint, Vorschlag

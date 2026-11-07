@@ -37,7 +37,7 @@ Quelle: [Map: Schach-Lernspiel fürs Handy](https://github.com/enjoydialogs/scha
 
 ## 2. Begriffe
 
-Maßgeblich ist [`GLOSSARY.md`](../GLOSSARY.md): Spieler, Gast, Elo, Gegner, Persönlichkeit, Spielstärke, Partie, Offene Partie, Bedenkzeit, Zugfolge, Spruch, Lernhilfe, Nachspielen.
+Maßgeblich ist [`GLOSSARY.md`](../GLOSSARY.md): Spieler, Gast, Elo, Gegner, Persönlichkeit, Spielstärke, Partie, Offene Partie, Bedenkzeit, Zugfolge, Spruch, Ergebnis, Grund, Remis, Patt, Mattmaterial, Zurücknehmen, Bilanz, Lernhilfe, Nachspielen, Tipp.
 
 Ergänzende Verwendung in dieser Spec (keine neuen Glossar-Begriffe):
 - **Engine** meint nur die technische Komponente (Maia-3, Stockfish, Fairy-Stockfish), nie den Gegner.
@@ -47,7 +47,7 @@ Ergänzende Verwendung in dieser Spec (keine neuen Glossar-Begriffe):
 - **Besiegt:** Markierung eines Gegners nach einem Sieg in einer Partie, die für die Elo zählt.
 - **Sweep:** Hintergrunddienst, der alle 5 s Uhren, ausstehende Gegnerzüge und alte Daten abarbeitet.
 
-Quelle: [Map: Schach-Lernspiel fürs Handy](https://github.com/enjoydialogs/schach/issues/1), [Wie läuft eine Partie auf dem Server ab?](https://github.com/enjoydialogs/schach/issues/16)
+Quelle: [Map: Schach-Lernspiel fürs Handy](https://github.com/enjoydialogs/schach/issues/1), [Wie läuft eine Partie auf dem Server ab?](https://github.com/enjoydialogs/schach/issues/16), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 
 ## 3. Spielregeln und Partie
 
@@ -79,7 +79,7 @@ Beim Start wählbar:
 - Nur ohne Bedenkzeit, nur in einer offenen Partie, nur nach mindestens einem eigenen Zug. Unbegrenzt oft.
 - Entfernt den letzten Spielerzug und die Gegnerantwort. Bei ausstehendem Gegnerzug nur den Spielerzug.
 - Setzt `zaehltFuerElo = false`. Spätere Sprüche werden gelöscht. Die Stellung wird aus der Zugfolge neu aufgebaut.
-- Der Gegner darf es kommentieren (Ereignis `Zurücknahme`, Abschnitt 6).
+- Der Gegner darf es kommentieren (Ereignis `Zuruecknahme`, Abschnitt 6).
 - Nach Partieende kein Zurücknehmen.
 
 ### 3.4 Remisregeln
@@ -100,12 +100,12 @@ Alle Remisregeln greifen automatisch. Es gibt kein „Remis beanspruchen“.
 
 - Aufgeben und Remis anbieten sind jederzeit in einer offenen Partie möglich. Der Knopf „Remis anbieten“ ist ab Zug 1 aktiv.
 - Der Gegner nimmt an, wenn Stockfish ihn aus seiner Sicht unter +1,5 sieht und kein Matt in Sicht ist.
-- Vor Zug 20 lehnt er immer ab, mit Spruch (`RemisAbgelehnt`, Grund „vor Zug 20“). Steht er klar vorn, lehnt er mit Grund „steht klar vorn“ ab.
-- Nach einer Ablehnung ist ein neues Angebot erst nach 5 weiteren eigenen Zügen möglich (`remisAngebotMoeglichAbZug`, sonst 409 `RemisAngebotGesperrt`).
+- „Vor Zug 20“ meint die Zugnummer (FEN-Feld 6). Der Gegner lehnt genau dann immer ab, wenn `zugnummer < 20`, mit Spruch (`RemisAbgelehnt`, Grund „vor Zug 20“). Steht er klar vorn, lehnt er mit Grund „steht klar vorn“ ab.
+- `LetztesRemisAngebotBeiZug` speichert die Zugnummer des letzten abgelehnten Angebots. `remisAngebotMoeglichAbZug = LetztesRemisAngebotBeiZug + 5`. Ein früheres Angebot ergibt 409 `RemisAngebotGesperrt`.
 - Der Gegner bietet selbst nie Remis an.
-- Die Sperren werden vor dem Stockfish-Aufruf geprüft. Antwortet die Engine mit 503, entscheidet die Materialzählung.
+- Die Sperren werden vor dem Stockfish-Aufruf geprüft. Antwortet die Engine mit 503, entscheidet die Materialbilanz: Der Gegner nimmt an bei Material ≤ +1 aus seiner Sicht (also unter `KlarVornMaterial`).
 - Die Remis-Annahme ist für alle Gegner gleich. Nur der Spruch unterscheidet sich.
-- Zugwahl: Steht der Gegner klar vorn, verwirft er Züge, die sofort Remis auslösen. Steht er klar hinten, bevorzugt er sie.
+- Zugwahl: Steht der Gegner klar vorn, verwirft er Züge, die sofort Remis auslösen. Steht er klar hinten, bevorzugt er sie. „Klar vorn/hinten“ misst nur die Materialbilanz (Abschnitt 5.3, Schritt 4a).
 - Remis anbieten braucht keine Bestätigung. Aufgeben wird bestätigt.
 
 ### 3.6 Ergebnis und Grund
@@ -113,7 +113,7 @@ Alle Remisregeln greifen automatisch. Es gibt kein „Remis beanspruchen“.
 - `Ergebnis ∈ {WeissGewinnt, SchwarzGewinnt, Remis}`.
 - `Grund ∈ {Matt, Aufgabe, Zeit, Patt, Wiederholung, FuenfzigZuege, Material, ZeitOhneMattmaterial, Vereinbarung}`.
 - Das Ergebnis ist endgültig. PGN trägt den Grund im Tag `Termination`.
-- Der Endbildschirm zeigt Ergebnis, Grund, einen festen Erklärsatz und den Gegner-Spruch.
+- Der Endbildschirm zeigt Ergebnis, Grund, einen festen Erklärsatz (Abschnitt 10.3, Erklärsätze) und den Gegner-Spruch.
 
 ### 3.7 Elo
 
@@ -121,10 +121,12 @@ Alle Remisregeln greifen automatisch. Es gibt kein „Remis beanspruchen“.
 - Ein Spieler startet bei 800.
 - Nach jeder beendeten Partie, die für die Elo zählt, gilt die Standard-Elo-Formel:
   - Erwartung `E = 1 / (1 + 10^((EloGegner − EloSpieler) / 400))`.
-  - Neue Elo `= EloSpieler + 32 · (S − E)` mit `S = 1` (Sieg), `0,5` (Remis), `0` (Niederlage).
+  - `S = 1` (Sieg), `0,5` (Remis), `0` (Niederlage).
+  - Elo ist `int`. `delta = (int)Math.Round(32 * (S - E), MidpointRounding.AwayFromZero)`, `neu = Math.Max(100, alt + delta)`.
   - K = 32 fest. Untergrenze 100.
 - Eine Partie zählt nicht für die Elo, wenn sie eine Gastpartie ist, wenn zurückgenommen wurde oder wenn ein Tipp genutzt wurde (`zaehltFuerElo = false`).
-- Gespeichert werden `EloVorher` und `EloNachher` an der Partie.
+- Gespeichert werden `EloVorher` und `EloNachher` an der Partie. Beide sind `null`, wenn die Partie nicht zählt.
+- Anzeige der Änderung mit Vorzeichen: „+12“, „−8“ (Minuszeichen U+2212), „±0“.
 
 ### 3.8 Bilanz und Besiegt
 
@@ -132,7 +134,7 @@ Alle Remisregeln greifen automatisch. Es gibt kein „Remis beanspruchen“.
 - Ein Gegner gilt als besiegt (`BesiegtAm`) nur nach einem Sieg in einer Partie, die für die Elo zählt.
 - Gäste haben keine Bilanz.
 
-Quelle: [Map: Schach-Lernspiel fürs Handy](https://github.com/enjoydialogs/schach/issues/1), [Welche Remis-Regeln gelten?](https://github.com/enjoydialogs/schach/issues/14), [Wie läuft eine Partie auf dem Server ab?](https://github.com/enjoydialogs/schach/issues/16), [Welche Lernhilfen gibt es genau?](https://github.com/enjoydialogs/schach/issues/8), [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7), [Wie sieht der Partie-Bildschirm auf dem Pixel 7 aus?](https://github.com/enjoydialogs/schach/issues/6), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11)
+Quelle: [Map: Schach-Lernspiel fürs Handy](https://github.com/enjoydialogs/schach/issues/1), [Welche Remis-Regeln gelten?](https://github.com/enjoydialogs/schach/issues/14), [Wie läuft eine Partie auf dem Server ab?](https://github.com/enjoydialogs/schach/issues/16), [Welche Lernhilfen gibt es genau?](https://github.com/enjoydialogs/schach/issues/8), [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7), [Wie sieht der Partie-Bildschirm auf dem Pixel 7 aus?](https://github.com/enjoydialogs/schach/issues/6), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 
 ## 4. Gegner
 
@@ -203,7 +205,16 @@ Alle Gegner tragen nur Vornamen und sprechen in Du-Form.
 ### 4.4 Avatar
 
 - Anfangsbuchstabe im Kreis.
-- Ein Akzentton in 5 Abstufungen, eine je Spielstärke (Anfänger hell bis Meister dunkel). Weiße Schrift auf dunklen Abstufungen.
+- Ein Akzentton (Hue 218°) in 5 Abstufungen, eine je Spielstärke (Anfänger hell bis Meister dunkel). Alle Paare erreichen mindestens 4,5:1.
+
+| Variable | Hintergrund | Schrift |
+|---|---|---|
+| `--avatar-anfaenger` | `#AAC3EE` | `#1E2329` |
+| `--avatar-hobbyspieler` | `#779EE4` | `#1E2329` |
+| `--avatar-vereinsspieler` | `#2E6BD6` | `#FFFFFF` |
+| `--avatar-turnierspieler` | `#1E4B99` | `#FFFFFF` |
+| `--avatar-meister` | `#122E5E` | `#FFFFFF` |
+
 - 48 px in der Gegnerwahl, 40 px im Partie-Kopf.
 - Besiegt: Häkchen unten rechts am Kreis.
 
@@ -211,7 +222,7 @@ Alle Gegner tragen nur Vornamen und sprechen in Du-Form.
 
 Kreis, Name, „Stufe · Elo“ (z. B. „Hobbyspieler · 1000“), Vorstellungssatz, eigene S/R/N, Besiegt-Häkchen. Gäste sehen keine S/R/N.
 
-Quelle: [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), [Wann und wie spricht ein Gegner?](https://github.com/enjoydialogs/schach/issues/9)
+Quelle: [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), [Wann und wie spricht ein Gegner?](https://github.com/enjoydialogs/schach/issues/9), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 
 ## 5. Engine und Zugwahl
 
@@ -258,7 +269,7 @@ Ein Container, Python 3.12, PyTorch CPU, Maia-3-5M, Stockfish und Fairy-Stockfis
 - `/move` (Maia): 3 s Timeout, ein Retry, dann Fairy-Stockfish. Schlägt auch das fehl: `gegnerZugAusstehend`, der Sweep wiederholt.
 - 503 auf `/move`: Client zeigt „<Name> denkt nach …“ und versucht erneut.
 - 503 auf `/analyse` für den Tipp: „gerade nicht verfügbar“.
-- 503 auf `/analyse` für die Remis-Bewertung: Materialzählung.
+- 503 auf `/analyse` für die Remis-Bewertung: Materialbilanz, annehmen bei ≤ +1 (Abschnitt 3.5).
 - Künstliche Denkzeit liegt in `Schach.Application`, nicht in der Engine.
 - Die verwendete Engine wird je Zug gespeichert (`Zug.Engine`).
 
@@ -269,6 +280,9 @@ Stil wirkt dezent und nur auf Züge, die Maia für plausibel hält. Persönlichk
 1. Der Engine-Dienst liefert für alle erlaubten Züge die Policy-Wahrscheinlichkeit `p(m)`. Parameter: `self_elo` = geeichte Elo der Gegner-Spielstärke, `oppo_elo` = Spieler-Elo (Gast 800). Maias `bestmove` wird nicht genutzt.
 2. Temperatur τ nur je Spielstärke (Start 1,0).
 3. Kandidatenband C = Züge mit `p ≥ r · p_max`, Start `r = 0,25`, höchstens 8 Züge.
+4a. **Remis-Vermeidung** (nur Maia-Pfad, nach dem Band C, vor dem Ziehen): Materialbilanz aus Sicht des Gegners vor seinem Zug (D 9, T 5, L 3, S 3, B 1), Konstante `KlarVornMaterial = 2`.
+   - Bei Bilanz ≥ +2: Züge in C entfernen, die sofort Remis auslösen (Patt, Material, Wiederholung, 50 Züge). C wird dabei nie leer.
+   - Bei Bilanz ≤ −2: C auf solche Züge beschränken, falls es welche gibt.
 4. Merkmale als reine Funktionen in `Schach.Domain` (auf Gera.Chess, mit Unit-Tests):
    - `schlagzug`
    - `schach`
@@ -281,7 +295,6 @@ Stil wirkt dezent und nur auf Züge, die Maia für plausibel hält. Persönlichk
 5. Gewicht `w(m)` = Produkt der Gewichte aller vorhandenen Merkmale, begrenzt auf [0,5; 2,0]. Nur in C angewandt: `q(m) = p(m) · w(m)`. Außerhalb von C gilt `q = p`.
 6. Einmal ziehen aus `q` (mit τ) per PRNG aus (Partie-Seed, Halbzug). Damit sind Wiederholungen deterministisch.
 7. Gespeichert je Zug: Zug, `MaiaRang`, `PAnteil` (p/p_max), `W` (w).
-8. Zusätzlich gilt die Remis-Regel der Zugwahl aus Abschnitt 3.5.
 
 ### 5.4 Eichung
 
@@ -295,7 +308,7 @@ Stil wirkt dezent und nur auf Züge, die Maia für plausibel hält. Persönlichk
 
 Der Engine-Dienst umhüllt AGPL-Code (Maia-3) und ist per Netz erreichbar, darum AGPL. Grenze: eigener Prozess und Container, nur HTTP. Maia-3-Gewichte nur serverseitig. Die Gewichte-Lizenz ist bei CSSLab angefragt (CSSLab/maia3 Issue #8). Nicht darauf warten.
 
-Quelle: [Welche Engine spielt schwach bis meisterlich und mit Stil?](https://github.com/enjoydialogs/schach/issues/2), [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7), [Welche Datenbank und Projektstruktur bekommt das Spiel?](https://github.com/enjoydialogs/schach/issues/10), [Wie läuft eine Partie auf dem Server ab?](https://github.com/enjoydialogs/schach/issues/16), [Wie viel Rechenzeit brauchen die Engines auf dem VPS?](https://github.com/enjoydialogs/schach/issues/15), [Unter welcher Lizenz steht das Repo?](https://github.com/enjoydialogs/schach/issues/13), [Welche Remis-Regeln gelten?](https://github.com/enjoydialogs/schach/issues/14)
+Quelle: [Welche Engine spielt schwach bis meisterlich und mit Stil?](https://github.com/enjoydialogs/schach/issues/2), [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7), [Welche Datenbank und Projektstruktur bekommt das Spiel?](https://github.com/enjoydialogs/schach/issues/10), [Wie läuft eine Partie auf dem Server ab?](https://github.com/enjoydialogs/schach/issues/16), [Wie viel Rechenzeit brauchen die Engines auf dem VPS?](https://github.com/enjoydialogs/schach/issues/15), [Unter welcher Lizenz steht das Repo?](https://github.com/enjoydialogs/schach/issues/13), [Welche Remis-Regeln gelten?](https://github.com/enjoydialogs/schach/issues/14), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 
 ## 6. Sprüche
 
@@ -307,11 +320,11 @@ Enum `SpruchEreignis`. Der Server bestimmt das Ereignis nach dem Engine-Ergebnis
 - `Partiebeginn`: nur Ersatzspruch, in der 201-Antwort von `POST /partien`.
 - `Sieg`, `Niederlage`, `Remis`: aus Sicht des Gegners, Grund in Worten. Live bei Ende im Request, Ersatzspruch bei Ende durch den Sweep.
 - `RemisAbgelehnt`: Grund „vor Zug 20“ oder „steht klar vorn“.
-- Erste `Zurücknahme` je Partie.
+- Erste `Zuruecknahme` je Partie.
 - `FigurGewonnen` / `FigurVerloren` mit |Δ| ≥ 5.
 
 **Stufe B (mindestens 2 Gegnerzüge seit dem letzten Spruch).** Vorrang:
-`SchachGegeben` > `FigurGewonnen` > `FigurVerloren` > `SchachErhalten` > `StellungBesser` / `StellungSchlechter` > weitere `Zurücknahme`.
+`SchachGegeben` > `FigurGewonnen` > `FigurVerloren` > `SchachErhalten` > `StellungBesser` / `StellungSchlechter` > weitere `Zuruecknahme`.
 - Material Δ = Material nach der Gegnerantwort minus Material vor dem Spielerzug, aus Sicht des Gegners. Werte D 9, T 5, L 3, S 3, B 1. Umwandlung zählt.
 - Gewonnen bei Δ ≥ +2, verloren bei Δ ≤ −2.
 - Fehler des Spielers werden erst kommentiert, wenn der Gegner schlägt, nie vorher.
@@ -424,12 +437,13 @@ Quelle: [Wann und wie spricht ein Gegner?](https://github.com/enjoydialogs/schac
    - Knopf nur ohne Bedenkzeit, nur am Zug, nicht beim Nachspielen.
    - Erstes Tippen: Figur markieren (Tipp-Ring) und „Zieh mit dem Springer“.
    - Zweites Tippen: Pfeil und „Springer c3 nach e5“. Keine Erklärung.
-   - Server: `POST /partien/{id}/tipp`, Stockfish voll über `/analyse`, `Tipp:MovetimeMs=800`, Ergebnis je FEN gecacht. Unbegrenzt nutzbar (nur Ratenlimit).
-   - Der erste Tipp nimmt die Partie aus der Elo (wie eine Zurücknahme). Ein Spieler wird einmal je Partie gefragt, danach zeigt die Pille „Zählt nicht für die Elo“. Gäste werden nicht gefragt.
-4. **Einstellungen:** drei Schalter, alle Standard an, im Gerät gespeichert (localStorage), jederzeit änderbar im Partie-Menü und im Profil (gleiche Schlüssel): „Erlaubte Züge anzeigen“, „Vor ungedeckten Figuren warnen“, „Töne und Vibration“.
+   - Server: `POST /partien/{id}/tipp`, Stockfish voll über `/analyse`, `Tipp:MovetimeMs=800`, Ergebnis je FEN gecacht. Unbegrenzt nutzbar (nur Ratenlimit). Vertrag in Abschnitt 8.3.
+   - Das zweite Tippen ruft den Server nicht. Der Client hält das Ergebnis je `halbzug`.
+   - Der erste Tipp nimmt die Partie aus der Elo (wie eine Zurücknahme). Ein Spieler wird einmal je Partie gefragt, clientseitig vor dem ersten Aufruf. Danach zeigt die Pille „Zählt nicht für die Elo“. Gäste werden nicht gefragt.
+4. **Einstellungen:** drei Schalter, alle Standard an, im Gerät gespeichert (localStorage-Schlüssel `einstellungen`, Abschnitt 12.3), jederzeit änderbar im Partie-Menü und im Profil: „Erlaubte Züge anzeigen“ (`erlaubteZuegeAnzeigen`), „Vor ungedeckten Figuren warnen“ (`vorUngedecktenWarnen`), „Töne und Vibration“ (`toeneUndVibration`).
 5. **Besiegt-Markierung:** nur nach einem Sieg in einer Partie, die für die Elo zählt.
 
-Quelle: [Welche Lernhilfen gibt es genau?](https://github.com/enjoydialogs/schach/issues/8), [Wie sieht der Partie-Bildschirm auf dem Pixel 7 aus?](https://github.com/enjoydialogs/schach/issues/6), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18)
+Quelle: [Welche Lernhilfen gibt es genau?](https://github.com/enjoydialogs/schach/issues/8), [Wie sieht der Partie-Bildschirm auf dem Pixel 7 aus?](https://github.com/enjoydialogs/schach/issues/6), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 
 ## 8. Server: Partie-Lebenszyklus
 
@@ -460,7 +474,7 @@ Quelle: [Welche Lernhilfen gibt es genau?](https://github.com/enjoydialogs/schac
 | `POST /partien/{id}/zuruecknehmen` | `{halbzug}` | 200 Zustand |
 | `POST /partien/{id}/aufgeben` | `{halbzug}` | 200 Zustand |
 | `POST /partien/{id}/remis-angebot` | `{halbzug}` | 200 Zustand (angenommen: beendet; abgelehnt: mit Spruch) |
-| `POST /partien/{id}/tipp` | `{halbzug}` | 200 mit dem Tipp-Zug (Stockfish) |
+| `POST /partien/{id}/tipp` | `{halbzug}` | 200 `{tipp:{uci, von, nach, figur}, zustand}` (Vertrag `TippAntwort` in `Api/Contracts`, angelegt in 0a). Fehler: 409 `HalbzugVeraltet`, 409 `NichtAmZug`, 409 `TippNichtErlaubt` (mit Bedenkzeit), 503 `TippNichtVerfuegbar` (Client: „gerade nicht verfügbar“). |
 | `GET /partien/{id}/pgn` | | PGN, nur Beendet |
 | `GET /partien?limit=50&vorId=` | | Keyset-Liste beendeter Partien: `{partien:[{id, gegnerKey, spielerFarbe, bedenkzeit, ergebnis, grund, beendetAm, zaehltFuerElo, eloVorher, eloNachher}], weitere}`, neueste zuerst |
 | `GET /gegner` | | `[{key, name, elo, stufe, persoenlichkeit, vorstellung, bilanz \| null}]` |
@@ -480,10 +494,34 @@ Immer vollständig. Felder:
 - `sprueche[{nachHalbzug, ereignis, text}]`
 - `ergebnis`, `grund`, `eloVorher`, `eloNachher`, `pgn`
 
+### 8.4a Wire-Format
+
+- JSON in camelCase. Enums als PascalCase-Strings (`JsonStringEnumConverter` ohne Naming Policy), nie als Zahlen.
+- Zeitpunkte ISO-8601 in UTC mit `Z`.
+- Enums in Postgres als Text.
+- Anzeigetexte kommen aus `src/i18n/de.ts`, nie aus den Enum-Werten.
+
+| Feld | Werte |
+|---|---|
+| `bedenkzeit` | `OhneUhr`, `Fischer15Plus10`, `Fischer10Plus5`, `Fischer5Plus3`, `JeZug90s` |
+| `farbe` (Anfrage) | `Weiss`, `Schwarz`, `Zufall` |
+| `spielerFarbe`, `seite` | `Weiss`, `Schwarz` |
+| `uhr.laeuftFuer` | `Spieler`, `Gegner`, `null` |
+| `status` | `Offen`, `Beendet` |
+| `ergebnis` | `WeissGewinnt`, `SchwarzGewinnt`, `Remis` |
+| `grund` | `Matt`, `Aufgabe`, `Zeit`, `Patt`, `Wiederholung`, `FuenfzigZuege`, `Material`, `ZeitOhneMattmaterial`, `Vereinbarung` |
+| `ereignis` | `Partiebeginn`, `Sieg`, `Niederlage`, `Remis`, `RemisAbgelehnt`, `Zuruecknahme`, `FigurGewonnen`, `FigurVerloren`, `SchachGegeben`, `SchachErhalten`, `StellungBesser`, `StellungSchlechter`, `Tausch`, `Zug` |
+| `stufe` | `Anfaenger`, `Hobbyspieler`, `Vereinsspieler`, `Turnierspieler`, `Meister` |
+| `persoenlichkeit` | `Aggressiv`, `Vorsichtig`, `Lehrerhaft`, `Verspielt`, `Eitel`, `Gemuetlich` |
+| `tipp.figur` | `Koenig`, `Dame`, `Turm`, `Laeufer`, `Springer`, `Bauer` |
+
+Die `ereignis`-Strings sind zugleich die Überschriften in `prompts/ersatz/*.de.md`.
+
 ### 8.5 Fehler
 
 - Einheitlich `409 {fehler, zustand}` mit `fehler ∈ {NichtAmZug, HalbzugVeraltet, PartieBeendet, UhrAbgelaufen, OffenePartie, ZuruecknehmenNichtErlaubt, RemisAngebotGesperrt}`.
 - Der Client übernimmt immer den mitgeschickten Zustand.
+- Für den Tipp zusätzlich 409 `TippNichtErlaubt` und 503 `TippNichtVerfuegbar` (Abschnitt 8.3).
 - Dazu 400 `ZugUnzulaessig` und die Limit-Antworten aus Abschnitt 11 (429 `TageslimitErreicht`, 503 `GeradeVielLos`, 429 mit `Retry-After`).
 
 ### 8.6 Uhr
@@ -503,7 +541,7 @@ Immer vollständig. Felder:
   - **A** abgelaufene Uhren beenden (Grund `Zeit` oder `ZeitOhneMattmaterial`).
   - **B** ausstehende Gegnerzüge nachholen, wenn `LetzterVersuchAm` älter als 10 s ist. Nutzt denselben `SpruchDienst`.
   - **C** Gast-Partien ohne Zug seit 24 h löschen.
-  - **D** `Anmeldung`-Zeilen älter als 1 h löschen.
+  - **D** `Anmeldung`-Zeilen älter als 1 h und `AnmeldungVersuch`-Zeilen älter als 24 h löschen.
 
 ### 8.8 Tabs, Geräte, Idempotenz
 
@@ -545,6 +583,7 @@ PostgreSQL 17, EF Core 10. Eine Migration `0001_Schema` legt alles an.
 | `Bilanz` | `SpielerId, GegnerId, Siege, Remis, Niederlagen, BesiegtAm?` |
 | `Spieler` | `Id uuid PK, Email text UNIQUE (trim + lowercase), ErstelltAm, ZuletztAngemeldetAm?, Sicherheitsstempel uuid, Elo int` |
 | `Anmeldung` | `Id uuid PK (Zufall v4), Email, TokenHash bytea(32) UNIQUE, CodeHash bytea(32), Fehlversuche smallint, ErstelltAm, LaeuftAbAm` |
+| `AnmeldungVersuch` | `Id uuid PK, EmailNormalisiert text, ErstelltAm` (eine Zeile je angenommener Anfrage, Zählbasis der Mail-Limits je Adresse) |
 | `LlmVerbrauch` | `Monat PK, PromptTokens, CompletionTokens, Aufrufe, Zeitueberschreitungen, Fehler, WarnGemeldetAm?, ErschoepftGemeldetAm?` |
 | Data-Protection-Schlüssel | über `PersistKeysToDbContext<SchachDbContext>()` |
 
@@ -553,18 +592,19 @@ Indizes:
 - gefiltert unique `Partie(SpielerId) WHERE Status = Offen`
 - `Partie(Status, LetzterZugAm)`
 - `Anmeldung(Email)`, `Anmeldung(ErstelltAm)`, unique `Anmeldung(TokenHash)`
+- `AnmeldungVersuch(EmailNormalisiert, ErstelltAm)`
 - unique `Spieler(Email)`
 - kein Unique-Index auf `Spruch(PartieId, NachHalbzug)`
 
 `LlmVerbrauch` wird atomar per `UPDATE … SET x = x + @n` hochgezählt. Konto löschen kaskadiert von `Spieler` auf alle abhängigen Zeilen.
 
-Quelle: [Wie läuft eine Partie auf dem Server ab?](https://github.com/enjoydialogs/schach/issues/16), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), [Wie funktioniert die Anmeldung per Magic Link?](https://github.com/enjoydialogs/schach/issues/17), [Wann und wie spricht ein Gegner?](https://github.com/enjoydialogs/schach/issues/9), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Welche Datenbank und Projektstruktur bekommt das Spiel?](https://github.com/enjoydialogs/schach/issues/10), [Welche Brett- und Regelbibliotheken passen für Touch und Server?](https://github.com/enjoydialogs/schach/issues/4)
+Quelle: [Wie läuft eine Partie auf dem Server ab?](https://github.com/enjoydialogs/schach/issues/16), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), [Wie funktioniert die Anmeldung per Magic Link?](https://github.com/enjoydialogs/schach/issues/17), [Wann und wie spricht ein Gegner?](https://github.com/enjoydialogs/schach/issues/9), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Welche Datenbank und Projektstruktur bekommt das Spiel?](https://github.com/enjoydialogs/schach/issues/10), [Welche Brett- und Regelbibliotheken passen für Touch und Server?](https://github.com/enjoydialogs/schach/issues/4), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 
 ## 9. Konto und Anmeldung (Magic Link)
 
 ### 9.1 Grundsatz
 
-- Ohne ASP.NET Core Identity: die Tabellen `Spieler` und `Anmeldung` plus Cookie-Authentifizierung (`AddAuthentication().AddCookie()`).
+- Ohne ASP.NET Core Identity: die Tabellen `Spieler`, `Anmeldung` und `AnmeldungVersuch` plus Cookie-Authentifizierung (`AddAuthentication().AddCookie()`).
 - Data-Protection-Schlüssel in Postgres: `AddDataProtection().PersistKeysToDbContext<SchachDbContext>().SetApplicationName("Schach")`.
 - Registrierung und Anmeldung sind ein Ablauf ohne Verzweigung. `Spieler` entsteht erst bei der Bestätigung.
 - Keine Sitzungstabelle. „Andere Sitzungen ungültig“ leistet die Stempelprüfung.
@@ -577,13 +617,13 @@ Quelle: [Wie läuft eine Partie auf dem Server ab?](https://github.com/enjoydial
 - Höchstens 5 Fehlversuche, dann wird die Zeile gelöscht.
 - `Anmeldung.Id` ist Zufall v4 und ein Geheimnis des anfragenden Geräts.
 - Gültig 15 min, einmalig. Eine neue Anfrage für dieselbe Adresse löscht ältere offene Zeilen.
-- Sweep D löscht `Anmeldung` älter als 1 h.
+- Sweep D löscht `Anmeldung` älter als 1 h und `AnmeldungVersuch` älter als 24 h.
 
 ### 9.3 Endpunkte (`api/v1`)
 
 | Methode und Pfad | Body | Antwort |
 |---|---|---|
-| `POST /auth/anmeldung` | `{email}` | immer 202 `{anmeldungId}` (kein Nachschlagen, keine Verzweigung). 400 `EmailUngueltig` nur bei Formfehler (`MailAddress.TryCreate`, ≤ 254 Zeichen). 503 `MailNichtGesendet` bei Versandfehler (Zeile wieder löschen). 429 aus Abschnitt 11. |
+| `POST /auth/anmeldung` | `{email}` | immer 202 `{anmeldungId}` (kein Nachschlagen, keine Verzweigung). Vor dem Mailversand eine Zeile `AnmeldungVersuch` schreiben. Über dem Limit je Adresse (Abschnitt 11.3): 202 ohne Mail. 400 `EmailUngueltig` nur bei Formfehler (`MailAddress.TryCreate`, ≤ 254 Zeichen). 503 `MailNichtGesendet` bei Versandfehler (Zeile wieder löschen). 429 aus Abschnitt 11. |
 | `POST /auth/anmeldung/bestaetigen` | `{token}` oder `{anmeldungId, code}` | 200 `{spieler{id,email,elo}, neu}` plus Cookie. Jede Ablehnung: 422 `AnmeldungUngueltig`. |
 | `GET /sitzung` | | `{angemeldet, spieler?, csrfToken}`; setzt das Antiforgery-Cookie |
 | `POST /auth/abmelden` | `{ueberall?}` | 204; `ueberall` erneuert den Sicherheitsstempel |
@@ -630,7 +670,7 @@ Logs enthalten nur `anmeldungId` und Ergebnis.
 ### 9.7 Konto löschen und Export
 
 - Selbstbedienung im Profil mit Bestätigungsdialog.
-- Eine Transaktion löscht hart alles zum Konto: Cascade auf `Spieler` (offene Partie, alle Partien, Züge, Sprüche, Elo, Bilanz) plus `DELETE Anmeldung WHERE Email = …`.
+- Eine Transaktion löscht hart alles zum Konto: Cascade auf `Spieler` (offene Partie, alle Partien, Züge, Sprüche, Elo, Bilanz) plus `DELETE Anmeldung WHERE Email = …` und `DELETE AnmeldungVersuch WHERE EmailNormalisiert = …`.
 - Danach abmelden. Andere Sitzungen werden über den Sicherheitsstempel ungültig.
 - Integrationstest: null Zeilen zur Konto-ID.
 - Derselbe Dienst ist als Admin-Befehl aufrufbar.
@@ -642,7 +682,7 @@ Logs enthalten nur `anmeldungId` und Ergebnis.
 
 Der Code-Weg macht beides unkritisch.
 
-Quelle: [Wie funktioniert die Anmeldung per Magic Link?](https://github.com/enjoydialogs/schach/issues/17), [Braucht es Datenschutzerklärung und Konto löschen?](https://github.com/enjoydialogs/schach/issues/12), [Welche Datenbank und Projektstruktur bekommt das Spiel?](https://github.com/enjoydialogs/schach/issues/10), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18)
+Quelle: [Wie funktioniert die Anmeldung per Magic Link?](https://github.com/enjoydialogs/schach/issues/17), [Braucht es Datenschutzerklärung und Konto löschen?](https://github.com/enjoydialogs/schach/issues/12), [Welche Datenbank und Projektstruktur bekommt das Spiel?](https://github.com/enjoydialogs/schach/issues/10), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 
 ## 10. Bildschirme
 
@@ -726,10 +766,32 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 Overlays: Auswahl `rgba(46,107,214,.45)`, letzter Zug `rgba(46,107,214,.28)`, Zielpunkt und Schlagring dunkel 30 %, Schach roter Radialverlauf, Warnung `rgba(240,165,0,.55)`, Tipp-Ring `inset 0 0 0 4px #2E6BD6`, Tipp-Pfeil in Akzentfarbe. `theme-color #F6F4EE`. Schrift Inter, selbst gehostet.
 
 **Dialoge:**
-- Aufgeben bestätigen: „Partie aufgeben?“, Text je nach Elo-Wirkung.
+- **Aufgeben bestätigen:** Titel „Partie aufgeben?“, Knöpfe „Aufgeben“ (rot) und „Abbrechen“. Text:
+  - Spieler, Partie zählt: „Aufgeben zählt als Niederlage und senkt deine Elo.“
+  - Spieler, Partie zählt nicht: „Aufgeben zählt als Niederlage. Deine Elo ändert sich nicht, weil diese Partie nicht für die Elo zählt.“
+  - Gast: „Die Gastpartie endet als Niederlage und wird nicht gespeichert.“
 - Erster Tipp und erste Zurücknahme je Partie (nur Spieler, nur solange die Partie zählt): einmalige Frage, dass die Partie dann nicht mehr für die Elo zählt. Danach keine Frage mehr.
 - Remis anbieten ohne Bestätigung.
 - **Partieende:** Bottom-Sheet über dem unteren Drittel mit Titel, Grund, festem Erklärsatz, letztem Spruch, Elo-Zeile („Elo 812 (+12)“ / „zählt nicht“ / Gast-Hinweis aufs Konto), Knöpfen „Neue Partie“ und „Nachspielen“ (nur Spieler), Link „Zur Startseite“. Schließbar, die Stellung bleibt sichtbar.
+
+**Erklärsätze** (Partieende-Blatt und Nachspielen): in `src/i18n/de.ts` unter `partieende.erklaerung[grund][sicht]` mit `sicht ∈ {sieg, niederlage, remis}`. Der Client leitet die Sicht aus `ergebnis` und `spielerFarbe` ab. `{name}` ist der Gegner. Höchstens 90 Zeichen.
+
+| Grund | Sicht | Text |
+|---|---|---|
+| `Matt` | sieg | `{name} ist matt: Der König steht im Schach und hat keinen Ausweg mehr.` |
+| `Matt` | niederlage | `Du bist matt: Dein König steht im Schach und hat keinen Ausweg mehr.` |
+| `Aufgabe` | niederlage | `Du hast die Partie aufgegeben.` |
+| `Aufgabe` | sieg (Reserve) | `{name} hat die Partie aufgegeben.` |
+| `Zeit` | sieg | `Die Bedenkzeit von {name} ist abgelaufen.` |
+| `Zeit` | niederlage | `Deine Bedenkzeit ist abgelaufen.` |
+| `Patt` | remis | `Patt: Wer am Zug ist, hat keinen erlaubten Zug, steht aber nicht im Schach.` |
+| `Wiederholung` | remis | `Dieselbe Stellung ist zum dritten Mal entstanden.` |
+| `FuenfzigZuege` | remis | `50 Züge lang wurde kein Bauer gezogen und nichts geschlagen.` |
+| `Material` | remis | `Keine Seite hat genug Figuren, um noch matt zu setzen.` |
+| `ZeitOhneMattmaterial` | remis | `Die Bedenkzeit ist abgelaufen, aber die andere Seite konnte nicht mehr matt setzen.` |
+| `Vereinbarung` | remis | `Du hast Remis angeboten und {name} hat angenommen.` |
+
+Eine Kombination ohne Eintrag zeigt nur das Grund-Label, nie einen Fehler.
 
 **Töne und Haptik:** WebAudio-Synthese (keine Dateien) für Zug, Schlag und Partieende. `navigator.vibrate(15)` beim eigenen Zug, `[30,40,30]` am Ende. Ein Schalter.
 
@@ -839,7 +901,7 @@ Passiv an drei Stellen:
 
 Die Prototyp-Abnahme des Partie-Bildschirms steht in Abschnitt 15 (Phase 1, S3a).
 
-Quelle: [Wie sieht der Partie-Bildschirm auf dem Pixel 7 aus?](https://github.com/enjoydialogs/schach/issues/6), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), [Welche Lernhilfen gibt es genau?](https://github.com/enjoydialogs/schach/issues/8), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Wie funktioniert die Anmeldung per Magic Link?](https://github.com/enjoydialogs/schach/issues/17), [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7)
+Quelle: [Wie sieht der Partie-Bildschirm auf dem Pixel 7 aus?](https://github.com/enjoydialogs/schach/issues/6), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), [Welche Lernhilfen gibt es genau?](https://github.com/enjoydialogs/schach/issues/8), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Wie funktioniert die Anmeldung per Magic Link?](https://github.com/enjoydialogs/schach/issues/17), [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 
 ## 11. Kosten- und Missbrauchsschutz
 
@@ -875,14 +937,16 @@ Budgetwächter nach Kronrat `LlmBudgetGuard` / `BudgetMath`.
 | `Limits:ZuegeJePartieUndMinute` | `40` | Limiter `zuege-je-partie` |
 | `Limits:TippsJePartieUndMinute` | `10` | Limiter `tipp-je-partie` |
 | `Limits:AktionenJePartieUndMinute` | `20` | Limiter `aktion-je-partie` |
-| `Limits:EngineZuegeGleichzeitig=24` / `Warteschlange=48` | 24 / 48 | ConcurrencyLimiter für `POST …/zuege` |
-| `Limits:StockfishTippsGleichzeitig=2` / `Warteschlange=4` | 2 / 4 | ConcurrencyLimiter für `POST …/tipp` |
+| `Limits:EngineZuegeGleichzeitig` | `24` | ConcurrencyLimiter für `POST …/zuege` |
+| `Limits:EngineZuegeWarteschlange` | `48` | Warteschlange dazu |
+| `Limits:StockfishTippsGleichzeitig` | `2` | ConcurrencyLimiter für `POST …/tipp` |
+| `Limits:StockfishTippsWarteschlange` | `4` | Warteschlange dazu |
 | `Tipp:MovetimeMs` | `800` | Stockfish-Rechenzeit je Tipp |
 | `Engine:UeberlastFehlerIn30s` | `10` | Schwelle für Überlast |
 | `Engine:UeberlastSperreSekunden` | `60` | dann keine neuen Gast-Partien |
 | `Engine:Eichung` | Identität | Abschnitt 5.4 |
 
-- Die Remis-Bewertung hat kein eigenes Limit. Die Sperren aus Abschnitt 3.5 werden vor dem Stockfish-Aufruf geprüft. Bei 503 gilt die Materialzählung.
+- Die Remis-Bewertung hat kein eigenes Limit. Die Sperren aus Abschnitt 3.5 werden vor dem Stockfish-Aufruf geprüft. Bei 503 gilt die Materialbilanz (annehmen bei ≤ +1).
 - **Abbau unter Last**, in dieser Reihenfolge:
   1. neue Gast-Partien verweigern („Gerade ist viel los. Mit Konto geht es sofort weiter, sonst in ein paar Minuten.“),
   2. Tipp „gerade nicht verfügbar“,
@@ -891,9 +955,15 @@ Budgetwächter nach Kronrat `LlmBudgetGuard` / `BudgetMath`.
 
 ### 11.3 Magic-Link-Mail
 
-- Je E-Mail-Adresse (lowercase, `+tag` gestrichen): 3 je 15 min und 6 je 24 h. DB-Zählung. Darüber neutrale Antwort ohne Mail.
-- Je IP: 5 je 10 min (Limiter `magic-link-je-ip`, 429).
-- Global: `Mail:MaxJeStunde=40`, `Mail:MaxJeTag=200` → 503 `MailKontingentErschoepft`.
+| Schlüssel | Vorgabe | Wirkung |
+|---|---|---|
+| `Limits:AnmeldungenJeAdresseUnd15Minuten` | `3` | DB-Zählung über `AnmeldungVersuch`; darüber 202 ohne Mail |
+| `Limits:AnmeldungenJeAdresseUnd24Stunden` | `6` | wie oben |
+| `Limits:AnmeldungenJeIpUnd10Minuten` | `5` | Limiter `magic-link-je-ip`, 429 |
+| `Mail:MaxJeStunde` | `40` | global, Speicherzähler im Dienst `MailKontingent`; darüber 503 `MailKontingentErschoepft` |
+| `Mail:MaxJeTag` | `200` | wie oben |
+
+- Die Adresse wird für die Zählung normalisiert (`EmailNormalisiert`: lowercase, `+tag` gestrichen).
 - Der Knopf im Client ist 60 s gesperrt.
 - `Mail:MaxJeTag` an den gebuchten Lettermint-Tarif anpassen (Free-Tarif: 300 Mails im Monat).
 
@@ -919,7 +989,7 @@ Budgetwächter nach Kronrat `LlmBudgetGuard` / `BudgetMath`.
 | `ForwardedHeaders__KnownNetworks` | Abschnitt 11.4 |
 | Engine-Env | Abschnitt 5.2 |
 
-Quelle: [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Wann und wie spricht ein Gegner?](https://github.com/enjoydialogs/schach/issues/9), [Welche Datenbank und Projektstruktur bekommt das Spiel?](https://github.com/enjoydialogs/schach/issues/10), [Wie viel Rechenzeit brauchen die Engines auf dem VPS?](https://github.com/enjoydialogs/schach/issues/15)
+Quelle: [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Wann und wie spricht ein Gegner?](https://github.com/enjoydialogs/schach/issues/9), [Welche Datenbank und Projektstruktur bekommt das Spiel?](https://github.com/enjoydialogs/schach/issues/10), [Wie viel Rechenzeit brauchen die Engines auf dem VPS?](https://github.com/enjoydialogs/schach/issues/15), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 
 ## 12. Datenschutz und Recht
 
@@ -952,6 +1022,8 @@ Aus GladiusEtPilum 1:1 übernommen. Klein im Footer wie bei Kronrat und GladiusE
 
 Nur nötiger Speicher, darum kein Cookie-Banner. Keine Fremd-Skripte, Fonts selbst gehostet, strikte CSP.
 
+localStorage- und sessionStorage-Schlüssel stehen ohne Präfix in der Konstante `SpeicherSchluessel`.
+
 | Speicher | Art | Zweck |
 |---|---|---|
 | `schach_sitzung` | Cookie (HttpOnly, Secure, SameSite Lax) | Sitzung, 180 Tage gleitend |
@@ -959,8 +1031,8 @@ Nur nötiger Speicher, darum kein Cookie-Banner. Keine Fremd-Skripte, Fonts selb
 | Service-Worker-Precache | Cache Storage | App-Shell, Schrift, Figuren, Rechtstexte |
 | `schach-partien-v1` | Cache Storage | beendete Partien für Offline-Nachspielen |
 | `gastPartieId` | localStorage | laufende Gast-Partie |
-| Einstellungen (3 Schalter) | localStorage | Lernhilfen, Töne |
-| `installHinweis` | localStorage | Zeitpunkt von „Später“ |
+| `einstellungen` | localStorage | JSON `{"erlaubteZuegeAnzeigen":true,"vorUngedecktenWarnen":true,"toeneUndVibration":true}`; fehlender Wert oder Parse-Fehler gilt als `true` |
+| `installHinweis` | localStorage | ISO-Zeitpunkt des letzten „Später“ |
 | `anmeldungId` | sessionStorage | Code-Weg der Anmeldung |
 
 ### 12.4 Konto löschen und Export
@@ -971,6 +1043,7 @@ Nur nötiger Speicher, darum kein Cookie-Banner. Keine Fremd-Skripte, Fonts selb
 ### 12.5 Aufbewahrung
 
 - Unbestätigte Magic-Link-Anfragen höchstens 24 h (praktisch 1 h über Sweep D).
+- `AnmeldungVersuch` (normalisierte Adresse und Zeitpunkt) höchstens 24 h.
 - App-Logs ohne IP und ohne E-Mail.
 - Konten bis zur Selbstlöschung.
 
@@ -979,7 +1052,7 @@ Nur nötiger Speicher, darum kein Cookie-Banner. Keine Fremd-Skripte, Fonts selb
 - `docs/legal/avv-uebersicht.md` mit den Zeilen Hostinger, `lettermint`, Mistral, Backup-Ziel (Hetzner Object Storage).
 - Eigener Mistral-Workspace „schach“ mit abgeschalteter Datenweitergabe.
 
-Quelle: [Braucht es Datenschutzerklärung und Konto löschen?](https://github.com/enjoydialogs/schach/issues/12), [Wie schnell und teuer sind Mistral-Sprüche?](https://github.com/enjoydialogs/schach/issues/5), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), [Wie funktioniert die Anmeldung per Magic Link?](https://github.com/enjoydialogs/schach/issues/17), [Map: Schach-Lernspiel fürs Handy](https://github.com/enjoydialogs/schach/issues/1)
+Quelle: [Braucht es Datenschutzerklärung und Konto löschen?](https://github.com/enjoydialogs/schach/issues/12), [Wie schnell und teuer sind Mistral-Sprüche?](https://github.com/enjoydialogs/schach/issues/5), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), [Wie funktioniert die Anmeldung per Magic Link?](https://github.com/enjoydialogs/schach/issues/17), [Map: Schach-Lernspiel fürs Handy](https://github.com/enjoydialogs/schach/issues/1), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 
 ## 13. Architektur und Repo
 
