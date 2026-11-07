@@ -1,8 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 using Schach.Api.Contracts;
 using Schach.Api.Tests.Konto;
+using Schach.Application.Llm;
+using Schach.Application.Sprachausgabe;
 using Schach.Tests.Shared;
 
 namespace Schach.Api.Tests.Partien;
@@ -82,10 +85,13 @@ public sealed class SprachausgabeTests
         using var gast = new ApiSitzung(factory);
         var zustand = await StartenAsync(gast, "finn");
         var token = zustand.Sprueche.Single().Stimme!;
+        // 1 Mio. Zeichen kosten 13 EUR, weit ueber dem Vorgabe-Budget von 5 EUR.
+        await factory.Services.GetRequiredService<ISprachVerbrauchSpeicher>()
+            .BucheAsync(LlmMonat.Von(DateTimeOffset.UtcNow), new SprachBuchung(1_000_000, 0, 0, 0), Ct);
 
         using var ton = await gast.Http.GetAsync(new Uri($"/api/v1/sprachausgabe/{token}", UriKind.Relative), Ct);
 
         ton.StatusCode.Should().Be(HttpStatusCode.NoContent);
         factory.Stimme.Aufrufe.Should().Be(0);
-    }, new Dictionary<string, string>(MitStimme) { ["Sprachausgabe:CentJeMillionZeichen"] = "100000000", ["Sprachausgabe:MonthlyBudgetEuroCents"] = "1" });
+    }, MitStimme);
 }
