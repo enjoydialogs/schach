@@ -87,7 +87,11 @@ public sealed class SpruchDienstTests
 
         spruch.Should().BeEquivalentTo(new Spruch
         {
-            PartieId = partie.Id, NachHalbzug = 12, Ereignis = SpruchEreignis.Zug, Text = "Attacke, mein Springer!", Quelle = SpruchQuelle.Mistral,
+            PartieId = partie.Id,
+            NachHalbzug = 12,
+            Ereignis = SpruchEreignis.Zug,
+            Text = "Attacke, mein Springer!",
+            Quelle = SpruchQuelle.Mistral,
         });
         _speicher.Buchungen.Should().Equal((new DateOnly(2026, 11, 1), new LlmBuchung(400, 20, 1, 0, 0)));
         _provider.LetzteAnfrage!.PromptFile.Should().Be("spruch.de.md");
