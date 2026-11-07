@@ -21,11 +21,12 @@ const FARBEN: { wert: FarbeWahl; text: string }[] = [
   { wert: 'Zufall', text: de.neu.zufall },
 ]
 
-const BEDENKZEITEN: { wert: Bedenkzeit; untertitel?: string }[] = [
+// Jede Kurzform bekommt einen Untertitel: „15+10“ setzt Schachwissen voraus.
+const BEDENKZEITEN: { wert: Bedenkzeit; untertitel: string }[] = [
   { wert: 'OhneUhr', untertitel: de.neu.ohneUhrUntertitel },
-  { wert: 'Fischer15Plus10' },
-  { wert: 'Fischer10Plus5' },
-  { wert: 'Fischer5Plus3' },
+  { wert: 'Fischer15Plus10', untertitel: de.neu.fischer15Plus10Untertitel },
+  { wert: 'Fischer10Plus5', untertitel: de.neu.fischer10Plus5Untertitel },
+  { wert: 'Fischer5Plus3', untertitel: de.neu.fischer5Plus3Untertitel },
   { wert: 'JeZug90s', untertitel: de.neu.jeZugUntertitel },
 ]
 
@@ -169,14 +170,19 @@ export function NeuePartie() {
                     value={b.wert}
                     checked={bedenkzeit === b.wert}
                     onChange={() => setBedenkzeit(b.wert)}
+                    aria-labelledby={`bedenkzeit-${b.wert}`}
+                    aria-describedby={`bedenkzeit-${b.wert}-untertitel`}
                   />
                   <span className="radiozeile__punkt" aria-hidden="true" />
                   <span className="radiozeile__text">
-                    <span>{de.bedenkzeit[b.wert]}</span>
-                    {b.untertitel !== undefined && <span className="zeile__klein">{b.untertitel}</span>}
+                    <span id={`bedenkzeit-${b.wert}`}>{de.bedenkzeit[b.wert]}</span>
+                    <span id={`bedenkzeit-${b.wert}-untertitel`} className="zeile__klein">
+                      {b.untertitel}
+                    </span>
                   </span>
                 </label>
               ))}
+              <p className="zeile__klein">{t('neu.mitUhrHinweis')}</p>
             </fieldset>
             {fehler !== null && (
               <p className="fehlertext" role="alert">
