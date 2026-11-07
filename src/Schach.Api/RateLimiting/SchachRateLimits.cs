@@ -65,7 +65,7 @@ public static class SchachRateLimits
                     }));
 
                 // Angemeldete Spieler ohne Limit. Achtung: context.User ist nur gefuellt, wenn die
-                // Anmeldung vor dem Limiter ausgewertet wurde (siehe PR #32, offener Punkt fuer S2a).
+                // Anmeldung vor dem Limiter ausgewertet wurde (Issue #32, offener Punkt fuer S2a).
                 o.AddPolicy(GastPartieJeIp, context => context.User.Identity?.IsAuthenticated == true
                     ? RateLimitPartition.GetNoLimiter("spieler")
                     : RateLimitPartition.GetSlidingWindowLimiter(
