@@ -30,6 +30,9 @@ Diese Datei ist ein Append-Register (SCHACH-SPEC 15.1 Regel 5): Einträge nur an
 | python-chess | GPL-3.0-or-later | https://github.com/niklasf/python-chess | Stellung, Legalität und UCI im Engine-Dienst (ab 0c) |
 | FastAPI | MIT | https://github.com/fastapi/fastapi | HTTP-Schicht des Engine-Dienstes (ab 0c) |
 | Uvicorn | BSD-3-Clause | https://github.com/encode/uvicorn | ASGI-Server des Engine-Dienstes (ab 0c) |
+| PyTorch 2.15.0 (CPU) | BSD-3-Clause | https://github.com/pytorch/pytorch | Maia-3-Inferenz im Engine-Image (ab S4a) |
+| Stockfish 19 (Binary) | GPL-3.0 | https://github.com/official-stockfish/Stockfish, Tag `sf_19` | Release-Binary im Engine-Image, sha256 gepinnt (ab S4a) |
+| Fairy-Stockfish 14 (Binary) | GPL-3.0 | https://github.com/fairy-stockfish/Fairy-Stockfish, Tag `fairy_sf_14` | Release-Binary im Engine-Image, sha256 gepinnt (ab S4a) |
 
 ## Browser, Ergänzung S3a (Brett-Prototyp)
 

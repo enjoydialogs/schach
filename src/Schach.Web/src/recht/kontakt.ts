@@ -1,12 +1,9 @@
 // Rechtstext, nicht rechtlich geprüft.
 //
-// Kontaktwege des Betreibers, einmal festgehalten (SCHACH-SPEC 12.2, aus GladiusEtPilum
-// `Content/Contact.cs`). Das Kontaktformular ist ein schlichter Link auf Aidbases gehostetes
-// Ticketformular: kein Aidbase-Skript auf unseren Seiten und nichts über den Besucher in der URL.
-// Die Formular-ID ist die des Gladius-Formulars ("Gladius et Pilum" in Aidbase).
+// Kontaktwege des Betreibers, einmal festgehalten (SCHACH-SPEC 12.2). Kontakt nur per E-Mail, kein
+// Kontaktformular (Betreiber-Entscheidung zu PR #45: kein Aidbase). Antworten auf die Anmelde-Mail
+// gehen per Reply-To an die Support-Adresse (`Email__ReplyToAddress`, SCHACH-SPEC 9.6, 11.5).
 
 export const KONTAKT_EMAIL = 'info@enjoy-dialogs.de'
 
-const KONTAKTFORMULAR_ID = 'HWp0StflczOsoDHIrG24b'
-
-export const KONTAKTFORMULAR_URL = `https://hosted.aidbase.ai/tickets/${KONTAKTFORMULAR_ID}`
+export const SUPPORT_EMAIL = 'support@enjoy-dialogs.de'
