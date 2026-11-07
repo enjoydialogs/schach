@@ -19,6 +19,8 @@ test('Nachspielen und PGN herunterladen', async ({ page }) => {
   await spieleZugTippenTippen(page, id)
   await spieleZugTippenTippen(page, id)
   const { ende } = await gibAuf(page)
+  // Spieler-Partie ohne Tipp zaehlt: Elo-Zeile aus eloVorher/eloNachher des Servers (SCHACH-SPEC 10.3).
+  await expect(ende.locator('.ende__elo')).toHaveText(/^Elo \d+ \(.+\)$/)
 
   await ende.getByRole('button', { name: 'Nachspielen' }).click()
   await page.waitForURL((url) => url.pathname === `/nachspielen/${id}`)
@@ -48,4 +50,19 @@ test('Nachspielen und PGN herunterladen', async ({ page }) => {
   const inhalt = await readFile(await datei.path(), 'utf8')
   expect(inhalt).toBe(pgn)
   expect(inhalt).toContain('[Result "0-1"]')
+
+  // Partienliste gegen den echten Server (`GET /partien?limit`, SCHACH-SPEC 10.7): die eine
+  // beendete Partie steht dort und fuehrt zurueck ins Nachspielen.
+  const liste = page.waitForResponse(
+    (r) => r.request().method() === 'GET' && new URL(r.url()).pathname === '/api/v1/partien',
+  )
+  await page.goto('/partien')
+  expect((await liste).status()).toBe(200)
+  const zeilen = page.locator('ul.liste a.partiezeile')
+  await expect(zeilen).toHaveCount(1)
+  await expect(zeilen.first()).toHaveAttribute('href', `/nachspielen/${id}`)
+  await expect(zeilen.first()).toContainText('Finn')
+  await expect(zeilen.first()).toContainText('Niederlage')
+  await zeilen.first().click()
+  await page.waitForURL((url) => url.pathname === `/nachspielen/${id}`)
 })

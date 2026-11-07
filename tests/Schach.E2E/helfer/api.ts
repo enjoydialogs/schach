@@ -20,6 +20,7 @@ export interface Zustand {
   amZug: boolean
   gegnerZugAusstehend: boolean
   zaehltFuerElo: boolean
+  remisAngebotMoeglichAbZug: number
   ergebnis: string | null
   grund: string | null
   pgn: string | null

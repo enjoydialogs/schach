@@ -38,4 +38,16 @@ test('Spieler-Partie mit Tipp und Zurücknehmen', async ({ page }) => {
   await expect.poll(async () => (await zustand(page, id)).halbzug).toBe(vorher.halbzug - 2)
   await expect(eigenerZugAnzeige(page)).toBeVisible()
   await expect(page.locator('.partie__eigene .pille')).toHaveText('Zählt nicht für die Elo')
+
+  // Remis-Angebot gegen den echten Server (SCHACH-SPEC 3.5): vor Zug 20 lehnt jeder Gegner ab, ohne
+  // Engine. Die Ablehnung sperrt weitere Angebote fuer 5 Zuege; der Knopf zeigt das sofort.
+  const remis = page.waitForResponse(
+    (r) => r.request().method() === 'POST' && r.url().endsWith(`/partien/${id}/remis-angebot`),
+  )
+  await leiste.getByRole('button', { name: 'Remis anbieten' }).click()
+  expect((await remis).status()).toBe(200)
+  await expect(leiste.getByRole('button', { name: 'Remis anbieten' })).toBeDisabled()
+  const nachRemis = await zustand(page, id)
+  expect(nachRemis.status).toBe('Offen')
+  expect(nachRemis.remisAngebotMoeglichAbZug).toBe(6)
 })
