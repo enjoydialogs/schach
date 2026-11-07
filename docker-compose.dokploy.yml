@@ -107,6 +107,19 @@ services:
       Email__ReplyToAddress: ${EMAIL_REPLY_TO_ADDRESS:-}
       Email__OperatorEmail: ${OPERATOR_EMAIL:-}
       Llm__ApiKey: ${MISTRAL_API_KEY:-}
+      # Betreiber-Einstellungen (SCHACH-SPEC 11.2, 11.3, 16). Die Vorgabe nach `:-` ist die Vorgabe aus
+      # dem Code: ein leerer Wert bricht die int-Bindung. BetreiberKonfigTests prueft beides.
+      Mail__MaxJeTag: ${MAIL_MAX_JE_TAG:-200}
+      Limits__PartienJeSpielerUndTag: ${LIMITS_PARTIEN_JE_SPIELER_UND_TAG:-50}
+      Limits__GastPartienJeIpUndStunde: ${LIMITS_GAST_PARTIEN_JE_IP_UND_STUNDE:-60}
+      Limits__OffeneGastPartienGesamt: ${LIMITS_OFFENE_GAST_PARTIEN_GESAMT:-300}
+      Limits__ZuegeJePartieUndMinute: ${LIMITS_ZUEGE_JE_PARTIE_UND_MINUTE:-40}
+      Limits__TippsJePartieUndMinute: ${LIMITS_TIPPS_JE_PARTIE_UND_MINUTE:-10}
+      Limits__AktionenJePartieUndMinute: ${LIMITS_AKTIONEN_JE_PARTIE_UND_MINUTE:-20}
+      Limits__EngineZuegeGleichzeitig: ${LIMITS_ENGINE_ZUEGE_GLEICHZEITIG:-24}
+      Limits__EngineZuegeWarteschlange: ${LIMITS_ENGINE_ZUEGE_WARTESCHLANGE:-48}
+      Limits__StockfishTippsGleichzeitig: ${LIMITS_STOCKFISH_TIPPS_GLEICHZEITIG:-2}
+      Limits__StockfishTippsWarteschlange: ${LIMITS_STOCKFISH_TIPPS_WARTESCHLANGE:-4}
       # Tracing: aus ohne Endpunkt (SchachTracing). Mit Monitoring-Projekt auf der Box z. B. der
       # Collector-Alias auf dokploy-network.
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
