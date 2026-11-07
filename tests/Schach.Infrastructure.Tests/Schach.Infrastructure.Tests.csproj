@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,3 +16,4 @@
   </ItemGroup>
 
 </Project>
+
