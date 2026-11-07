@@ -1,0 +1,3 @@
+# Lokale Notizen, nie committen (enthalten Details aus privaten Repos)
+.local/
+.claude/worktrees/
