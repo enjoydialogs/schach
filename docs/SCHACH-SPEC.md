@@ -415,7 +415,23 @@ Gäste bekommen live Sprüche, solange das Budget in Stufe Ok ist. Leiter über 
 - Ilse/Theo unter 75 %: Gemütlich entfällt (Abschnitt 4.2).
 - **Häufigkeit:** 10 Testpartien mit je 8 bis 16 Sprüchen, davon `Stellung*` höchstens 3.
 
-Quelle: [Wann und wie spricht ein Gegner?](https://github.com/enjoydialogs/schach/issues/9), [Wie schnell und teuer sind Mistral-Sprüche?](https://github.com/enjoydialogs/schach/issues/5), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Wie läuft eine Partie auf dem Server ab?](https://github.com/enjoydialogs/schach/issues/16), [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7), [Wie sieht der Partie-Bildschirm auf dem Pixel 7 aus?](https://github.com/enjoydialogs/schach/issues/6)
+### 6.9 Sprachausgabe
+
+Der Gegner spricht jeden Spruch hörbar (Stufe A, B, C, live und Ersatz), jeder Gegner mit eigener Stimme. Text und Spruchblase bleiben wie bisher; die Stimme kommt kurz danach.
+
+- **Anbieter:** Mistral Voxtral TTS, Modell `voxtral-mini-tts-3-0`, `POST {Sprachausgabe:Endpoint}/audio/speech` über `https://api.eu.mistral.ai/v1` mit `model`, `input`, `voice_id`, `response_format = mp3` und optional `expressiveness`. Die Antwort ist JSON mit `audio_data` (Base64). Ein Versuch, kein Streaming. Schlüssel und Schalter aus `Llm`: ohne Schlüssel oder mit `Llm:Provider` aus ist die Sprachausgabe aus.
+- **Nie im Zugpfad:** `/zuege`, `POST /partien` und der Sweep warten nie auf die Stimme. `SpruchDto.stimme` ist ein Token (string oder `null`), das nur aus der Konfiguration entsteht, ohne Datenbank und ohne Mistral.
+- **Token:** per Data Protection geschützt (Zweck `Schach.Sprachausgabe.Stimme.v1`), Inhalt Gegner-Key, Text und Gast-Flag. Es gilt ohne Partie, damit der Schlussspruch einer gelöschten Gast-Partie (8.9) noch klingt, und der Client kann keinen beliebigen Text sprechen lassen. `null`, wenn die Sprachausgabe aus ist, das Budget `0` ist oder der Gegner keine Voice-Id hat.
+- **Route:** `GET /api/v1/sprachausgabe/{token}`, anonym, Limiter `sprachausgabe-je-ip` (11.4). 200 `audio/mpeg` mit `Cache-Control: private, max-age=86400`; ungültiges Token 404; aus, Budget, 429-Pause, Fehler oder Zeitlimit 204. Nie eine Fehlermeldung.
+- **Cache:** Tabelle `SpruchStimme`, Schlüssel SHA-256 über Modell, Voice-Id und Text. Derselbe Satz mit derselben Stimme entsteht nur einmal; ein Cache-Treffer gilt auch bei erschöpftem Budget. Sweep-Block E löscht Einträge, die 90 Tage (`Sprachausgabe:CacheTage`) nicht genutzt wurden.
+- **Budget:** eigene Leiter wie 11.1, gezählt in Zeichen (`SprachausgabeVerbrauch`). Ok alle, Warn nur Spieler, Erschöpft niemand. Die Chat-Leiter (`LlmBudgetGuard`) bleibt unberührt. Ein 429 pausiert nur die Sprachausgabe. Gebucht wird nur bei einem Mistral-Aufruf: Erfolg und Zeitlimit mit den Zeichen des Texts, Fehler mit 0 Zeichen.
+- **Stimmen:** nur aus der Konfiguration, `Sprachausgabe:Stimmen:{key}:VoiceId` und `:Expressiveness` (Dokploy-Env). Keine Aufnahmen, keine Voice-Ids im Repo. Geklonte Stimmen laufen bei Mistral nach höchstens 365 Tagen ab; Mistral antwortet dann 404. Folge: Stille, Warnzeile und eine Mail `StimmeUnbekannt` je Monat.
+- **Client:** Schalter „Sprüche vorlesen“ (`spruecheVorlesen`, 10.3). Wiedergabe über den gemeinsamen `AudioContext` aus `toene.ts` (`fetch`, `decodeAudioData`); der Zug-Tipp gibt ihn frei. Ein neuer Spruch stoppt den vorigen. Verlassen der Partie oder `visibilitychange` auf hidden stoppt. Beim Laden einer Partie wird der sichtbare Spruch nicht vorgelesen, nur neu ankommende. Tipp auf die Spruchblase liest erneut.
+- **Nicht im Umfang:** Nachspielen bleibt stumm (10.13). Emotions-Tags (`[emotion=…]`) sind bei Mistral nur für Englisch dokumentiert und bleiben vorerst aus.
+
+**`SprachausgabeOptions`** (Abschnitt `Sprachausgabe`): `Aktiv=true`, `Endpoint=https://api.eu.mistral.ai/v1`, `Model=voxtral-mini-tts-3-0`, `ZeitlimitMs=8000`, `MonthlyBudgetEuroCents=500`, `WarnThresholdPercent=80`, `CentJeMillionZeichen=1300`, `BudgetCacheSekunden=60`, `PauseNach429Sekunden=60`, `CacheTage=90`, `Stimmen={}`.
+
+Quelle: [Sprüche vorlesen: Gegnerstimmen mit Voxtral TTS](https://github.com/enjoydialogs/schach/issues/77), [Wann und wie spricht ein Gegner?](https://github.com/enjoydialogs/schach/issues/9), [Wie schnell und teuer sind Mistral-Sprüche?](https://github.com/enjoydialogs/schach/issues/5), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Wie läuft eine Partie auf dem Server ab?](https://github.com/enjoydialogs/schach/issues/16), [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7), [Wie sieht der Partie-Bildschirm auf dem Pixel 7 aus?](https://github.com/enjoydialogs/schach/issues/6)
 
 ## 7. Lernhilfen
 
@@ -440,7 +456,7 @@ Quelle: [Wann und wie spricht ein Gegner?](https://github.com/enjoydialogs/schac
    - Server: `POST /partien/{id}/tipp`, Stockfish voll über `/analyse`, `Tipp:MovetimeMs=800`, Ergebnis je FEN gecacht. Unbegrenzt nutzbar (nur Ratenlimit). Vertrag in Abschnitt 8.3.
    - Das zweite Tippen ruft den Server nicht. Der Client hält das Ergebnis je `halbzug`.
    - Der erste Tipp nimmt die Partie aus der Elo (wie eine Zurücknahme). Ein Spieler wird einmal je Partie gefragt, clientseitig vor dem ersten Aufruf. Danach zeigt die Pille „Zählt nicht für die Elo“. Gäste werden nicht gefragt.
-4. **Einstellungen:** drei Schalter, alle Standard an, im Gerät gespeichert (localStorage-Schlüssel `einstellungen`, Abschnitt 12.3), jederzeit änderbar im Partie-Menü und im Profil: „Erlaubte Züge anzeigen“ (`erlaubteZuegeAnzeigen`), „Vor ungedeckten Figuren warnen“ (`vorUngedecktenWarnen`), „Töne und Vibration“ (`toeneUndVibration`).
+4. **Einstellungen:** vier Schalter, alle Standard an, im Gerät gespeichert (localStorage-Schlüssel `einstellungen`, Abschnitt 12.3), jederzeit änderbar im Partie-Menü und im Profil: „Erlaubte Züge anzeigen“ (`erlaubteZuegeAnzeigen`), „Vor ungedeckten Figuren warnen“ (`vorUngedecktenWarnen`), „Töne und Vibration“ (`toeneUndVibration`), „Sprüche vorlesen“ (`spruecheVorlesen`, 6.9).
 5. **Besiegt-Markierung:** nur nach einem Sieg in einer Partie, die für die Elo zählt.
 
 Quelle: [Welche Lernhilfen gibt es genau?](https://github.com/enjoydialogs/schach/issues/8), [Wie sieht der Partie-Bildschirm auf dem Pixel 7 aus?](https://github.com/enjoydialogs/schach/issues/6), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
@@ -537,11 +553,12 @@ Die `ereignis`-Strings sind zugleich die Überschriften in `prompts/ersatz/*.de.
 ### 8.7 Zeitablauf und Sweep
 
 - **Lazy:** Bei jedem Laden einer Partie (auch `GET`) wird der Zeitablauf zuerst geprüft, in derselben Transaktion. Ein Zug nach Ablauf ergibt 409 `UhrAbgelaufen`.
-- **Sweep:** `BackgroundService` alle 5 s mit vier Blöcken:
+- **Sweep:** `BackgroundService` alle 5 s mit fünf Blöcken:
   - **A** abgelaufene Uhren beenden (Grund `Zeit` oder `ZeitOhneMattmaterial`).
   - **B** ausstehende Gegnerzüge nachholen, wenn `LetzterVersuchAm` älter als 10 s ist. Nutzt denselben `SpruchDienst`.
   - **C** Gast-Partien ohne Zug seit 24 h löschen.
   - **D** `Anmeldung`-Zeilen älter als 1 h und `AnmeldungVersuch`-Zeilen älter als 24 h löschen.
+  - **E** `SpruchStimme`-Einträge löschen, die 90 Tage nicht genutzt wurden (6.9).
 
 ### 8.8 Tabs, Geräte, Idempotenz
 
@@ -573,7 +590,7 @@ Ein Domänenweg `Beenden(ergebnis, grund)` in einer Transaktion:
 
 ### 8.12 Datenmodell
 
-PostgreSQL 17, EF Core 10. Eine Migration `0001_Schema` legt alles an.
+PostgreSQL 17, EF Core 10. Die Migration `0001_Schema` legt das Grundschema an, `0002_Sprachausgabe` die Tabellen der Sprachausgabe (6.9).
 
 | Tabelle | Spalten |
 |---|---|
@@ -585,6 +602,8 @@ PostgreSQL 17, EF Core 10. Eine Migration `0001_Schema` legt alles an.
 | `Anmeldung` | `Id uuid PK (Zufall v4), Email, TokenHash bytea(32) UNIQUE, CodeHash bytea(32), Fehlversuche smallint, ErstelltAm, LaeuftAbAm` |
 | `AnmeldungVersuch` | `Id uuid PK, EmailHash bytea(32), ErstelltAm`. Eine Zeile je angenommener Anfrage für die Mail-Limits je Adresse (Abschnitt 11.3). `EmailHash` = SHA-256 der normalisierten Adresse (lowercase, `+tag` gestrichen), nie die Adresse selbst. Bleibt 24 h, weil `Anmeldung`-Zeilen nach 1 h oder bei neuer Anfrage verschwinden. |
 | `LlmVerbrauch` | `Monat PK, PromptTokens, CompletionTokens, Aufrufe, Zeitueberschreitungen, Fehler, WarnGemeldetAm?, ErschoepftGemeldetAm?` |
+| `SpruchStimme` | `Hash bytea(32) PK, Audio bytea, Zeichen, ErstelltAm, ZuletztGenutztAm`. Ton-Cache der Sprachausgabe, ohne Bezug zu Partie oder Spieler (6.9) |
+| `SprachausgabeVerbrauch` | `Monat PK, Zeichen, Aufrufe, Zeitueberschreitungen, Fehler`. Zählwerk der Sprachausgabe, getrennt von `LlmVerbrauch` |
 | Data-Protection-Schlüssel | über `PersistKeysToDbContext<SchachDbContext>()` |
 
 Indizes:
@@ -593,10 +612,11 @@ Indizes:
 - `Partie(Status, LetzterZugAm)`
 - `Anmeldung(Email)`, `Anmeldung(ErstelltAm)`, unique `Anmeldung(TokenHash)`
 - `AnmeldungVersuch(EmailHash, ErstelltAm)`, `AnmeldungVersuch(ErstelltAm)`
+- `SpruchStimme(ZuletztGenutztAm)`
 - unique `Spieler(Email)`
 - kein Unique-Index auf `Spruch(PartieId, NachHalbzug)`
 
-`LlmVerbrauch` wird atomar per `UPDATE … SET x = x + @n` hochgezählt. Konto löschen kaskadiert von `Spieler` auf alle abhängigen Zeilen.
+`LlmVerbrauch` und `SprachausgabeVerbrauch` werden atomar per `UPDATE … SET x = x + @n` hochgezählt. Konto löschen kaskadiert von `Spieler` auf alle abhängigen Zeilen.
 
 Quelle: [Wie läuft eine Partie auf dem Server ab?](https://github.com/enjoydialogs/schach/issues/16), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), [Wie funktioniert die Anmeldung per Magic Link?](https://github.com/enjoydialogs/schach/issues/17), [Wann und wie spricht ein Gegner?](https://github.com/enjoydialogs/schach/issues/9), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Welche Datenbank und Projektstruktur bekommt das Spiel?](https://github.com/enjoydialogs/schach/issues/10), [Welche Brett- und Regelbibliotheken passen für Touch und Server?](https://github.com/enjoydialogs/schach/issues/4), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 
@@ -742,7 +762,7 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 - Offline: Statuszeile „Keine Verbindung“, Eingabe aus.
 - 429 auf `/zuege`: Statuszeile „<Name> denkt nach …“, Client wiederholt idempotent nach `Retry-After`.
 
-**Menü** (Bottom-Sheet, Zeilen 48 px): Schalter „Erlaubte Züge anzeigen“, „Vor ungedeckten Figuren warnen“, „Töne und Vibration“ (alle Standard an, localStorage), Auswahl „Grundfarbe“, „Partie verlassen“ (Partie bleibt offen).
+**Menü** (Bottom-Sheet, Zeilen 48 px): Schalter „Erlaubte Züge anzeigen“, „Vor ungedeckten Figuren warnen“, „Töne und Vibration“, „Sprüche vorlesen“ (alle Standard an, localStorage), Auswahl „Grundfarbe“, „Partie verlassen“ (Partie bleibt offen).
 
 **Farben** (nur hell, CSS-Variablen in `src/styles/palette.css`): Der Spieler wählt die Grundfarbe aus vier Paletten. Jede hat einen pastelligen Grund und ein passendes Brett, dazu einen kräftigen Akzent in Gegenfarbe für Aktionen. Pastell nur für Flächen; Text und Knöpfe nutzen die kräftigen Töne, alle Paare mindestens 4,5:1 (`palette.test.ts` prüft das für jede Palette).
 
@@ -870,7 +890,7 @@ Auf Start und Neu.
 
 - E-Mail, Elo groß, „Spieler seit …“.
 - Bilanz je Gegner (8 Zeilen).
-- Einstellungen: drei Schalter und „Grundfarbe“ wie im Partie-Menü (gleiche localStorage-Schlüssel).
+- Einstellungen: vier Schalter und „Grundfarbe“ wie im Partie-Menü (gleiche localStorage-Schlüssel).
 - „Daten exportieren (JSON)“.
 - „Abmelden“.
 - „Konto löschen“ mit Dialog. Titel: „Konto endgültig löschen?“. Text: „Alle Partien, deine Elo und deine E-Mail-Adresse werden sofort und unwiderruflich gelöscht.“
@@ -892,7 +912,7 @@ Passiv an drei Stellen:
 
 ### 10.12 Rechtstexte und Nicht gefunden
 
-- Impressum und Datenschutz: statisches TSX aus den Gladius-Texten, offline lesbar.
+- Impressum und Datenschutz: statisches TSX aus den Gladius-Texten, offline lesbar. Datenschutz Abschnitt 6 nennt die Sprachausgabe (6.9): an Mistral gehen nur Spruchtext und Voice-Id.
 - Nicht gefunden: „Diese Seite gibt es nicht.“ plus „Zur Startseite“.
 
 ### 10.13 PWA, Service Worker, Offline
@@ -945,9 +965,10 @@ Budgetwächter nach Kronrat `LlmBudgetGuard` / `BudgetMath`.
 | `Spruch:MaxMistralJeGastPartie` | `12` | |
 | `Spruch:*` | Abschnitt 6.3 | `SpruchOptions` |
 
+- **Sprachausgabe:** eigener Deckel `Sprachausgabe:MonthlyBudgetEuroCents` (Vorgabe `500`) mit Zeichenzählung, Leiter wie unten, eigene 429-Pause (6.9). Erschöpft heißt nur Text; die Chat-Sprüche bleiben unberührt.
 - Leiter: **Ok** (< 80 %) alle live. **Warn** (≥ 80 %) Gäste Ersatzsprüche, eine Warnmail. **Exhausted** alle Ersatzsprüche, eine Mail. Nie eine Fehlermeldung an den Spieler.
 - Zählwerk `LlmVerbrauch` je Monat, je Partie `Partie.MistralAufrufe`.
-- Mistral-Konsole: Workspace „schach“ mit hartem Limit 10 €. Liegt er in derselben Organisation wie Kronrat, das Organisationslimit entsprechend anheben.
+- Mistral-Konsole: Workspace „schach“ mit hartem Limit 10 €; mit Sprachausgabe auf mindestens Chat- plus Sprachausgabe-Budget anheben (deploy/README.md). Liegt er in derselben Organisation wie Kronrat, das Organisationslimit entsprechend anheben.
 
 ### 11.2 Engine-CPU
 
@@ -994,6 +1015,7 @@ Budgetwächter nach Kronrat `LlmBudgetGuard` / `BudgetMath`.
 - `magic-link-je-ip`: FixedWindow 10 min.
 - `gast-partie-je-ip`: Sliding 1 h, 6 Segmente. Angemeldete Spieler ohne Limit.
 - `zuege-je-partie`, `tipp-je-partie`, `aktion-je-partie`: Sliding 1 min, Partition = Routen-`id`.
+- `sprachausgabe-je-ip`: Sliding 1 min, 6 Segmente, `Limits:SprachausgabenJeIpUndMinute` (Vorgabe `60`).
 - GlobalLimiter: Kette zweier ConcurrencyLimiter für `POST …/zuege` und `POST …/tipp` (`OldestFirst`).
 - `OnRejected`: `Retry-After` setzen (Standard 2). Metrik nur mit Policy-Namen, nie mit IP.
 - Middleware-Reihenfolge: `UseForwardedHeaders()` → `UseRouting()` → `UseRateLimiter()` → `UseAuthentication()`.
@@ -1053,7 +1075,7 @@ localStorage- und sessionStorage-Schlüssel stehen ohne Präfix in der Konstante
 | Service-Worker-Precache | Cache Storage | App-Shell, Schrift, Figuren, Rechtstexte |
 | `schach-partien-v1` | Cache Storage | beendete Partien für Offline-Nachspielen |
 | `gastPartieId` | localStorage | laufende Gast-Partie |
-| `einstellungen` | localStorage | JSON `{"erlaubteZuegeAnzeigen":true,"vorUngedecktenWarnen":true,"toeneUndVibration":true}`; fehlender Wert oder Parse-Fehler gilt als `true` |
+| `einstellungen` | localStorage | JSON `{"erlaubteZuegeAnzeigen":true,"vorUngedecktenWarnen":true,"toeneUndVibration":true,"spruecheVorlesen":true}`; fehlender Wert oder Parse-Fehler gilt als `true` |
 | `palette` | localStorage | gewählte Grundfarbe: `lila`, `pink`, `gruen` oder `blau`; fehlender oder unbekannter Wert gilt als `lila` |
 | `installHinweis` | localStorage | ISO-Zeitpunkt des letzten „Später“ |
 | `anmeldungId` | sessionStorage | Code-Weg der Anmeldung |

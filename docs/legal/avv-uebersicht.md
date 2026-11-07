@@ -44,5 +44,5 @@ Keine Zeile sagt „Art. 28 erfüllt“.
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | `hostinger` | Hosting und Datenbank | Hostinger | | | | | | | | | | Deutschland | |
 | `lettermint` | Mailversand (Anmelde-Mail) | Lettermint | | | | | | | | | | | |
-| `mistral` | Sprachmodell (Sprüche) | Mistral | | | | | | | | | | `api.eu.mistral.ai` | |
+| `mistral` | Sprachmodell (Sprüche) und Sprachausgabe (Sprüche vorlesen, nur Spruchtext und Voice-Id) | Mistral | | | | | | | | | | `api.eu.mistral.ai` | |
 | `sicherungsziel` | Externes Sicherungsziel (Postgres-Backup) | Hetzner (Object Storage) | | | | | | | | | | Falkenstein (Deutschland) | |
