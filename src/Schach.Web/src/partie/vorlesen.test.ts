@@ -8,7 +8,7 @@ interface FakeQuelle {
   gestartet: boolean
   gestoppt: boolean
   onended: (() => void) | null
-  connect: () => void
+  connect: (ziel: unknown) => unknown
   start: () => void
   stop: () => void
 }
@@ -17,8 +17,14 @@ function fakeUmgebung(status = 200) {
   const quellen: FakeQuelle[] = []
   const urls: string[] = []
   const offen: Array<() => void> = []
+  const regler: Array<{ gain: { value: number }; connect: (ziel: unknown) => unknown }> = []
   const ctx = {
     destination: {},
+    createGain: () => {
+      const r = { gain: { value: 1 }, connect: (ziel: unknown) => ziel }
+      regler.push(r)
+      return r
+    },
     decodeAudioData: vi.fn(async (b: ArrayBuffer) => ({ laenge: b.byteLength })),
     createBufferSource: () => {
       const q: FakeQuelle = {
@@ -26,7 +32,7 @@ function fakeUmgebung(status = 200) {
         gestartet: false,
         gestoppt: false,
         onended: null,
-        connect: () => {},
+        connect: (ziel) => ziel,
         start() {
           this.gestartet = true
         },
@@ -51,6 +57,7 @@ function fakeUmgebung(status = 200) {
   return {
     umgebung,
     quellen,
+    regler,
     urls,
     ctx,
     haengeAb: () => {
@@ -75,6 +82,19 @@ describe('Vorleser', () => {
     expect(f.urls).toEqual(['/api/v1/sprachausgabe/a_b-c'])
     expect(f.quellen).toHaveLength(1)
     expect(f.quellen[0]!.gestartet).toBe(true)
+  })
+
+  it('spielt mit der eingestellten Lautstaerke und regelt einen laufenden Spruch sofort nach', async () => {
+    const f = fakeUmgebung()
+    const v = new Vorleser(f.umgebung)
+    v.setzeLautstaerke(0.4)
+    await v.spiele('x')
+
+    expect(f.quellen[0]!.gestartet).toBe(true)
+    expect(f.regler[0]!.gain.value).toBe(0.4)
+
+    v.setzeLautstaerke(0.8)
+    expect(f.regler[0]!.gain.value).toBe(0.8)
   })
 
   it('bleibt bei 204 still', async () => {
@@ -160,9 +180,10 @@ describe('naechsteAnsage', () => {
 
 describe('useVorlesen', () => {
   function attrappe() {
-    return { spiele: vi.fn(async () => {}), stoppe: vi.fn() } as unknown as Vorleser & {
+    return { spiele: vi.fn(async () => {}), stoppe: vi.fn(), setzeLautstaerke: vi.fn() } as unknown as Vorleser & {
       spiele: ReturnType<typeof vi.fn>
       stoppe: ReturnType<typeof vi.fn>
+      setzeLautstaerke: ReturnType<typeof vi.fn>
     }
   }
 
@@ -192,6 +213,16 @@ describe('useVorlesen', () => {
     unmount()
     expect(v.stoppe).toHaveBeenCalledTimes(2)
     vi.restoreAllMocks()
+  })
+
+  it('gibt die Lautstaerke vor dem ersten Spruch und bei jeder Aenderung weiter', () => {
+    const v = attrappe()
+    const { rerender } = renderHook(({ laut }) => useVorlesen(spruch(0), true, true, true, v, laut), { initialProps: { laut: 0.5 } })
+    expect(v.setzeLautstaerke).toHaveBeenCalledWith(0.5)
+    expect(v.setzeLautstaerke.mock.invocationCallOrder[0]).toBeLessThan(v.spiele.mock.invocationCallOrder[0]!)
+
+    rerender({ laut: 0.2 })
+    expect(v.setzeLautstaerke).toHaveBeenLastCalledWith(0.2)
   })
 
   it('stoppt, wenn der Schalter ausgeht', () => {

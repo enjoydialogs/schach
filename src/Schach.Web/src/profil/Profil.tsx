@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'
 import { api } from '../api/client'
 import type { AbmeldenAnfrage, GegnerDto, KontoExportDto } from '../api/types'
 import { Avatar } from '../components/Avatar'
-import { Schalter } from '../components/BottomSheet'
+import { Regler, Schalter } from '../components/BottomSheet'
 import { isoDatum, ladeHerunter, langDatum } from '../components/datei'
 import { Dialog } from '../components/Dialog'
 import { Bilanz } from '../components/GegnerZeile'
@@ -17,11 +17,12 @@ import { ladeSitzung, useSitzung } from '../components/sitzung'
 import { de, t } from '../i18n/de'
 import { useEinstellungen } from '../partie/einstellungen'
 import { fuelle } from '../partie/text'
+import { spieleTon } from '../partie/toene'
 import './profil.css'
 
 /**
- * Profil (`/profil`, SCHACH-SPEC 10.9): E-Mail, Elo, Bilanz je Gegner, die vier Schalter, Grundfarbe,
- * „Spieler seit …“, Export, Abmelden, Konto loeschen.
+ * Profil (`/profil`, SCHACH-SPEC 10.9): E-Mail, Elo, Bilanz je Gegner, die vier Schalter mit zwei
+ * Lautstaerke-Reglern, Grundfarbe, „Spieler seit …“, Export, Abmelden, Konto loeschen.
  */
 export function Profil() {
   const navigate = useNavigate()
@@ -120,10 +121,23 @@ export function Profil() {
           an={einstellungen.toeneUndVibration}
           onWechsel={(an) => setzeEinstellung('toeneUndVibration', an)}
         />
+        <Regler
+          text={t('menue.toeneLautstaerke')}
+          wert={einstellungen.toeneLautstaerke}
+          aktiv={einstellungen.toeneUndVibration}
+          onWechsel={(wert) => setzeEinstellung('toeneLautstaerke', wert)}
+          onLoslassen={() => spieleTon('zug', einstellungen.toeneLautstaerke)}
+        />
         <Schalter
           text={t('menue.spruecheVorlesen')}
           an={einstellungen.spruecheVorlesen}
           onWechsel={(an) => setzeEinstellung('spruecheVorlesen', an)}
+        />
+        <Regler
+          text={t('menue.spruecheLautstaerke')}
+          wert={einstellungen.spruecheLautstaerke}
+          aktiv={einstellungen.spruecheVorlesen}
+          onWechsel={(wert) => setzeEinstellung('spruecheLautstaerke', wert)}
         />
         <PaletteWahl />
       </div>

@@ -50,7 +50,7 @@ export interface PartieSteuerung {
   holeTipp: () => void
 }
 
-export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
+export function usePartie(id: string, toeneAn: boolean, toeneLautstaerke = 1): PartieSteuerung {
   const [lade, setLade] = useState<LadeStand>('laedt')
   const [zustand, setZustand] = useState<ZustandDto | null>(null)
   const sitzung = useSitzung()
@@ -73,6 +73,10 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
   useEffect(() => {
     toeneRef.current = toeneAn
   }, [toeneAn])
+  const lautstaerkeRef = useRef(toeneLautstaerke)
+  useEffect(() => {
+    lautstaerkeRef.current = toeneLautstaerke
+  }, [toeneLautstaerke])
 
   const uebernimm = useCallback((z: ZustandDto) => {
     const opt = optimistischRef.current
@@ -231,7 +235,7 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
       optimistischRef.current = opt
       setOptimistisch(opt)
       if (toeneRef.current) {
-        spieleTon(ergebnis.schlag ? 'schlag' : 'zug')
+        spieleTon(ergebnis.schlag ? 'schlag' : 'zug', lautstaerkeRef.current)
         vibriere(VIBRATION_ZUG)
       }
       sende<ZustandDto>(`/partien/${id}/zuege`, { halbzug: z.halbzug, zug: uci }, uebernimm, de.status.zugNichtMoeglich)
@@ -340,7 +344,7 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
     tonHalbzug.current = sichtbarerHalbzug
     if (vorher === null || sichtbarerHalbzug <= vorher || !toeneRef.current) return
     const zug = zustand.zugfolge[sichtbarerHalbzug - 1]
-    if (zug !== undefined && zug.seite !== zustand.spielerFarbe) spieleTon(zug.san.includes('x') ? 'schlag' : 'zug')
+    if (zug !== undefined && zug.seite !== zustand.spielerFarbe) spieleTon(zug.san.includes('x') ? 'schlag' : 'zug', lautstaerkeRef.current)
   }, [sichtbarerHalbzug, zustand])
   useEffect(() => {
     if (zustand?.status === 'Offen') warOffen.current = true
@@ -348,7 +352,7 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
     if (!endeSichtbar || !warOffen.current) return
     warOffen.current = false
     if (toeneRef.current) {
-      spieleTon('ende')
+      spieleTon('ende', lautstaerkeRef.current)
       vibriere(VIBRATION_ENDE)
     }
   }, [endeSichtbar, zustand])

@@ -58,7 +58,7 @@ const SPEICHER: { name: string; art: string; zweck: string; dauer: string }[] = 
   {
     name: 'einstellungen',
     art: 'localStorage',
-    zweck: 'Ihre Einstellungen: erlaubte Züge anzeigen, vor ungedeckten Figuren warnen, Töne und Vibration, Sprüche vorlesen.',
+    zweck: 'Ihre Einstellungen: erlaubte Züge anzeigen, vor ungedeckten Figuren warnen, Töne und Vibration, Sprüche vorlesen, Lautstärke von Tönen und Sprüchen.',
     dauer: 'Bis Sie die Websitedaten löschen',
   },
   {

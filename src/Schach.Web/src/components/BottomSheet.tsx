@@ -1,4 +1,4 @@
-import { useId, type ReactNode } from 'react'
+import { useId, type CSSProperties, type ReactNode } from 'react'
 import { useUeberlage } from './useUeberlage'
 import './bausteine.css'
 
@@ -56,6 +56,52 @@ export function Schalter({
     <label className="schalter">
       <span>{text}</span>
       <input type="checkbox" role="switch" checked={an} onChange={(e) => onWechsel(e.target.checked)} />
+    </label>
+  )
+}
+
+const REGLER_TASTEN = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'])
+
+/**
+ * Lautstaerke-Regler 48 px (Partie-Menue und Profil): 10 bis 100 % in Zehnerschritten. `wert` und
+ * `onWechsel` rechnen in 0,1 bis 1. Aus ist der Schalter darueber, nicht 0 %. `onLoslassen` laeuft
+ * nach dem Ziehen oder einer Pfeiltaste, etwa fuer einen Probeton.
+ */
+export function Regler({
+  text,
+  wert,
+  aktiv = true,
+  onWechsel,
+  onLoslassen,
+}: {
+  text: string
+  wert: number
+  aktiv?: boolean
+  onWechsel: (wert: number) => void
+  onLoslassen?: () => void
+}) {
+  const prozent = Math.round(wert * 100)
+  return (
+    <label className="regler">
+      <span className="regler__text">{text}</span>
+      <input
+        type="range"
+        min={10}
+        max={100}
+        step={10}
+        value={prozent}
+        disabled={!aktiv}
+        aria-valuetext={`${prozent} %`}
+        style={{ '--regler-anteil': `${((prozent - 10) / 90) * 100}%` } as CSSProperties}
+        onChange={(e) => onWechsel(Number(e.target.value) / 100)}
+        onPointerUp={onLoslassen}
+        onKeyUp={(e) => {
+          if (REGLER_TASTEN.has(e.key)) onLoslassen?.()
+        }}
+      />
+      <span className="regler__wert" aria-hidden="true">
+        {prozent} %
+      </span>
     </label>
   )
 }

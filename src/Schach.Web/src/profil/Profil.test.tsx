@@ -38,6 +38,22 @@ describe('Profil', () => {
     expect(JSON.parse(localStorage.getItem('einstellungen')!)).toMatchObject({ toeneUndVibration: false })
   })
 
+  it('regelt die Lautstaerke von Toenen und Spruechen und sperrt den Regler bei ausgeschaltetem Schalter', async () => {
+    zeigeApp('/profil')
+    const toene = await screen.findByRole('slider', { name: 'Lautstärke Töne' })
+    const sprueche = screen.getByRole('slider', { name: 'Lautstärke Sprüche' })
+    expect(toene).toHaveValue('100')
+    expect(sprueche).toHaveAttribute('aria-valuetext', '100 %')
+
+    fireEvent.change(sprueche, { target: { value: '40' } })
+    expect(sprueche).toHaveAttribute('aria-valuetext', '40 %')
+    expect(JSON.parse(localStorage.getItem('einstellungen')!)).toMatchObject({ spruecheLautstaerke: 0.4 })
+
+    fireEvent.click(screen.getByRole('switch', { name: 'Sprüche vorlesen' }))
+    expect(sprueche).toBeDisabled()
+    expect(toene).toBeEnabled()
+  })
+
   it('waehlt die Grundfarbe und speichert sie im Geraet', async () => {
     zeigeApp('/profil')
     const gruppe = await screen.findByRole('group', { name: 'Grundfarbe' })

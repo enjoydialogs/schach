@@ -472,7 +472,7 @@ Der Gegner spricht jeden Spruch hörbar (Stufe A, B, C, live und Ersatz), jeder 
 - **Cache:** Tabelle `SpruchStimme`, Schlüssel SHA-256 über Modell, Voice-Id und Text. Derselbe Satz mit derselben Stimme entsteht nur einmal; ein Cache-Treffer gilt auch bei erschöpftem Budget. Sweep-Block E löscht Einträge, die 90 Tage (`Sprachausgabe:CacheTage`) nicht genutzt wurden.
 - **Budget:** eigene Leiter wie 11.1, gezählt in Zeichen (`SprachausgabeVerbrauch`). Ok alle, Warn nur Spieler, Erschöpft niemand. Die Chat-Leiter (`LlmBudgetGuard`) bleibt unberührt. Ein 429 pausiert nur die Sprachausgabe. Gebucht wird nur bei einem Mistral-Aufruf: Erfolg und Zeitlimit mit den Zeichen des Texts, Fehler mit 0 Zeichen.
 - **Stimmen:** nur aus der Konfiguration, `Sprachausgabe:Stimmen:{key}:VoiceId` und `:Expressiveness` (Dokploy-Env). Keine Aufnahmen, keine Voice-Ids im Repo. Geklonte Stimmen laufen bei Mistral nach höchstens 365 Tagen ab; Mistral antwortet dann 404. Folge: Stille, Warnzeile und eine Mail `StimmeUnbekannt` je Monat.
-- **Client:** Schalter „Sprüche vorlesen“ (`spruecheVorlesen`, 10.3). Wiedergabe über den gemeinsamen `AudioContext` aus `toene.ts` (`fetch`, `decodeAudioData`); der Zug-Tipp gibt ihn frei. Ein neuer Spruch stoppt den vorigen. Verlassen der Partie oder `visibilitychange` auf hidden stoppt. Beim Laden einer Partie wird der sichtbare Spruch nicht vorgelesen, nur neu ankommende. Tipp auf die Spruchblase liest erneut.
+- **Client:** Schalter „Sprüche vorlesen“ (`spruecheVorlesen`, 10.3) und Regler „Lautstärke Sprüche“ (`spruecheLautstaerke`). Wiedergabe über den gemeinsamen `AudioContext` aus `toene.ts` (`fetch`, `decodeAudioData`), über einen eigenen Gain-Knoten für die Lautstärke; eine Änderung wirkt sofort, auch auf den laufenden Spruch. Der Zug-Tipp gibt den Kontext frei. Ein neuer Spruch stoppt den vorigen. Verlassen der Partie oder `visibilitychange` auf hidden stoppt. Beim Laden einer Partie wird der sichtbare Spruch nicht vorgelesen, nur neu ankommende. Tipp auf die Spruchblase liest erneut.
 - **Nicht im Umfang:** Nachspielen bleibt stumm (10.13). Emotions-Tags (`[emotion=…]`) sind bei Mistral nur für Englisch dokumentiert und bleiben vorerst aus.
 
 **`SprachausgabeOptions`** (Abschnitt `Sprachausgabe`): `Aktiv=true`, `Endpoint=https://api.eu.mistral.ai/v1`, `Model=voxtral-mini-tts-3-0`, `ZeitlimitMs=8000`, `MonthlyBudgetEuroCents=500`, `WarnThresholdPercent=80`, `CentJeMillionZeichen=1300`, `BudgetCacheSekunden=60`, `PauseNach429Sekunden=60`, `CacheTage=90`, `Stimmen={}`.
@@ -502,7 +502,7 @@ Quelle: [Sprüche vorlesen: Gegnerstimmen mit Voxtral TTS](https://github.com/en
    - Server: `POST /partien/{id}/tipp`, Stockfish voll über `/analyse`, `Tipp:MovetimeMs=800`, Ergebnis je FEN gecacht. Unbegrenzt nutzbar (nur Ratenlimit). Vertrag in Abschnitt 8.3.
    - Das zweite Tippen ruft den Server nicht. Der Client hält das Ergebnis je `halbzug`.
    - Der erste Tipp nimmt die Partie aus der Elo (wie eine Zurücknahme). Ein Spieler wird einmal je Partie gefragt, clientseitig vor dem ersten Aufruf. Danach zeigt die Pille „Zählt nicht für die Elo“. Gäste werden nicht gefragt.
-4. **Einstellungen:** vier Schalter, alle Standard an, im Gerät gespeichert (localStorage-Schlüssel `einstellungen`, Abschnitt 12.3), jederzeit änderbar im Partie-Menü und im Profil: „Erlaubte Züge anzeigen“ (`erlaubteZuegeAnzeigen`), „Vor ungedeckten Figuren warnen“ (`vorUngedecktenWarnen`), „Töne und Vibration“ (`toeneUndVibration`), „Sprüche vorlesen“ (`spruecheVorlesen`, 6.9).
+4. **Einstellungen:** vier Schalter, alle Standard an, im Gerät gespeichert (localStorage-Schlüssel `einstellungen`, Abschnitt 12.3), jederzeit änderbar im Partie-Menü und im Profil: „Erlaubte Züge anzeigen“ (`erlaubteZuegeAnzeigen`), „Vor ungedeckten Figuren warnen“ (`vorUngedecktenWarnen`), „Töne und Vibration“ (`toeneUndVibration`), „Sprüche vorlesen“ (`spruecheVorlesen`, 6.9). Dazu zwei Lautstärke-Regler direkt unter dem jeweiligen Schalter, 10 bis 100 % in Zehnerschritten, Standard 100 %: „Lautstärke Töne“ (`toeneLautstaerke`) und „Lautstärke Sprüche“ (`spruecheLautstaerke`). Gespeichert als Zahl 0,1 bis 1. Stumm ist der Schalter, nicht 0 %; bei ausgeschaltetem Schalter ist der Regler gesperrt. Loslassen des Ton-Reglers spielt einen Probeton.
 5. **Besiegt-Markierung:** nur nach einem Sieg in einer Partie, die für die Elo zählt.
 
 Quelle: [Welche Lernhilfen gibt es genau?](https://github.com/enjoydialogs/schach/issues/8), [Wie sieht der Partie-Bildschirm auf dem Pixel 7 aus?](https://github.com/enjoydialogs/schach/issues/6), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
@@ -875,7 +875,7 @@ Overlays: Auswahl Akzent 50 %, letzter Zug Akzent 30 %, Zielpunkt und Schlagring
 
 Eine Kombination ohne Eintrag zeigt nur das Grund-Label, nie einen Fehler.
 
-**Töne und Haptik:** WebAudio-Synthese (keine Dateien) für Zug, Schlag und Partieende. `navigator.vibrate(15)` beim eigenen Zug, `[30,40,30]` am Ende. Ein Schalter.
+**Töne und Haptik:** WebAudio-Synthese (keine Dateien) für Zug, Schlag und Partieende. `navigator.vibrate(15)` beim eigenen Zug, `[30,40,30]` am Ende. Ein Schalter, dazu der Regler „Lautstärke Töne“ (nur Töne, nicht die Vibration).
 
 ### 10.4 Start (`/`)
 
@@ -936,7 +936,7 @@ Auf Start und Neu.
 
 - E-Mail, Elo groß, „Spieler seit …“.
 - Bilanz je Gegner (8 Zeilen).
-- Einstellungen: vier Schalter und „Grundfarbe“ wie im Partie-Menü (gleiche localStorage-Schlüssel).
+- Einstellungen: vier Schalter, zwei Lautstärke-Regler und „Grundfarbe“ wie im Partie-Menü (gleiche localStorage-Schlüssel).
 - „Daten exportieren (JSON)“.
 - „Abmelden“.
 - „Konto löschen“ mit Dialog. Titel: „Konto endgültig löschen?“. Text: „Alle Partien, deine Elo und deine E-Mail-Adresse werden sofort und unwiderruflich gelöscht.“
@@ -1121,7 +1121,7 @@ localStorage- und sessionStorage-Schlüssel stehen ohne Präfix in der Konstante
 | Service-Worker-Precache | Cache Storage | App-Shell, Schrift, Figuren, Rechtstexte |
 | `schach-partien-v1` | Cache Storage | beendete Partien für Offline-Nachspielen |
 | `gastPartieId` | localStorage | laufende Gast-Partie |
-| `einstellungen` | localStorage | JSON `{"erlaubteZuegeAnzeigen":true,"vorUngedecktenWarnen":true,"toeneUndVibration":true,"spruecheVorlesen":true}`; fehlender Wert oder Parse-Fehler gilt als `true` |
+| `einstellungen` | localStorage | JSON `{"erlaubteZuegeAnzeigen":true,"vorUngedecktenWarnen":true,"toeneUndVibration":true,"spruecheVorlesen":true,"toeneLautstaerke":1,"spruecheLautstaerke":1}`; fehlender Schalter oder Parse-Fehler gilt als `true`, fehlende oder ungültige Lautstärke als `1`, Werte außerhalb 0,1 bis 1 werden begrenzt |
 | `palette` | localStorage | gewählte Grundfarbe: `lila`, `pink`, `gruen` oder `blau`; fehlender oder unbekannter Wert gilt als `lila` |
 | `installHinweis` | localStorage | ISO-Zeitpunkt des letzten „Später“ |
 | `anmeldungId` | sessionStorage | Code-Weg der Anmeldung |
