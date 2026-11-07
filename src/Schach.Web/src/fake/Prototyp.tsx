@@ -14,7 +14,7 @@ import './prototyp.css'
 const STELLUNGEN = {
   start: { text: 'prototyp.stellungStart', fen: undefined },
   umwandlung: { text: 'prototyp.stellungUmwandlung', fen: '4k3/P7/8/8/8/8/7p/4K3 w - - 0 1' },
-  ungedeckt: { text: 'prototyp.stellungUngedeckt', fen: 'r3k3/ppp2ppp/8/8/1b6/2N5/P4PPP/R3K2R w KQq - 0 1' },
+  ungedeckt: { text: 'prototyp.stellungUngedeckt', fen: 'r3k3/ppp2ppp/8/8/1b6/2N5/P4PPP/R5K1 w q - 0 1' },
   matt: { text: 'prototyp.stellungMatt', fen: '6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1' },
 } satisfies Record<string, { text: TextSchluessel; fen: string | undefined }>
 type Stellung = keyof typeof STELLUNGEN

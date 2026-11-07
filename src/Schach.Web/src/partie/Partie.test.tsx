@@ -141,7 +141,7 @@ describe('Partie-Bildschirm', () => {
   })
 
   it('warnt vor einer ungedeckten Figur und schweigt mit ausgeschaltetem Schalter', async () => {
-    await zeige(starte('OhneUhr', { startFen: 'r3k3/ppp2ppp/8/8/1b6/2N5/P4PPP/R3K2R w KQq - 0 1' }))
+    await zeige(starte('OhneUhr', { startFen: 'r3k3/ppp2ppp/8/8/1b6/2N5/P4PPP/R5K1 w q - 0 1' }))
 
     expect(screen.getByTestId('statuszeile')).toHaveTextContent('Dein Springer auf c3 ist angegriffen und ungedeckt.')
 
