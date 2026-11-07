@@ -25,7 +25,7 @@ let aufGet: () => Response = () => HttpResponse.json(zustand())
 let gets = 0
 
 beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'error' })
+  server.listen({ onUnhandledFrame: 'error' })
   Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => sichtbarkeit })
 })
 afterAll(() => server.close())
@@ -285,7 +285,10 @@ describe('usePartie gegen die echte API', () => {
     await lauf(100)
     expect(gets).toBe(2)
 
-    await lauf(3_000)
+    // Nicht im Dauerfeuer, sondern im Poll-Takt.
+    await lauf(1_000)
+    expect(gets).toBe(2)
+    await lauf(2_000)
     expect(gets).toBe(3)
   })
 

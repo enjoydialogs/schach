@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:fake": "vite --mode prototyp",
     "build": "tsc -b && vite build",
     "lint": "oxlint --deny-warnings",
     "preview": "vite preview",

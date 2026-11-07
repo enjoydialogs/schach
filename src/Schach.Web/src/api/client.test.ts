@@ -12,7 +12,7 @@ const ursprungsLader = async () => {
   setCsrfToken(s.csrfToken)
 }
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+beforeAll(() => server.listen({ onUnhandledFrame: 'error' }))
 afterEach(() => {
   server.resetHandlers()
   setCsrfToken(null)
