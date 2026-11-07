@@ -74,6 +74,8 @@ export interface SpruchDto {
   nachHalbzug: number
   ereignis: SpruchEreignis
   text: string
+  /** Signiertes Token fuer `GET /sprachausgabe/{token}` (6.9); `null` = stumm. */
+  stimme: string | null
 }
 
 export interface ZugDto {

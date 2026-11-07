@@ -18,9 +18,9 @@ Betrieb von `schach.enjoy-dialogs.de` (SCHACH-SPEC 13.5, 14). Panel-Adresse, Sub
 ## Monitoring (SCHACH-SPEC 14.2)
 
 - Meter `Schach`: alle Instrumente in `SchachMeter` (`src/Schach.Infrastructure/Telemetry`). Export nur mit `OTEL_EXPORTER_OTLP_ENDPOINT`.
-- Warn-Logzeilen `BudgetWarn`, `BudgetErschoepft`, `EngineUeberlast`, `MailKontingent`: je Art einmal je Fenster (Budget je Kalendermonat, sonst `Betrieb__WarnFensterMinuten`, Standard 60), dazu eine Mail an `OPERATOR_EMAIL` (Engine und Mail höchstens eine je Tag). Ohne Mail-Dienst (vor S2a) oder ohne Adresse nur das Log.
+- Warn-Logzeilen `BudgetWarn`, `BudgetErschoepft`, `EngineUeberlast`, `MailKontingent`, `SprachausgabeBudgetWarn`, `SprachausgabeBudgetErschoepft`, `StimmeUnbekannt`: je Art einmal je Fenster (Budget und Sprachausgabe je Kalendermonat, sonst `Betrieb__WarnFensterMinuten`, Standard 60), dazu eine Mail an `OPERATOR_EMAIL` (Engine und Mail höchstens eine je Tag). Ohne Mail-Dienst (vor S2a) oder ohne Adresse nur das Log.
 - Tageszeile: `Tageszeile <datum>: …` jeden Morgen um 06:00 Berliner Zeit, mit den Zählern seit der letzten Zeile. Nur Log, keine Mail.
-- Suchen: `docker logs <projekt>-web-1 2>&1 | grep -E "BudgetWarn|BudgetErschoepft|EngineUeberlast|MailKontingent|Tageszeile"`.
+- Suchen: `docker logs <projekt>-web-1 2>&1 | grep -E "BudgetWarn|BudgetErschoepft|EngineUeberlast|MailKontingent|SprachausgabeBudget|StimmeUnbekannt|Tageszeile"`.
 
 ## Ablauf eines Deploys
 
@@ -44,6 +44,16 @@ Einmalig, vom Betreiber:
 8. Auf der Box prüfen, dass `web` die Engine erreicht (aus dem Checkout, den Dokploy angelegt hat):
    `bash deploy/ops/engine-aus-web.sh "$(docker ps --format '{{.Names}}' | grep -- '-web-1$' | grep schach)"`
    Erwartet: `HTTP/1.1 200 OK` und `{"status":"ok"}`.
+
+## Sprachausgabe (SCHACH-SPEC 6.9)
+
+Die Gegner lesen ihre Sprüche über Mistral Voxtral TTS vor. Ohne `MISTRAL_API_KEY` oder ohne Voice-Id bleibt der Gegner stumm; die Partie läuft unverändert weiter.
+
+1. **Voice-Ids setzen:** im Environment-Tab `SPRACHAUSGABE_STIMME_<GEGNER>` je Gegner (`FINN`, `ILSE`, `KONRAD`, `MAREN`, `NELE`, `OSCAR`, `SEMENTA`, `THEO`). Fertigstimmen (z. B. `voice_481`) oder die Id einer geklonten Stimme aus dem Workspace „schach“. Nie Ids oder Aufnahmen ins Repo. Optional je Gegner `SPRACHAUSGABE_AUSDRUCK_<GEGNER>` (Expressiveness, 1.0 bis 5.0, Punkt als Dezimaltrenner).
+2. **Budget:** `SPRACHAUSGABE_BUDGET_CENT` (Vorgabe `500`, `0` schaltet ab). Etwa 1.400 Zeichen je Partie, also rund 2 Cent; 5 € reichen für etwa 250 Partien im Monat. Der Preis steht als `Sprachausgabe__CentJeMillionZeichen` (Vorgabe `1300`) im Code; bei neuer Preisliste anpassen.
+3. **Mistral-Limit:** das harte Workspace-Limit (heute 10 €) auf mindestens Chat-Budget plus Sprachausgabe-Budget anheben, sonst antwortet Mistral mit 429 und beide Wege fallen auf Ersatz bzw. Stille.
+4. **Geklonte Stimmen jährlich erneuern:** Mistral löscht gespeicherte Stimmen nach `retention_notice` (höchstens 365 Tage). Danach kommt 404, im Log steht `StimmeUnbekannt` und eine Mail geht an `OPERATOR_EMAIL` (einmal je Monat). Vor Ablauf die Stimme mit `retention_notice=365` erneuern oder neu klonen und die neue Id im Environment-Tab eintragen. Der Ton-Cache hängt an der Voice-Id; eine neue Id erzeugt die Sprüche neu.
+5. **Einwilligung:** für jede geklonte Stimme liegt die schriftliche Einwilligung der sprechenden Person vor (außerhalb des Repos). Widerruf heißt: Stimme bei Mistral löschen und Id leeren.
 
 ## Engine-Modell (Maia-3)
 

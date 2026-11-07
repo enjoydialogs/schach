@@ -20,7 +20,7 @@ import { fuelle } from '../partie/text'
 import './profil.css'
 
 /**
- * Profil (`/profil`, SCHACH-SPEC 10.9): E-Mail, Elo, Bilanz je Gegner, die drei Schalter, Grundfarbe,
+ * Profil (`/profil`, SCHACH-SPEC 10.9): E-Mail, Elo, Bilanz je Gegner, die vier Schalter, Grundfarbe,
  * „Spieler seit …“, Export, Abmelden, Konto loeschen.
  */
 export function Profil() {
@@ -119,6 +119,11 @@ export function Profil() {
           text={t('menue.toeneUndVibration')}
           an={einstellungen.toeneUndVibration}
           onWechsel={(an) => setzeEinstellung('toeneUndVibration', an)}
+        />
+        <Schalter
+          text={t('menue.spruecheVorlesen')}
+          an={einstellungen.spruecheVorlesen}
+          onWechsel={(an) => setzeEinstellung('spruecheVorlesen', an)}
         />
         <PaletteWahl />
       </div>

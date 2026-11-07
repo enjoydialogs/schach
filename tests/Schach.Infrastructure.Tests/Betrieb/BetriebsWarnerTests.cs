@@ -21,6 +21,9 @@ public sealed class BetriebsWarnerTests
     [InlineData(BetriebsWarnung.MailKontingent, "MailKontingent")]
     [InlineData(BetriebsWarnung.BudgetWarn, "BudgetWarn")]
     [InlineData(BetriebsWarnung.BudgetErschoepft, "BudgetErschoepft")]
+    [InlineData(BetriebsWarnung.SprachausgabeBudgetWarn, "SprachausgabeBudgetWarn")]
+    [InlineData(BetriebsWarnung.SprachausgabeBudgetErschoepft, "SprachausgabeBudgetErschoepft")]
+    [InlineData(BetriebsWarnung.StimmeUnbekannt, "StimmeUnbekannt")]
     public void Erste_Meldung_im_Fenster_schreibt_eine_Warnzeile_mit_dem_Namen(BetriebsWarnung art, string name)
     {
         var warner = Warner();
@@ -60,6 +63,21 @@ public sealed class BetriebsWarnerTests
         warner.Melden(BetriebsWarnung.BudgetErschoepft).Should().BeTrue();
         _zeit.Advance(TimeSpan.FromDays(14));        // 01.12.
         warner.Melden(BetriebsWarnung.BudgetWarn).Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(BetriebsWarnung.SprachausgabeBudgetWarn)]
+    [InlineData(BetriebsWarnung.SprachausgabeBudgetErschoepft)]
+    [InlineData(BetriebsWarnung.StimmeUnbekannt)]
+    public void Sprachausgabe_meldet_einmal_je_Kalendermonat(BetriebsWarnung art)
+    {
+        var warner = Warner(fensterMinuten: 60);
+
+        warner.Melden(art).Should().BeTrue();
+        _zeit.Advance(TimeSpan.FromDays(10));        // 17.11.
+        warner.Melden(art).Should().BeFalse();
+        _zeit.Advance(TimeSpan.FromDays(14));        // 01.12.
+        warner.Melden(art).Should().BeTrue();
     }
 
     [Fact]

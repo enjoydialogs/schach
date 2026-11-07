@@ -92,6 +92,16 @@ public sealed class WireFormatTests
     }
 
     [Fact]
+    public void Spruch_traegt_stimme_auch_als_null()
+    {
+        var mit = JsonSerializer.Serialize(new SpruchDto(3, SpruchEreignis.SchachGegeben, "Schach!", "abc_-1"), Options);
+        var ohne = JsonSerializer.Serialize(new SpruchDto(0, SpruchEreignis.Partiebeginn, "Na dann!"), Options);
+
+        mit.Should().Be("""{"nachHalbzug":3,"ereignis":"SchachGegeben","text":"Schach!","stimme":"abc_-1"}""");
+        ohne.Should().Be("""{"nachHalbzug":0,"ereignis":"Partiebeginn","text":"Na dann!","stimme":null}""");
+    }
+
+    [Fact]
     public void TippAntwort_hat_tipp_und_zustand()
     {
         var tipp = new TippDto("c3e5", "c3", "e5", Figur.Springer);

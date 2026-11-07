@@ -15,6 +15,7 @@ public sealed partial class BetreiberKonfigTests
     {
         [LimitsOptions.Abschnitt] = typeof(LimitsOptions),
         [MailLimits.Abschnitt] = typeof(MailLimits),
+        [Schach.Application.Sprachausgabe.SprachausgabeOptions.SectionName] = typeof(Schach.Application.Sprachausgabe.SprachausgabeOptions),
     };
 
     private sealed record Zuordnung(string Abschnitt, string Eigenschaft, string Variable, string Vorgabe);
@@ -61,6 +62,8 @@ public sealed partial class BetreiberKonfigTests
             "Limits:EngineZuegeWarteschlange",
             "Limits:StockfishTippsGleichzeitig",
             "Limits:StockfishTippsWarteschlange",
+            "Limits:SprachausgabenJeIpUndMinute",
+            "Sprachausgabe:MonthlyBudgetEuroCents",
         ]);
     }
 

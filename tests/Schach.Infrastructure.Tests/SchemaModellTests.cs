@@ -22,11 +22,11 @@ public sealed class SchemaModellTests
             .Options);
 
     [Fact]
-    public void Es_gibt_genau_die_eine_Migration_0001_Schema()
+    public void Migrationen_in_Reihenfolge()
     {
         using var db = Kontext();
 
-        db.Database.GetMigrations().Should().Equal("0001_Schema");
+        db.Database.GetMigrations().Should().Equal("0001_Schema", "0002_Sprachausgabe");
     }
 
     [Fact]

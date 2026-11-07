@@ -74,7 +74,9 @@ public sealed partial class BetriebsWarner(
 
     private long Fenster(BetriebsWarnung art, DateTimeOffset jetzt)
     {
-        if (art is BetriebsWarnung.BudgetWarn or BetriebsWarnung.BudgetErschoepft)
+        if (art is BetriebsWarnung.BudgetWarn or BetriebsWarnung.BudgetErschoepft
+            or BetriebsWarnung.SprachausgabeBudgetWarn or BetriebsWarnung.SprachausgabeBudgetErschoepft
+            or BetriebsWarnung.StimmeUnbekannt)
         {
             return (jetzt.Year * 12L) + jetzt.Month;
         }
@@ -99,6 +101,15 @@ public sealed partial class BetriebsWarner(
             case BetriebsWarnung.MailKontingent:
                 LogMailKontingent(logger, zusatz);
                 break;
+            case BetriebsWarnung.SprachausgabeBudgetWarn:
+                LogSprachausgabeBudgetWarn(logger, zusatz);
+                break;
+            case BetriebsWarnung.SprachausgabeBudgetErschoepft:
+                LogSprachausgabeBudgetErschoepft(logger, zusatz);
+                break;
+            case BetriebsWarnung.StimmeUnbekannt:
+                LogStimmeUnbekannt(logger, zusatz);
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(art), art, null);
         }
@@ -115,4 +126,13 @@ public sealed partial class BetriebsWarner(
 
     [LoggerMessage(EventId = 3904, EventName = "MailKontingent", Level = LogLevel.Warning, Message = "MailKontingent: {Zusatz}")]
     private static partial void LogMailKontingent(ILogger logger, string zusatz);
+
+    [LoggerMessage(EventId = 3905, EventName = "SprachausgabeBudgetWarn", Level = LogLevel.Warning, Message = "SprachausgabeBudgetWarn: {Zusatz}")]
+    private static partial void LogSprachausgabeBudgetWarn(ILogger logger, string zusatz);
+
+    [LoggerMessage(EventId = 3906, EventName = "SprachausgabeBudgetErschoepft", Level = LogLevel.Warning, Message = "SprachausgabeBudgetErschoepft: {Zusatz}")]
+    private static partial void LogSprachausgabeBudgetErschoepft(ILogger logger, string zusatz);
+
+    [LoggerMessage(EventId = 3907, EventName = "StimmeUnbekannt", Level = LogLevel.Warning, Message = "StimmeUnbekannt: {Zusatz}")]
+    private static partial void LogStimmeUnbekannt(ILogger logger, string zusatz);
 }

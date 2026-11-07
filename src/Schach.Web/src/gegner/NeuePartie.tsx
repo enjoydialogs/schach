@@ -13,6 +13,8 @@ import { Seite } from '../components/Seite'
 import { gastPartieId } from '../components/SpeicherSchluessel'
 import { useSitzung } from '../components/sitzung'
 import { de, t } from '../i18n/de'
+import { leseEinstellungen } from '../partie/einstellungen'
+import { audioKontext } from '../partie/toene'
 import { fuelle } from '../partie/text'
 
 const FARBEN: { wert: FarbeWahl; text: string }[] = [
@@ -72,11 +74,14 @@ export function NeuePartie() {
     const anfrage: NeuePartieAnfrage = { gegnerId: gewaehlt.key, farbe, bedenkzeit }
     const z = await api.post<ZustandDto>('/partien', anfrage)
     if (gast) gastPartieId.setze(z.id)
-    navigate(`/partie/${z.id}`, { replace: true })
+    // State: der Partie-Bildschirm liest den ersten Spruch vor (6.9).
+    navigate(`/partie/${z.id}`, { replace: true, state: { neuGestartet: true } })
   }
 
   const absenden = async (e: FormEvent) => {
     e.preventDefault()
+    // Der Absenden-Tipp ist die Geste, die den AudioContext fuer den ersten Spruch freigibt.
+    if (leseEinstellungen().spruecheVorlesen) audioKontext()
     setBeschaeftigt(true)
     setFehler(null)
     try {

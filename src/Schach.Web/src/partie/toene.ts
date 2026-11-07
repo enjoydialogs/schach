@@ -8,7 +8,11 @@ export const VIBRATION_ENDE = [30, 40, 30]
 
 let kontext: AudioContext | null = null
 
-function audio(): AudioContext | null {
+/**
+ * Der eine AudioContext der App (Toene und Sprachausgabe, SCHACH-SPEC 6.9). Beim Aufruf aus einer
+ * Geste (Zug-Tipp) gibt der Browser ihn frei.
+ */
+export function audioKontext(): AudioContext | null {
   try {
     kontext ??= new AudioContext()
     // Vor der ersten Geste startet der Kontext angehalten; resume() holt ihn spaeter zurueck.
@@ -35,7 +39,7 @@ function klang(ctx: AudioContext, frequenz: number, beiS: number, dauerS: number
 
 /** Spielt einen kurzen synthetischen Ton. Ohne WebAudio still. */
 export function spieleTon(art: TonArt): void {
-  const ctx = audio()
+  const ctx = audioKontext()
   if (ctx === null) return
   if (art === 'zug') {
     klang(ctx, 520, 0, 0.07, 0.25, 'triangle')

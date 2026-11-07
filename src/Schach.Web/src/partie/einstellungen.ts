@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { SpeicherSchluessel } from '../components/SpeicherSchluessel'
 
-// Drei Schalter der Lernhilfen (SCHACH-SPEC 7.4, 12.3). localStorage-Schluessel `einstellungen`;
+// Vier Schalter: Lernhilfen (SCHACH-SPEC 7.4), Toene und Sprueche vorlesen (6.9, 12.3). localStorage-Schluessel `einstellungen`;
 // fehlender Wert oder Parse-Fehler gilt als `true`.
 
 export { SpeicherSchluessel }
@@ -10,11 +10,12 @@ export interface Einstellungen {
   erlaubteZuegeAnzeigen: boolean
   vorUngedecktenWarnen: boolean
   toeneUndVibration: boolean
+  spruecheVorlesen: boolean
 }
 
 export type EinstellungSchluessel = keyof Einstellungen
 
-const SCHLUESSEL: EinstellungSchluessel[] = ['erlaubteZuegeAnzeigen', 'vorUngedecktenWarnen', 'toeneUndVibration']
+const SCHLUESSEL: EinstellungSchluessel[] = ['erlaubteZuegeAnzeigen', 'vorUngedecktenWarnen', 'toeneUndVibration', 'spruecheVorlesen']
 
 function speicher(): Storage | null {
   try {

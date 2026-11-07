@@ -1,6 +1,6 @@
 namespace Schach.Application.Betrieb;
 
-/// <summary>Die vier Warnungen aus SCHACH-SPEC 14.2. Der Name ist zugleich das Wort am Anfang der
+/// <summary>Die Warnungen aus SCHACH-SPEC 14.2 und 6.9. Der Name ist zugleich das Wort am Anfang der
 /// Logzeile und ihr EventName.</summary>
 public enum BetriebsWarnung
 {
@@ -15,6 +15,15 @@ public enum BetriebsWarnung
 
     /// <summary>Das globale Mail-Kontingent ist erschoepft (SCHACH-SPEC 11.3).</summary>
     MailKontingent,
+
+    /// <summary>Sprachausgabe-Budget hat die Warnstufe erreicht (SCHACH-SPEC 6.9, 11.1).</summary>
+    SprachausgabeBudgetWarn,
+
+    /// <summary>Sprachausgabe-Budget ist erschoepft (SCHACH-SPEC 6.9, 11.1).</summary>
+    SprachausgabeBudgetErschoepft,
+
+    /// <summary>Mistral kennt eine konfigurierte Stimme nicht (abgelaufen oder falsche Id, SCHACH-SPEC 6.9).</summary>
+    StimmeUnbekannt,
 }
 
 /// <summary>
@@ -22,8 +31,8 @@ public enum BetriebsWarnung
 /// eine Warn-Logzeile und reiht eine Mail an <c>Email:OperatorEmail</c> ein; weitere Meldungen im
 /// selben Fenster zaehlen nur fuer die Tageszeile.
 ///
-/// Fenster: <see cref="BetriebsWarnung.BudgetWarn"/> und <see cref="BetriebsWarnung.BudgetErschoepft"/>
-/// je Kalendermonat (UTC, wie <c>LlmVerbrauch.Monat</c>), die anderen je <c>Betrieb:WarnFensterMinuten</c>;
+/// Fenster: <see cref="BetriebsWarnung.BudgetWarn"/>, <see cref="BetriebsWarnung.BudgetErschoepft"/>
+/// und die drei Sprachausgabe-Warnungen je Kalendermonat (UTC, wie <c>LlmVerbrauch.Monat</c>), die anderen je <c>Betrieb:WarnFensterMinuten</c>;
 /// deren Mail geht hoechstens einmal je UTC-Tag (Lettermint-Kontingent). Eine <c>MailKontingent</c>-Mail
 /// scheitert meist am selben Kontingent; die Logzeile steht trotzdem.
 /// Die Sperre liegt im Speicher. Nach einem Neustart kann eine Budgetwarnung erneut ausgehen; der

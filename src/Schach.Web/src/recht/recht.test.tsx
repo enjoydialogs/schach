@@ -72,7 +72,8 @@ describe('Rechtstexte', () => {
     oeffne('/datenschutz')
 
     expect(screen.getAllByText(/Lettermint B\.V\./).length).toBeGreaterThan(0)
-    expect(screen.getByText('api.eu.mistral.ai')).toBeInTheDocument()
+    expect(screen.getAllByText('api.eu.mistral.ai')).toHaveLength(2)
+    expect(screen.getByText(/den Text des Spruchs und die Kennung der Stimme/)).toBeInTheDocument()
     expect(screen.getAllByText(/Hostinger International Ltd\./).length).toBeGreaterThan(0)
     expect(screen.getByText(/Hetzner Online GmbH in Falkenstein/)).toBeInTheDocument()
   })

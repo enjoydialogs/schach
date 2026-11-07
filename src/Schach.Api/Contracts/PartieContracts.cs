@@ -73,7 +73,9 @@ public sealed record UhrDto(
     DateTimeOffset ServerZeit);
 
 /// <summary>Ein Spruch an seinem Halbzug (SCHACH-SPEC 6.7).</summary>
-public sealed record SpruchDto(int NachHalbzug, SpruchEreignis Ereignis, string Text);
+/// <param name="Stimme">Signiertes Token fuer <c>GET /sprachausgabe/{token}</c> (SCHACH-SPEC 6.9);
+/// <c>null</c>, wenn die Sprachausgabe aus ist oder der Gegner keine Stimme hat.</param>
+public sealed record SpruchDto(int NachHalbzug, SpruchEreignis Ereignis, string Text, string? Stimme = null);
 
 /// <summary>Ein Gegner, wie <c>GET /gegner</c> ihn liefert und wie er im Zustand steht.</summary>
 /// <param name="Key">Stabile Id, z. B. <c>oscar</c>.</param>

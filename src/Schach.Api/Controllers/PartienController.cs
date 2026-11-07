@@ -6,6 +6,7 @@ using Schach.Api.Auth;
 using Schach.Api.Contracts;
 using Schach.Api.RateLimiting;
 using Schach.Application.Partien;
+using Schach.Application.Sprachausgabe;
 using Schach.Infrastructure.Identity;
 using Domain = Schach.Domain;
 using Entitaeten = Schach.Domain.Entitaeten;
@@ -20,7 +21,7 @@ namespace Schach.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route(ApiJson.RoutePrefix + "/partien")]
-public sealed class PartienController(PartieDienst dienst, TimeProvider zeit) : ControllerBase
+public sealed class PartienController(PartieDienst dienst, TimeProvider zeit, ISpruchStimmen stimmen) : ControllerBase
 {
     /// <summary><c>Retry-After</c> bei 429 <c>TageslimitErreicht</c>: das Limit rollt ueber 24 h.</summary>
     internal const int TageslimitRetryAfterSekunden = 3600;
@@ -42,7 +43,7 @@ public sealed class PartienController(PartieDienst dienst, TimeProvider zeit) : 
             SpielerId, anfrage.GegnerId, farbe, ZustandAbbildung.Wire<Entitaeten.Bedenkzeit>(anfrage.Bedenkzeit), ct);
         if (ergebnis is { Fehler: null, Sicht: { } sicht })
         {
-            return CreatedAtAction(nameof(Laden), new { id = sicht.Partie.Id }, ZustandAbbildung.Zustand(sicht, zeit));
+            return CreatedAtAction(nameof(Laden), new { id = sicht.Partie.Id }, ZustandAbbildung.Zustand(sicht, zeit, stimmen));
         }
 
         return Antwort(ergebnis);
@@ -54,7 +55,7 @@ public sealed class PartienController(PartieDienst dienst, TimeProvider zeit) : 
     public async Task<IActionResult> Offen(CancellationToken ct)
     {
         var sicht = SpielerId is { } id ? await dienst.OffeneAsync(id, ct) : null;
-        return sicht is null ? NoContent() : Ok(ZustandAbbildung.Zustand(sicht, zeit));
+        return sicht is null ? NoContent() : Ok(ZustandAbbildung.Zustand(sicht, zeit, stimmen));
     }
 
     [HttpGet("{id:guid}")]
@@ -111,7 +112,7 @@ public sealed class PartienController(PartieDienst dienst, TimeProvider zeit) : 
         var ergebnis = await dienst.TippAsync(id, SpielerId, anfrage.Halbzug, ct);
         if (ergebnis is { Fehler: null, Sicht: { } sicht, Tipp: { } tipp })
         {
-            return Ok(new TippAntwort(new TippDto(tipp.Uci, tipp.Von, tipp.Nach, Figur(tipp.Figur)), ZustandAbbildung.Zustand(sicht, zeit)));
+            return Ok(new TippAntwort(new TippDto(tipp.Uci, tipp.Von, tipp.Nach, Figur(tipp.Figur)), ZustandAbbildung.Zustand(sicht, zeit, stimmen)));
         }
 
         return Antwort(ergebnis);
@@ -175,7 +176,7 @@ public sealed class PartienController(PartieDienst dienst, TimeProvider zeit) : 
 
     private IActionResult Antwort(PartieErgebnis ergebnis)
     {
-        var zustand = ergebnis.Sicht is { } sicht ? ZustandAbbildung.Zustand(sicht, zeit) : null;
+        var zustand = ergebnis.Sicht is { } sicht ? ZustandAbbildung.Zustand(sicht, zeit, stimmen) : null;
         switch (ergebnis.Fehler)
         {
             case null:

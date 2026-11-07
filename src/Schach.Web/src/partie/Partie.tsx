@@ -12,14 +12,25 @@ import { knoepfe as knoepfeFuer, type KnopfArt } from './knoepfe'
 import { EigeneZeile, Knopfleiste, Kopfzeile, Spruchblase, Statuszeile, Uhr, type StatusArt } from './teile'
 import { fuelle } from './text'
 import { aktuellerTipp, naechsterTippSchritt, tippMarkierung, tippText, zeigePfeil } from './tipp'
+import { audioKontext } from './toene'
 import { usePartie } from './usePartie'
+import { useVorlesen } from './vorlesen'
 import { ungedeckteFiguren, warnungsText } from './warnung'
 import './partie.css'
 
 type Offen = 'keins' | 'menue' | 'aufgeben' | 'eloTipp' | 'eloZuruecknehmen'
 
 /** Partie-Bildschirm, Layout `Fest` (SCHACH-SPEC 10.1, 10.3). */
-export function Partie({ id, neuePartiePfad = '/neu' }: { id: string; neuePartiePfad?: string }) {
+export function Partie({
+  id,
+  neuePartiePfad = '/neu',
+  neuGestartet = false,
+}: {
+  id: string
+  neuePartiePfad?: string
+  /** Kommt frisch aus „Neue Partie“: der erste Spruch wird vorgelesen (6.9). */
+  neuGestartet?: boolean
+}) {
   const navigate = useNavigate()
   const [einstellungen, setzeEinstellung] = useEinstellungen()
   const p = usePartie(id, einstellungen.toeneUndVibration)
@@ -37,6 +48,13 @@ export function Partie({ id, neuePartiePfad = '/neu' }: { id: string; neuePartie
     [fen, z, spielerAmZug, einstellungen.vorUngedecktenWarnen],
   )
   const schach = useMemo(() => (fen !== null ? schachFeld(fen) : null), [fen])
+  const spruch = z !== null && anzeige !== null ? sichtbarerSpruch(z.sprueche, anzeige.halbzug) : null
+  const vorlesenWiederholen = useVorlesen(
+    spruch,
+    z !== null && anzeige !== null,
+    einstellungen.spruecheVorlesen,
+    neuGestartet,
+  )
 
   if (z === null || anzeige === null) {
     return (
@@ -59,7 +77,6 @@ export function Partie({ id, neuePartiePfad = '/neu' }: { id: string; neuePartie
   const tipp = spielerAmZug ? aktuellerTipp(p.tippStand, z.halbzug) : null
   const markierung = tippMarkierung(tipp)
   const endeSichtbar = z.status === 'Beendet' && !anzeige.gegnerDenkt
-  const spruch = sichtbarerSpruch(z.sprueche, anzeige.halbzug)
 
   // Statuszeile, Vorrang: Keine Verbindung > Hinweis > Tipp > Warnung > Schach! > denkt nach.
   let status: { art: StatusArt; text: string } = { art: 'leer', text: '' }
@@ -133,7 +150,10 @@ export function Partie({ id, neuePartiePfad = '/neu' }: { id: string; neuePartie
         uhr={gegnerUhr}
         onMenue={() => setOffen('menue')}
       />
-      <Spruchblase text={spruch?.text ?? null} />
+      <Spruchblase
+        text={spruch?.text ?? null}
+        onTipp={einstellungen.spruecheVorlesen && spruch?.stimme ? vorlesenWiederholen : undefined}
+      />
       <div className="partie__brett">
         <Brett
           fen={anzeige.fen}
@@ -146,7 +166,11 @@ export function Partie({ id, neuePartiePfad = '/neu' }: { id: string; neuePartie
           warnungen={warnungen.map((w) => w.feld)}
           tippFeld={markierung.feld}
           tippPfeil={markierung.pfeil}
-          onZug={p.ziehe}
+          onZug={(uci) => {
+            // Der Zug-Tipp ist die Geste, die den AudioContext fuer die Stimme freigibt.
+            if (einstellungen.spruecheVorlesen) audioKontext()
+            p.ziehe(uci)
+          }}
         />
       </div>
       <Statuszeile art={status.art} text={status.text} />
@@ -174,6 +198,11 @@ export function Partie({ id, neuePartiePfad = '/neu' }: { id: string; neuePartie
             text={t('menue.toeneUndVibration')}
             an={einstellungen.toeneUndVibration}
             onWechsel={(an) => setzeEinstellung('toeneUndVibration', an)}
+          />
+          <Schalter
+            text={t('menue.spruecheVorlesen')}
+            an={einstellungen.spruecheVorlesen}
+            onWechsel={(an) => setzeEinstellung('spruecheVorlesen', an)}
           />
           <PaletteWahl />
           <button type="button" className="sheet__zeile" onClick={() => navigate('/')}>

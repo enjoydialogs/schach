@@ -8,6 +8,7 @@ describe('Einstellungen', () => {
       erlaubteZuegeAnzeigen: true,
       vorUngedecktenWarnen: true,
       toeneUndVibration: true,
+      spruecheVorlesen: true,
     })
   })
 
@@ -22,16 +23,18 @@ describe('Einstellungen', () => {
       erlaubteZuegeAnzeigen: true,
       vorUngedecktenWarnen: true,
       toeneUndVibration: false,
+      spruecheVorlesen: true,
     })
   })
 
   it('schreiben JSON unter dem Schluessel einstellungen', () => {
-    schreibeEinstellungen({ erlaubteZuegeAnzeigen: false, vorUngedecktenWarnen: true, toeneUndVibration: true })
+    schreibeEinstellungen({ erlaubteZuegeAnzeigen: false, vorUngedecktenWarnen: true, toeneUndVibration: true, spruecheVorlesen: false })
     expect(SpeicherSchluessel.einstellungen).toBe('einstellungen')
     expect(JSON.parse(localStorage.getItem('einstellungen')!)).toEqual({
       erlaubteZuegeAnzeigen: false,
       vorUngedecktenWarnen: true,
       toeneUndVibration: true,
+      spruecheVorlesen: false,
     })
   })
 })

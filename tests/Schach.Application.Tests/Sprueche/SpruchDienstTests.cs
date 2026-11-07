@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using Schach.Application.Abstractions;
 using Schach.Application.Llm;
+using Schach.Application.Sprachausgabe;
 using Schach.Application.Sprueche;
 using Schach.Application.Tests.Llm;
 using Schach.Domain.Entitaeten;
@@ -264,6 +265,36 @@ public sealed class SpruchDienstTests
         }
 
         gesagt.Should().OnlyHaveUniqueItems();
+    }
+
+    [Fact]
+    public async Task Erschoepfte_Sprachausgabe_laesst_Live_Sprueche_unberuehrt()
+    {
+        // Eigenes Budget (SCHACH-SPEC 6.9): die Sprachausgabe ist leer, die Chat-Leiter nicht.
+        var tts = new Sprachausgabe.FakeSprachVerbrauch();
+        tts.Zeichen[new DateOnly(2026, 11, 1)] = 10_000_000;
+        var stimmen = new Sprachausgabe.FakeSprachProvider();
+        var sprachausgabe = new SprachausgabeDienst(
+            stimmen, new Sprachausgabe.FakeStimmeSpeicher(), tts, new Sprachausgabe.FakeSiegel(), new Sprachausgabe.FakeWarner(),
+            new SprachausgabeOptions { Stimmen = new() { ["finn"] = new StimmeOptions { VoiceId = "v" } } },
+            _zeit, NullLogger<SprachausgabeDienst>.Instance);
+        var echterGuard = new LlmBudgetGuard(_speicher, _resolver, new LlmBudgetOptions(), _zeit);
+        var dienst = new SpruchDienst(
+            _resolver, echterGuard, _speicher,
+            new ErsatzKatalog(new Dictionary<string, IReadOnlyDictionary<SpruchEreignis, IReadOnlyList<string>>>
+            {
+                ["finn"] = ErsatzDatei.Parse(ErsatzKatalogTests.Gueltig, "finn.de.md"),
+            }),
+            new FestePersona(), _optionen, _zeit, NullLogger<SpruchDienst>.Instance);
+
+        var ton = await sprachausgabe.AudioAsync(sprachausgabe.Token("finn", "Hallo", gast: false)!, Ct);
+        var spruch = await dienst.ErzeugeAsync(Anfrage(Partie(gast: true)), Ct);
+
+        ton.Ausgang.Should().Be(SprachAusgang.Stumm);
+        stimmen.Anfragen.Should().BeEmpty();
+        (await echterGuard.GetStatusAsync(Ct)).Level.Should().Be(LlmBudgetLevel.Ok);
+        spruch.Quelle.Should().Be(SpruchQuelle.Mistral);
+        _provider.Aufrufe.Should().Be(1);
     }
 
     private sealed class FestePersona : IPersonaQuelle

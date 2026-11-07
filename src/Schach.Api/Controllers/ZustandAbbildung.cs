@@ -1,5 +1,6 @@
 using Schach.Api.Contracts;
 using Schach.Application.Partien;
+using Schach.Application.Sprachausgabe;
 using Schach.Domain.Entitaeten;
 using Schach.Infrastructure.Identity;
 using Domain = Schach.Domain;
@@ -15,10 +16,15 @@ internal static class ZustandAbbildung
     public static TZiel Wire<TZiel>(Enum wert)
         where TZiel : struct, Enum => Enum.Parse<TZiel>(wert.ToString());
 
-    public static ZustandDto Zustand(PartieSicht sicht, TimeProvider zeit)
+    /// <param name="stimmen">Erzeugt <c>SpruchDto.stimme</c> (SCHACH-SPEC 6.9); ohne: alle <c>null</c>.
+    /// Liest nur Konfiguration, damit die Antwortzeit gleich bleibt.</param>
+    public static ZustandDto Zustand(PartieSicht sicht, TimeProvider zeit, ISpruchStimmen? stimmen = null)
     {
         ArgumentNullException.ThrowIfNull(sicht);
         var p = sicht.Partie;
+        var gast = p.SpielerId is null;
+        SpruchDto Spruch(Spruch s) => new(
+            s.NachHalbzug, Wire<Contracts.SpruchEreignis>(s.Ereignis), s.Text, stimmen?.Token(p.GegnerId, s.Text, gast));
         var gegner = Domain.GegnerKatalog.Finde(p.GegnerId) ?? throw new InvalidOperationException($"Unbekannter Gegner '{p.GegnerId}'.");
         var beendet = p.Status == Schach.Domain.Entitaeten.PartieStatus.Beendet;
         return new ZustandDto(
@@ -33,7 +39,7 @@ internal static class ZustandAbbildung
             p.SpielerAmZug() ? Domain.Stellung.AusFen(p.Fen).ErlaubteZuege() : [],
             p.SpielerAmZug(),
             p.GegnerZugAusstehend(),
-            sicht.GegnerZug is { } g ? GegnerZug(g, sicht.Sprueche) : null,
+            sicht.GegnerZug is { } g ? GegnerZug(g, sicht.Sprueche, Spruch) : null,
             Uhr(p, zeit),
             p.ZaehltFuerElo,
             p.LetztesRemisAngebotBeiZug is { } letztes ? letztes + 5 : 1,
@@ -58,13 +64,11 @@ internal static class ZustandAbbildung
             bilanz is null ? null : new BilanzDto(bilanz.Siege, bilanz.Remis, bilanz.Niederlagen, bilanz.BesiegtAm));
     }
 
-    private static GegnerZugDto GegnerZug(Zug zug, IReadOnlyList<Spruch> sprueche)
+    private static GegnerZugDto GegnerZug(Zug zug, IReadOnlyList<Spruch> sprueche, Func<Spruch, SpruchDto> abbilden)
     {
         var spruch = sprueche.LastOrDefault(s => s.NachHalbzug == zug.Halbzug);
-        return new GegnerZugDto(zug.Halbzug, Wire<Contracts.Farbe>(zug.Seite), zug.Uci, zug.San, zug.GespieltAm, zug.GespieltAm, spruch is null ? null : Spruch(spruch));
+        return new GegnerZugDto(zug.Halbzug, Wire<Contracts.Farbe>(zug.Seite), zug.Uci, zug.San, zug.GespieltAm, zug.GespieltAm, spruch is null ? null : abbilden(spruch));
     }
-
-    private static SpruchDto Spruch(Spruch s) => new(s.NachHalbzug, Wire<Contracts.SpruchEreignis>(s.Ereignis), s.Text);
 
     /// <summary>Uhrstand jetzt; nach Partieende steht die Uhr (<c>laeuftFuer = null</c>).</summary>
     private static UhrDto? Uhr(Partie p, TimeProvider zeit)

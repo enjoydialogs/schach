@@ -54,6 +54,7 @@ export const de = {
     knopfAufgeben: 'Aufgeben',
     knopfNachspielen: 'Nachspielen',
     knopfNeuePartie: 'Neue Partie',
+    spruchVorlesen: 'Nochmal vorlesen: {text}',
   },
   status: {
     keineVerbindung: 'Keine Verbindung',
@@ -95,6 +96,7 @@ export const de = {
     toeneUndVibration: 'Töne und Vibration',
     partieVerlassen: 'Partie verlassen',
     schliessen: 'Schließen',
+    spruecheVorlesen: 'Sprüche vorlesen',
   },
   dialog: {
     abbrechen: 'Abbrechen',
