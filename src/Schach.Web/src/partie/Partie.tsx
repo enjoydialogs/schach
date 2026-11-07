@@ -4,6 +4,7 @@ import { Brett } from '../brett/Brett'
 import { de, t } from '../i18n/de'
 import { schachFeld, sichtbarerSpruch } from './anzeige'
 import { BottomSheet, Schalter } from '../components/BottomSheet'
+import { PaletteWahl } from '../components/PaletteWahl'
 import { Dialog } from '../components/Dialog'
 import { useEinstellungen } from './einstellungen'
 import { Endeblatt } from './Endeblatt'
@@ -174,6 +175,7 @@ export function Partie({ id, neuePartiePfad = '/neu' }: { id: string; neuePartie
             an={einstellungen.toeneUndVibration}
             onWechsel={(an) => setzeEinstellung('toeneUndVibration', an)}
           />
+          <PaletteWahl />
           <button type="button" className="sheet__zeile" onClick={() => navigate('/')}>
             {t('menue.partieVerlassen')}
           </button>

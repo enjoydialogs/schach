@@ -2,14 +2,14 @@ import { useMemo, useState } from 'react'
 import { Chessboard, type ChessboardOptions } from 'react-chessboard'
 import type { Farbe } from '../api/types'
 import { legeAb, tippeFeld, umwandlungsZug, zielfelder, type BrettAktion } from './auswahl'
+import { usePalette } from '../components/palette'
 import { cburnett } from './figurensatz'
 import { feldStile, figurAuf, zieleMitArt } from './markierung'
 import { Umwandlung } from './Umwandlung'
 import './brett.css'
 
 // Tipp-Pfeil in Akzentfarbe. react-chessboard setzt die Farbe als SVG-Attribut, dort greift keine
-// CSS-Variable; der Wert spiegelt --accent aus palette.css.
-const PFEIL_FARBE = '#1e7a62'
+// CSS-Variable; der Wert kommt darum aus der gewaehlten Palette (components/palette.ts).
 
 export interface BrettProps {
   /** Angezeigte Stellung (FEN vom Server, optimistisch fortgeschrieben). */
@@ -35,6 +35,7 @@ export interface BrettProps {
 export function Brett(props: BrettProps) {
   const { fen, orientierung, erlaubteZuege, eingabeAktiv, zeigeZiele, onZug } = props
   const eigene = orientierung === 'Weiss' ? 'w' : 'b'
+  const palette = usePalette()
 
   // Auswahl und offene Umwandlung gelten nur fuer die Stellung, in der sie entstanden sind.
   const [auswahlStand, setAuswahlStand] = useState<{ fen: string; feld: string } | null>(null)
@@ -80,7 +81,7 @@ export function Brett(props: BrettProps) {
     allowDragOffBoard: false,
     clearArrowsOnClick: false,
     arrows: props.tippPfeil
-      ? [{ startSquare: props.tippPfeil.von, endSquare: props.tippPfeil.nach, color: PFEIL_FARBE }]
+      ? [{ startSquare: props.tippPfeil.von, endSquare: props.tippPfeil.nach, color: palette.akzent }]
       : [],
     squareStyles: stile,
     lightSquareStyle: { backgroundColor: 'var(--board-light)' },

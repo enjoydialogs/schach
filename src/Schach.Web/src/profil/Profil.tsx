@@ -9,6 +9,7 @@ import { Dialog } from '../components/Dialog'
 import { Bilanz } from '../components/GegnerZeile'
 import { zeigeHinweis } from '../components/hinweisSpeicher'
 import { Ladeanzeige } from '../components/Ladeanzeige'
+import { PaletteWahl } from '../components/PaletteWahl'
 import { leerePartienCache } from '../components/partienCache'
 import { Seite } from '../components/Seite'
 import { gastPartieId } from '../components/SpeicherSchluessel'
@@ -19,7 +20,7 @@ import { fuelle } from '../partie/text'
 import './profil.css'
 
 /**
- * Profil (`/profil`, SCHACH-SPEC 10.9): E-Mail, Elo, Bilanz je Gegner, die drei Schalter,
+ * Profil (`/profil`, SCHACH-SPEC 10.9): E-Mail, Elo, Bilanz je Gegner, die drei Schalter, Grundfarbe,
  * „Spieler seit …“, Export, Abmelden, Konto loeschen.
  */
 export function Profil() {
@@ -119,6 +120,7 @@ export function Profil() {
           an={einstellungen.toeneUndVibration}
           onWechsel={(an) => setzeEinstellung('toeneUndVibration', an)}
         />
+        <PaletteWahl />
       </div>
 
       <div className="profil__aktionen">

@@ -327,6 +327,16 @@ export const de = {
     installieren: 'Installieren',
     spaeter: 'Später',
   },
+  // Grundfarbe (10.3), im Partie-Menue und im Profil.
+  palette: {
+    titel: 'Grundfarbe',
+    namen: {
+      lila: 'Lila',
+      pink: 'Pink',
+      gruen: 'Grün',
+      blau: 'Blau',
+    },
+  },
   // Profil (10.9), nach #64 (SpielerDto.erstelltAm).
   profilSeit: {
     spielerSeit: 'Spieler seit {datum}',
