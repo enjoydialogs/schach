@@ -5,6 +5,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- FakeTimeProvider fuer die Uhr-Tests (SCHACH-SPEC 8.6, 15.2). -->
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Die gemeinsame FEN-Suite liegt neben den Testprojekten und wird in die Ausgabe kopiert. -->
     <Content Include="..\fen-suite\*.json" LinkBase="fen-suite" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
