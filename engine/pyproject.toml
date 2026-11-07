@@ -31,7 +31,7 @@ test = [
 where = ["src"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "tools"]
 addopts = "-q"
 markers = [
   "model: braucht das echte Maia3-5M und PyTorch; laeuft nur mit SCHACH_ENGINE_MODEL_TESTS=1",
