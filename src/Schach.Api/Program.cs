@@ -1,10 +1,13 @@
 using System.Globalization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Schach.Api.Auth;
 using Schach.Api.Contracts;
+using Schach.Api.HostedServices;
 using Schach.Api.Middleware;
 using Schach.Api.Telemetry;
 using Schach.Infrastructure;
+using Schach.Infrastructure.Identity;
 using Schach.Infrastructure.Betrieb;
 using Schach.Infrastructure.Persistence;
 
@@ -63,6 +66,12 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // S2b: Engine-Client, Rate-Limiter (AddRateLimiter), Meter
 // S2c: Sprueche, LLM, Budgetwaechter
 
+// S2a: Konto und Magic Link (SCHACH-SPEC 9, 11.3). Cookie schach_sitzung mit Stempelpruefung,
+// Antiforgery global (X-CSRF-TOKEN), Limiter magic-link-je-ip, Mail, Sweep-Block D.
+builder.Services.AddSchachKonto(builder.Configuration);
+builder.Services.AddSchachSitzung(builder.Configuration);
+builder.Services.AddHostedService<SweepDienst>();
+
 // S2d: Betrieb (SCHACH-SPEC 14.2): Meter "Schach", Warnzeilen, Betreibermails, Tageszeile 06:00.
 builder.Services.AddSchachBetrieb(builder.Configuration);
 
@@ -106,8 +115,10 @@ app.UseStaticFiles(spaFiles);
 // Rueckfallroute, und StaticFileMiddleware tritt beiseite (Kronrat, Erst-Deploy 2026-08-10).
 // Reihenfolge danach nach SCHACH-SPEC 11.4: Routing, RateLimiter (S2b), Authentication (S2a).
 app.UseRouting();
-// S2b: app.UseRateLimiter();
-// S2a: app.UseAuthentication(); app.UseAuthorization();
+// S2a setzt UseRateLimiter fuer magic-link-je-ip; S2b ergaenzt nur Policies, kein zweiter Aufruf.
+app.UseRateLimiter();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/healthz", new() { Predicate = _ => false });

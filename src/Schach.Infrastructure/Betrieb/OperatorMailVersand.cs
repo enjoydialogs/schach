@@ -3,18 +3,19 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Schach.Application.Abstractions;
+using Schach.Infrastructure.Email;
 
 namespace Schach.Infrastructure.Betrieb;
 
 /// <summary>
 /// Sendet die Mails aus <see cref="OperatorPost"/> an <c>Email:OperatorEmail</c> (SCHACH-SPEC 14.2).
-/// Den <see cref="IEmailSender"/> registriert S2a; fehlt er oder die Adresse, wird nur geloggt.
+/// Versand ueber den <see cref="IEmailSender"/> aus S2a; fehlt er oder die Adresse, wird nur geloggt.
 /// Nie die Adresse oder den Inhalt loggen (SCHACH-SPEC 14.3).
 /// </summary>
 public sealed partial class OperatorMailVersand(
     OperatorPost post,
     IServiceProvider services,
-    IOptions<OperatorOptions> optionen,
+    IOptions<EmailOptionen> optionen,
     ILogger<OperatorMailVersand> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -34,7 +35,7 @@ public sealed partial class OperatorMailVersand(
 
     private async Task SendenAsync(OperatorMail mail, CancellationToken ct)
     {
-        var adresse = optionen.Value.Email;
+        var adresse = optionen.Value.OperatorEmail;
         if (string.IsNullOrWhiteSpace(adresse))
         {
             LogKeinEmpfaenger(logger, mail.Betreff);

@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Schach.Application.Abstractions;
 using Schach.Infrastructure.Betrieb;
+using Schach.Infrastructure.Email;
 
 namespace Schach.Infrastructure.Tests.Betrieb;
 
@@ -24,7 +25,7 @@ public sealed class OperatorMailVersandTests
         return new OperatorMailVersand(
             _post,
             services.BuildServiceProvider(),
-            Options.Create(new OperatorOptions { Email = adresse }),
+            Options.Create(new EmailOptionen { OperatorEmail = adresse }),
             _log);
     }
 

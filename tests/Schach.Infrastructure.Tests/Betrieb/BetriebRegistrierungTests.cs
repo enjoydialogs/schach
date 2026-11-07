@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Schach.Application.Betrieb;
 using Schach.Infrastructure.Betrieb;
+using Schach.Infrastructure.Email;
 using Schach.Infrastructure.Telemetry;
 
 namespace Schach.Infrastructure.Tests.Betrieb;
@@ -31,7 +32,7 @@ public sealed class BetriebRegistrierungTests
         sp.GetRequiredService<SchachMeter>().Should().NotBeNull();
         sp.GetServices<IHostedService>().Select(s => s.GetType())
             .Should().BeEquivalentTo([typeof(OperatorMailVersand), typeof(TageszeileDienst)]);
-        sp.GetRequiredService<IOptions<OperatorOptions>>().Value.Email.Should().Be("betreiber@example.org");
+        sp.GetRequiredService<IOptions<EmailOptionen>>().Value.OperatorEmail.Should().Be("betreiber@example.org");
         sp.GetRequiredService<IOptions<BetriebOptions>>().Value.Should().BeEquivalentTo(
             new BetriebOptions { WarnFensterMinuten = 15, TageszeileUm = new TimeOnly(7, 30), Zeitzone = "Europe/Berlin" });
     }

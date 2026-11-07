@@ -15,15 +15,3 @@ public sealed class BetriebOptions
     /// <summary>IANA-Zeitzone fuer die Tageszeile. Der Container laeuft in UTC.</summary>
     public string Zeitzone { get; set; } = "Europe/Berlin";
 }
-
-/// <summary>
-/// Empfaenger der Budget- und Warnmails, gebunden aus dem vorhandenen Schluessel
-/// <c>Email:OperatorEmail</c> (SCHACH-SPEC 11.5, Kronrat-Muster). Kein zweiter Schluessel fuer
-/// dieselbe Adresse.
-/// </summary>
-public sealed class OperatorOptions
-{
-    public const string Schluessel = "Email:OperatorEmail";
-
-    public string Email { get; set; } = "";
-}
