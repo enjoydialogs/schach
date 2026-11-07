@@ -87,3 +87,47 @@ jobs:
             .local-ci/logs/
             TestResults/
           retention-days: 14
+
+  # Beide Images bauen und den Stapel einmal hochfahren (SCHACH-SPEC 15.3, Phase 0 „Images bauen“).
+  # Probt Deploy-Rauchtest und Engine-aus-web vor dem Merge; Docker laeuft nur hier, nie lokal auf
+  # den Windows-Rechnern. Pusht nichts: das macht release.yml auf main.
+  images:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Prod-Compose pruefen (Syntax, keine veroeffentlichten Ports)
+        env:
+          # Nur Platzhalter, damit die Pflicht-Variablen aufloesen.
+          REGISTRY: ghcr.io/example
+          IMAGE_TAG: placeholder
+          POSTGRES_PASSWORD: placeholder
+          TRAEFIK_NETWORK: placeholder
+        run: |
+          docker compose -f docker-compose.dokploy.yml config -q
+          docker compose -f docker-compose.dokploy.yml config --format json \
+            | jq -e '[.services[] | select(has("ports"))] | length == 0' > /dev/null \
+            || { echo "docker-compose.dokploy.yml veroeffentlicht einen Port" >&2; exit 1; }
+
+      - name: Images bauen (web, engine)
+        run: docker compose --profile full build
+
+      - name: Stapel starten
+        run: docker compose --profile full up -d --wait --wait-timeout 300
+
+      - name: Rauchtest gegen localhost
+        run: bash deploy/ops/rauchtest.sh http://localhost:8080
+
+      - name: Engine-Health aus dem web-Container
+        run: bash deploy/ops/engine-aus-web.sh "$(docker compose --profile full ps -q web)"
+
+      - name: Container-Logs
+        if: always()
+        run: docker compose --profile full logs --no-color --tail 200
+
+      - name: Aufraeumen
+        if: always()
+        run: docker compose --profile full down -v

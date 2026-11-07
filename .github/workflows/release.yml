@@ -1,0 +1,232 @@
+# Images bauen bei jedem Push auf main; PRODUKTION nur per Hand-Ausloeser (SCHACH-SPEC 13.5). Nach Kronrat.
+# Eingefroren ab Phase 0.
+#
+#   push auf main ──▶ schach-web + schach-engine nach GHCR (Tags <sha> und main)
+#
+#   workflow_dispatch(image_tag: <ein vorhandener SHA>, oder leer = diesen Stand bauen)
+#                    └──▶ `prod` auf den SHA zeigen ──▶ Dokploy-Deploy ──▶ Rauchtest auf der Domain
+#
+# Getestet wird vorher in der PR-CI (ci.yml): ein PR merged nur gruen und mit behind_by = 0
+# (SCHACH-SPEC 15.1 Regel 2), main ist also der gepruefte Stand. Hier wird nur gebaut.
+#
+# Der Dokploy-Compose-Dienst fuehrt docker-compose.dokploy.yml mit IMAGE_TAG=prod aus. Dieser
+# Workflow ist das Einzige, was `prod` bewegt. Ein Rollback ist ein Dispatch mit einem aelteren SHA.
+#
+# GitHub-Environment `production` (Werte nur dort, nie im Repo):
+#   vars.DOKPLOY_URL          Adresse des Dokploy-Panels
+#   vars.DOKPLOY_COMPOSE_ID   Compose-ID des Dienstes (letzter Abschnitt seiner URL im Panel)
+#   secrets.DOKPLOY_API_KEY   API-Schluessel eines Members mit Zugriff nur auf dieses Projekt
+#
+# Nur GitHub-gehostete Runner (oeffentliches Repo, SCHACH-SPEC 13.5).
+name: release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Ein VORHANDENES Image-Tag (Commit-SHA) ausliefern. Leer = diesen Stand bauen und ausliefern."
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  # Ein Release zur Zeit: zwei Retags desselben Tags duerfen nicht gegeneinander laufen.
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.p.outputs.image_tag }}
+      build: ${{ steps.p.outputs.build }}
+      deploy: ${{ steps.p.outputs.deploy }}
+      registry: ${{ steps.p.outputs.registry }}
+    steps:
+      - id: p
+        env:
+          REQUESTED_TAG: ${{ inputs.image_tag }}
+          SHA: ${{ github.sha }}
+          EVENT: ${{ github.event_name }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          # Ein vorhandenes Tag auszuliefern darf NICHT neu bauen: sonst traegt jenes Tag fremden Code.
+          if [ -n "$REQUESTED_TAG" ]; then
+            case "$REQUESTED_TAG" in
+              *[!0-9a-f]*) echo "image_tag muss ein Commit-SHA sein (0-9, a-f)" >&2; exit 1 ;;
+            esac
+            echo "image_tag=$REQUESTED_TAG" >> "$GITHUB_OUTPUT"
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "image_tag=$SHA" >> "$GITHUB_OUTPUT"
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          fi
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          fi
+          # GHCR lehnt Grossbuchstaben im Pfad ab.
+          echo "registry=ghcr.io/${OWNER,,}" >> "$GITHUB_OUTPUT"
+
+  image:
+    name: Image ${{ matrix.name }} nach GHCR
+    needs: plan
+    if: needs.plan.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - name: schach-web
+            context: .
+            file: Dockerfile
+          - name: schach-engine
+            context: engine
+            file: engine/Dockerfile
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # ci/version.ps1 zaehlt `git rev-list --count HEAD`
+
+      - name: Version berechnen
+        id: version
+        shell: pwsh
+        run: |
+          $v = ./ci/version.ps1
+          "value=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bauen und pushen
+        env:
+          REGISTRY: ${{ needs.plan.outputs.registry }}
+          TAG: ${{ needs.plan.outputs.image_tag }}
+          NAME: ${{ matrix.name }}
+          CONTEXT: ${{ matrix.context }}
+          FILE: ${{ matrix.file }}
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          docker buildx build "$CONTEXT" \
+            --file "$FILE" \
+            --build-arg "COMMIT_SHA=$TAG" \
+            --build-arg "INFORMATIONAL_VERSION=$VERSION" \
+            --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
+            --label "org.opencontainers.image.revision=$TAG" \
+            --tag "$REGISTRY/$NAME:$TAG" \
+            --tag "$REGISTRY/$NAME:main" \
+            --cache-from "type=gha,scope=$NAME" \
+            --cache-to "type=gha,mode=max,scope=$NAME" \
+            --push
+
+  prod:
+    name: Ausliefern nach schach.enjoy-dialogs.de
+    needs: [plan, image]
+    # Laeuft, wenn `image` gelang ODER uebersprungen wurde (vorhandenes Tag), nie nach Fehlschlag.
+    if: ${{ always() && !failure() && !cancelled() && needs.plan.outputs.deploy == 'true' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://schach.enjoy-dialogs.de
+    env:
+      REGISTRY: ${{ needs.plan.outputs.registry }}
+      TAG: ${{ needs.plan.outputs.image_tag }}
+      ENV_TAG: prod
+      PUBLIC_URL: https://schach.enjoy-dialogs.de
+      DOKPLOY_URL: ${{ vars.DOKPLOY_URL }}
+      DOKPLOY_COMPOSE_ID: ${{ vars.DOKPLOY_COMPOSE_ID }}
+      DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Das bewegte Tag auf den gebauten SHA zeigen
+        run: |
+          # Registry-seitige Manifest-Kopie: die gebauten Bytes sind die, die `prod` jetzt benennt.
+          for name in schach-web schach-engine; do
+            docker buildx imagetools create --tag "$REGISTRY/$name:$ENV_TAG" "$REGISTRY/$name:$TAG"
+            echo "$REGISTRY/$name:$ENV_TAG -> $TAG"
+          done
+
+      - name: Ueber Dokploy ausliefern und warten
+        run: |
+          set -u
+          for v in DOKPLOY_URL DOKPLOY_COMPOSE_ID DOKPLOY_API_KEY; do
+            [ -n "${!v}" ] || { echo "$v ist im GitHub-Environment production nicht gesetzt" >&2; exit 1; }
+          done
+          # HTTP-Status neben dem Body halten, damit eine Ablehnung als solche gemeldet wird. Code 000:
+          # nichts hat geantwortet. --connect-timeout begrenzt einen verlorenen SYN (Kronrat 2026-09-04).
+          api() {
+            local out
+            out=$(curl -sS --connect-timeout 15 --max-time 90 \
+                    -H "x-api-key: $DOKPLOY_API_KEY" -H 'content-type: application/json' \
+                    -w '\n%{http_code}' "$@") || { API_CODE=000; API_BODY=""; return 0; }
+            API_CODE=${out##*$'\n'}; API_BODY=${out%$'\n'*}
+          }
+          list() { api "$DOKPLOY_URL/api/deployment.allByCompose?composeId=$DOKPLOY_COMPOSE_ID"; }
+          # Nur die LESENDE Abfrage wiederholt sich. compose.deploy bleibt ein Versuch: ein POST, der
+          # unterwegs abbricht, kann angekommen sein.
+          list_retry() {
+            local n
+            for n in 1 2 3 4 5; do
+              list
+              [ "$API_CODE" = "200" ] && return 0
+              echo "  Vorabfrage $n: HTTP $API_CODE ${API_BODY:0:200}"
+              sleep 10
+            done
+          }
+          rows='def rows: if type == "array" then . else [] end;'
+
+          list_retry
+          [ "$API_CODE" = "200" ] || { echo "deployment.allByCompose: HTTP $API_CODE ${API_BODY:0:300}" >&2; exit 1; }
+          before=$(printf '%s' "$API_BODY" | jq -c "$rows"' [rows[] | .deploymentId]')
+
+          title="release ${GITHUB_RUN_ID} ${TAG:0:12}"
+          api -X POST "$DOKPLOY_URL/api/compose.deploy" \
+            -d "$(jq -cn --arg id "$DOKPLOY_COMPOSE_ID" --arg t "$title" \
+                  '{composeId:$id, title:$t, description:"GitHub Actions"}')"
+          [ "$API_CODE" = "200" ] || {
+            echo "compose.deploy: HTTP $API_CODE ${API_BODY:0:300}. Nicht wiederholt; Deployments-Tab ansehen." >&2
+            exit 1
+          }
+          echo "Deploy angefordert: $title"
+
+          for i in $(seq 1 60); do
+            sleep 10
+            list
+            [ "$API_CODE" = "200" ] || { echo "  Abfrage $i: HTTP $API_CODE ${API_BODY:0:200}"; continue; }
+            row=$(printf '%s' "$API_BODY" | jq -c --arg t "$title" --argjson before "$before" "$rows"'
+              [rows[] | .deploymentId as $d | select(.title == $t or (($before | index($d)) == null))]
+              | sort_by(.createdAt) | last // empty')
+            if [ -z "$row" ]; then
+              echo "  Abfrage $i: noch kein neuer Deploy sichtbar"
+              continue
+            fi
+            status=$(printf '%s' "$row" | jq -r '.status // "unknown"')
+            echo "  Abfrage $i: $status"
+            case "$status" in
+              done)  exit 0 ;;
+              error) echo "Dokploy-Deploy '$title' endete mit Fehler; Deployments-Tab ansehen." >&2; exit 1 ;;
+            esac
+          done
+          echo "Dokploy-Deploy '$title' war nach zehn Minuten nicht fertig." >&2
+          exit 1
+
+      - name: Rauchtest auf der Domain
+        run: bash deploy/ops/rauchtest.sh "$PUBLIC_URL"

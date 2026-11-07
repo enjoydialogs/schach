@@ -1,0 +1,9 @@
+# Baukontext engine/: nur pyproject.toml, LICENSE und src/ gehen ins Image.
+.venv
+tests
+**/__pycache__
+**/*.egg-info
+.pytest_cache
+*.md
+Dockerfile
+.dockerignore
