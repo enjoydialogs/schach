@@ -1,0 +1,72 @@
+# Taegliche Backup-Pruefung (SCHACH-SPEC 14.1, Muster aus GladiusEtPilum). Einrichtung und
+# Restore-Probe: deploy/restore-drill.md.
+#
+# Liest den Bucket mit einem Schluessel, der nur listen darf, und schlaegt fehl, wenn der neueste Dump
+# unter einem Praefix aelter als 26 Stunden oder kleiner als die Mindestgroesse ist
+# (deploy/ops/backup-check.sh). Bei Erfolg pingt es den externen Heartbeat-Monitor; DER meldet sich,
+# nicht dieser Workflow. Faellt der Lauf aus oder plant GitHub ihn nicht mehr, bleibt der Ping aus.
+#
+# Warum GitHub Actions: die Pruefung muss ausserhalb des VPS laufen, sonst verstummt sie zusammen mit
+# der Box. Immer ubuntu-latest, nie Self-hosted.
+#
+# Bis der Betreiber Schluessel und Monitor angelegt hat, warnt der Job nur.
+#
+# Job `fixtures`: laeuft bei jedem PR, der die Pruefung aendert, und testet ihre Entscheidung ohne
+# Bucket (deploy/ops/backup-check.test.sh). ci.yml und ci/* sind eingefroren (SCHACH-SPEC 15.1
+# Regel 4), deshalb steht der Fixture-Lauf hier.
+name: backup-check
+
+on:
+  schedule:
+    # 05:30 UTC: nach dem Dump um 03:40 (Box-Zeit, ob UTC oder Berlin), frueh genug fuer eine
+    # Meldung am selben Morgen.
+    - cron: "30 5 * * *"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "deploy/ops/backup-check*"
+      - ".github/workflows/backup-check.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup-check-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  fixtures:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Entscheidungstabelle der Pruefung
+        run: bash deploy/ops/backup-check.test.sh
+
+  check:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.BACKUP_CHECK_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_CHECK_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ${{ vars.BACKUP_REGION || 'fsn1' }}
+      BACKUP_ENDPOINT: ${{ vars.BACKUP_ENDPOINT }}
+      BACKUP_BUCKET: ${{ vars.BACKUP_BUCKET }}
+      BACKUP_PREFIXES: ${{ vars.BACKUP_PREFIXES }}
+      BACKUP_MAX_AGE_HOURS: ${{ vars.BACKUP_MAX_AGE_HOURS }}
+      BACKUP_MIN_BYTES: ${{ vars.BACKUP_MIN_BYTES }}
+      BACKUP_HEARTBEAT_URL: ${{ secrets.BACKUP_HEARTBEAT_URL }}
+      BACKUP_HEARTBEAT_FAIL_URL: ${{ secrets.BACKUP_HEARTBEAT_FAIL_URL }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Noch nicht eingerichtet
+        if: env.AWS_ACCESS_KEY_ID == ''
+        run: echo "::warning::Die Backup-Pruefung hat noch keinen Schluessel. Einrichtung in deploy/restore-drill.md."
+
+      - name: Neuester Dump je Praefix ist frisch und nicht leer
+        if: env.AWS_ACCESS_KEY_ID != ''
+        run: bash deploy/ops/backup-check.sh

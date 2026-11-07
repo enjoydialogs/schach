@@ -1,9 +1,12 @@
+using System.Diagnostics.Metrics;
 using System.Net;
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Schach.Application.Abstractions;
 using Schach.Infrastructure.Email;
+using Schach.Infrastructure.Telemetry;
 
 namespace Schach.Infrastructure.Tests.Email;
 
@@ -42,6 +45,24 @@ public sealed class LettermintEmailSenderTests
         root.GetProperty("html").GetString().Should().Be("<p>Html</p>");
         root.GetProperty("settings").GetProperty("track_opens").GetBoolean().Should().BeFalse();
         root.GetProperty("settings").GetProperty("track_clicks").GetBoolean().Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Angenommene_Mail_zaehlt_ueber_SchachMeter_und_landet_in_der_Tageszeile()
+    {
+        using var services = new ServiceCollection().AddMetrics().BuildServiceProvider();
+        var fabrik = services.GetRequiredService<IMeterFactory>();
+        using var summen = new MeterSummen(fabrik);
+        var sender = new LettermintEmailSender(
+            new HttpClient(new AufzeichnenderHandler(HttpStatusCode.Accepted, "{}")),
+            Options.Create(Optionen),
+            NullLogger<LettermintEmailSender>.Instance,
+            new SchachMeter(fabrik));
+
+        await sender.SendAsync(Mail, TestContext.Current.CancellationToken);
+        await sender.SendAsync(Mail, TestContext.Current.CancellationToken);
+
+        summen.Abholen()[SchachMetrics.MailGesendet].Should().Be(2);
     }
 
     [Theory]

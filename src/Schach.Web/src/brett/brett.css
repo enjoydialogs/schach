@@ -1,0 +1,40 @@
+/* Brett (SCHACH-SPEC 10.3). Groesse setzt der Bildschirm; das Brett fuellt seinen Platz. */
+.brett {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  /* dnd-kit braucht touch-action none, sonst scrollt oder schliesst die Geste statt zu ziehen. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Umwandlung: 4 Kacheln a 88 px, Hintergrund faengt das Tippen daneben ab. */
+.umwandlung {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 35, 41, 0.35);
+}
+
+.umwandlung__kacheln {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.umwandlung__kachel {
+  width: 88px;
+  height: 88px;
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent-tint);
+}

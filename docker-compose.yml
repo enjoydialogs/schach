@@ -47,6 +47,9 @@ services:
       SF_MAX_MOVETIME_MS: "800"
       FAIRY_POOL_SIZE: "1"
       ENGINE_ROLES: "maia,stockfish,fairy"
+      # Leer: echtes Maia-Modell (Download von Hugging Face beim ersten Start). Die PR-CI setzt 1:
+      # Fixture statt Modell, kein Download (.github/workflows/ci.yml, Job images).
+      SCHACH_ENGINE_FAKE_MODEL: ${SCHACH_ENGINE_FAKE_MODEL:-}
     ports:
       - "127.0.0.1:8081:8081"
     volumes:

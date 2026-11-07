@@ -21,6 +21,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- prompts/ (SCHACH-SPEC 6.3, 6.5) neben die DLL, im Image wie lokal. PromptVerzeichnis findet sie dort. -->
+    <Content Include="..\..\prompts\**\*.md" LinkBase="prompts" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="Schach.Api.Tests" />
   </ItemGroup>
 
