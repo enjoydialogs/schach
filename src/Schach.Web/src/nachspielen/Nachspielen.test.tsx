@@ -121,6 +121,14 @@ describe('Nachspielen', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe('/partien'))
   })
 
+  it('fuehrt aus dem Menue zur Startseite', async () => {
+    const z = beendetePartie()
+    const router = zeigeApp(`/nachspielen/${z.id}`)
+    fireEvent.click(await screen.findByRole('button', { name: 'Menü' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Zur Startseite' }))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/'))
+  })
+
   it('zeigt ohne Netz und ohne Cache den Offline-Hinweis', async () => {
     t.server.use(http.get(`${API_BASIS}/partien/:id`, () => HttpResponse.error()))
     zeigeApp('/nachspielen/fake-unbekannt')

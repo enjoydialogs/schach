@@ -833,7 +833,13 @@ Auf Start und Neu.
 - 8 Gegnerzeilen nach Abschnitt 4.5, Elo aufsteigend. Gäste ohne S/R/N.
 - Tippen öffnet das Bottom-Sheet „Partie gegen Oscar“:
   - Farbe: Weiß | Schwarz | Zufall (Standard Zufall).
-  - Bedenkzeit als Radio: „Ohne Uhr“ (Standard, Untertitel „mit Zurücknehmen und Tipp“), „15+10“, „10+5“, „5+3“, „90 s je Zug“ (Untertitel „ohne Zurücknehmen und Tipp“).
+  - Bedenkzeit als Radio, jede Wahl mit Untertitel, der die Kurzform erklärt:
+    - „Ohne Uhr“ (Standard): „Kein Zeitlimit, mit Zurücknehmen und Tipp“
+    - „15+10“: „15 Min. pro Spieler, +10 s nach jedem Zug“
+    - „10+5“: „10 Min. pro Spieler, +5 s nach jedem Zug“
+    - „5+3“: „5 Min. pro Spieler, +3 s nach jedem Zug“
+    - „90 s je Zug“: „Jeder Zug max. 90 s, Rest verfällt“
+    - Darunter eine Zeile für alle Wahlen mit Uhr: „Mit Uhr: kein Zurücknehmen, kein Tipp.“
   - „Partie starten“ → `POST /partien` → `/partie/:id` (replace). Ein Gast speichert `gastPartieId`.
 - 409 `OffenePartie` → Dialog 10.5.
 - 429 → „Zu viele neue Partien. Bitte warte kurz.“
@@ -857,7 +863,7 @@ Auf Start und Neu.
 - Zugleiste 48 px: SAN-Chips, horizontal, Tippen springt.
 - Knöpfe: Anfang | Zurück | Vor | Ende. Start bei Halbzug 0.
 - chess.js spielt die Zugfolge nach.
-- Menü: „PGN teilen“ (Web Share mit Datei `schach-oscar-2026-11-07.pgn`, sonst Download; geht offline), „Zur Partienliste“.
+- Menü: „PGN teilen“ (Web Share mit Datei `schach-oscar-2026-11-07.pgn`, sonst Download; geht offline), „Zur Partienliste“, „Zur Startseite“.
 - Offline nicht gecacht: „Diese Partie ist offline nicht verfügbar. Offline kannst du nur Partien nachspielen, die du schon einmal geöffnet hast.“
 
 ### 10.9 Profil (`/profil`)

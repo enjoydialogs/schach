@@ -67,8 +67,12 @@ describe('Neue Partie', () => {
 
     expect(within(sheet).getByRole('radio', { name: 'Zufall' })).toBeChecked()
     expect(within(sheet).getByRole('radio', { name: /Ohne Uhr/ })).toBeChecked()
-    expect(within(sheet).getByText('mit Zurücknehmen und Tipp')).toBeInTheDocument()
-    expect(within(sheet).getByText('ohne Zurücknehmen und Tipp')).toBeInTheDocument()
+    expect(within(sheet).getByText('Kein Zeitlimit, mit Zurücknehmen und Tipp')).toBeInTheDocument()
+    expect(within(sheet).getByText('15 Min. pro Spieler, +10 s nach jedem Zug')).toBeInTheDocument()
+    expect(within(sheet).getByText('10 Min. pro Spieler, +5 s nach jedem Zug')).toBeInTheDocument()
+    expect(within(sheet).getByText('5 Min. pro Spieler, +3 s nach jedem Zug')).toBeInTheDocument()
+    expect(within(sheet).getByText('Jeder Zug max. 90 s, Rest verfällt')).toBeInTheDocument()
+    expect(within(sheet).getByText('Mit Uhr: kein Zurücknehmen, kein Tipp.')).toBeInTheDocument()
 
     fireEvent.click(within(sheet).getByRole('button', { name: 'Partie starten' }))
     await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/partie\/fake-/))
