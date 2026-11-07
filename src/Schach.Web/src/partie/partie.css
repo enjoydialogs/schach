@@ -1,0 +1,414 @@
+/* Partie-Bildschirm, Layout `Fest` (SCHACH-SPEC 10.1, 10.3). Pixel 7 Hochformat, CSS-Breite 412.
+   Hoehen: Kopf 56, Spruch 56, Brett ca. 388, Status 48, eigene Zeile 48, Knoepfe 64 + safe-area. */
+
+html:has(.partie),
+body:has(.partie) {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.partie {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  padding-top: env(safe-area-inset-top);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.partie--leer {
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+  margin: 0;
+  text-align: center;
+}
+
+/* Kopfzeile 56 px: Avatar 40, Name, Elo, Gegner-Uhr 80x36, Menue 48x48 */
+.partie__kopf {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  padding: 0 4px 0 16px;
+}
+
+.partie__gegner {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.partie__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.partie__elo {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.avatar {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.avatar--anfaenger {
+  background: var(--avatar-anfaenger);
+  color: var(--avatar-anfaenger-text);
+}
+
+.avatar--hobbyspieler {
+  background: var(--avatar-hobbyspieler);
+  color: var(--avatar-hobbyspieler-text);
+}
+
+.avatar--vereinsspieler {
+  background: var(--avatar-vereinsspieler);
+  color: var(--avatar-vereinsspieler-text);
+}
+
+.avatar--turnierspieler {
+  background: var(--avatar-turnierspieler);
+  color: var(--avatar-turnierspieler-text);
+}
+
+.avatar--meister {
+  background: var(--avatar-meister);
+  color: var(--avatar-meister-text);
+}
+
+/* Am-Zug-Punkt 8 px neben dem Namen; Platz bleibt reserviert, damit nichts springt. */
+.am-zug {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.am-zug--aus {
+  visibility: hidden;
+}
+
+.farbpunkt {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--text);
+}
+
+.farbpunkt--weiss {
+  background: #ffffff;
+}
+
+.farbpunkt--schwarz {
+  background: var(--text);
+}
+
+/* Uhr 80x36, tabellarische Ziffern; aktiv Akzent, unter 20 s rot. */
+.uhr {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.uhr--aktiv {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.uhr--knapp {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #ffffff;
+}
+
+.symbolknopf {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+}
+
+/* Spruchblase: 56 px fest reserviert, 2 Zeilen */
+.partie__spruch {
+  flex: none;
+  height: 56px;
+  padding: 0 16px;
+}
+
+.spruchblase {
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 15px;
+  line-height: 20px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* Brett: min(100vw - 24px, 480px, 100dvh - 300px) */
+.partie__brett {
+  flex: none;
+  width: min(100vw - 24px, 480px, calc(100dvh - 300px));
+  margin: 0 auto;
+}
+
+/* Statuszeile 48 px reserviert */
+.partie__status {
+  flex: none;
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 16px;
+  font-size: 15px;
+  line-height: 1.25;
+  overflow: hidden;
+}
+
+.status--offline,
+.status--schach {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.status--warnung {
+  color: var(--warning-text);
+}
+
+.status--tipp {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.status--hinweis,
+.status--denkt {
+  color: var(--text-muted);
+}
+
+/* Eigene Zeile 48 px */
+.partie__eigene {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 16px;
+}
+
+.partie__fueller {
+  flex: 1;
+}
+
+.pille {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--warning-tint);
+  color: var(--warning-text);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* Knopfleiste 64 px + safe-area, 4 Knoepfe je ca. 89x56 (mit Bedenkzeit 2 a 182) */
+.partie__knoepfe {
+  flex: none;
+  display: flex;
+  gap: 4px;
+  margin-top: auto;
+  padding: 4px 16px calc(4px + env(safe-area-inset-bottom));
+}
+
+.leistenknopf {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 2px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.leistenknopf--gefahr {
+  color: var(--danger);
+}
+
+.leistenknopf:disabled {
+  opacity: 0.4;
+}
+
+.knopf--outline {
+  background: transparent;
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.knopf--gefahr {
+  background: var(--danger);
+}
+
+/* Ueberlagen: Dialog mittig, Sheet unten */
+.ueberlage {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  background: rgba(30, 35, 41, 0.4);
+}
+
+.ueberlage--mitte {
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.ueberlage--unten {
+  align-items: flex-end;
+}
+
+.ueberlage--durchsichtig {
+  background: transparent;
+}
+
+.dialog {
+  width: 100%;
+  max-width: 380px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+.dialog__titel,
+.sheet__titel {
+  margin: 0;
+  font-size: 20px;
+}
+
+.dialog__text {
+  margin: 12px 0 20px;
+}
+
+.dialog__knoepfe,
+.ende__knoepfe {
+  display: flex;
+  gap: 8px;
+}
+
+.dialog__knoepfe > *,
+.ende__knoepfe > * {
+  flex: 1;
+}
+
+.sheet {
+  width: 100%;
+  max-height: 70dvh;
+  overflow-y: auto;
+  padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+  border-radius: 16px 16px 0 0;
+  background: var(--surface);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.sheet__kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+}
+
+.schalter,
+.sheet__zeile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+}
+
+.schalter input {
+  width: 44px;
+  height: 24px;
+  accent-color: var(--accent);
+}
+
+.ende__grund {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.ende__satz,
+.ende__spruch,
+.ende__elo {
+  margin: 8px 0;
+}
+
+.ende__knoepfe {
+  margin-top: 12px;
+}
+
+.ende__start {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+}

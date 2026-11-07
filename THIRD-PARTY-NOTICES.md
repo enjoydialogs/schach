@@ -30,3 +30,45 @@ Diese Datei ist ein Append-Register (SCHACH-SPEC 15.1 Regel 5): Einträge nur an
 | python-chess | GPL-3.0-or-later | https://github.com/niklasf/python-chess | Stellung, Legalität und UCI im Engine-Dienst (ab 0c) |
 | FastAPI | MIT | https://github.com/fastapi/fastapi | HTTP-Schicht des Engine-Dienstes (ab 0c) |
 | Uvicorn | BSD-3-Clause | https://github.com/encode/uvicorn | ASGI-Server des Engine-Dienstes (ab 0c) |
+
+## Browser, Ergänzung S3a (Brett-Prototyp)
+
+| Komponente | Version | Lizenz | Quelle | Verwendet in |
+|---|---|---|---|---|
+| react-chessboard | 5.12.1 | MIT | https://github.com/Clariity/react-chessboard | Komponente `Brett`; der mitgelieferte Figurensatz wird nicht verwendet |
+| @dnd-kit/core, @dnd-kit/modifiers | 6.3.1, 9.0.0 (über react-chessboard) | MIT | https://github.com/clauderic/dnd-kit | Ziehen auf dem Brett |
+| chess.js | 1.4.0 | BSD-2-Clause | https://github.com/jhlywa/chess.js | Warnung, Schach-Markierung, optimistische Anzeige |
+| lucide-react | 1.70.0 | ISC | https://github.com/lucide-icons/lucide | Icons der Knopfleiste |
+| Mock Service Worker (msw) | 3.0.4 | MIT | https://github.com/mswjs/msw | nur Entwicklung und Tests (Fake-Server), nicht im Produktionsbau |
+
+### Cburnett-Figuren (BSD-3-Clause)
+
+Die 12 Figuren in `src/Schach.Web/src/brett/figuren.tsx` stammen von Wikimedia Commons, Urheber Colin M.L. Burnett (User:Cburnett): `Chess_klt45.svg`, `Chess_kdt45.svg`, `Chess_qlt45.svg`, `Chess_qdt45.svg`, `Chess_rlt45.svg`, `Chess_rdt45.svg`, `Chess_blt45.svg`, `Chess_bdt45.svg`, `Chess_nlt45.svg`, `Chess_ndt45.svg`, `Chess_plt45.svg`, `Chess_pdt45.svg` (https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces), abgerufen am 2026-11-07. Die Dateien stehen dort unter einer Mehrfachlizenz (GFDL, BSD, GPL); Schach verwendet sie unter der BSD-Option (Commons-Vorlage `BSD`, 3-Clause). Die Pfade sind unverändert, nur nach JSX übertragen.
+
+```
+Copyright (c) 2006, Colin M.L. Burnett
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+3. Neither the name of the copyright holder nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
