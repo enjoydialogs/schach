@@ -18,6 +18,7 @@ Daten (in dritter Person; „Gegner“ bist du, „Spieler“ ist dein Gegenübe
 {{daten}}
 
 Züge stehen in englischer Notation: K König, Q Dame, R Turm, B Läufer, N Springer, ohne Buchstaben Bauer.
-Wer welche Figur geschlagen hat, steht nur in spielerSchlag und gegnerSchlag. Verlass dich darauf.
+Wer welche Figur geschlagen hat, steht nur in spielerSchlag und gegnerSchlag, schon aus deiner Sicht: mein ist deine Figur, dein ist die Figur deines Gegenübers. Übernimm das so.
+Im Spruch sprichst du als ich zu du. Die Wörter Gegner und Spieler kommen im Spruch nie vor.
 
 Antworte nur mit dem Spruch.

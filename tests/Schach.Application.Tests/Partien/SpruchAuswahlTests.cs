@@ -176,8 +176,8 @@ public sealed class SpruchAuswahlTests
         anfrage.Daten.MaterialBilanz.Should().Be(8);
         anfrage.Daten.SpielerZug.Should().Be("Qxf7+");
         anfrage.Daten.GegnerZug.Should().Be("Kxf7");
-        anfrage.Daten.SpielerSchlag.Should().Be("Dame des Spielers schlägt Bauer des Gegners");
-        anfrage.Daten.GegnerSchlag.Should().Be("König des Gegners schlägt Dame des Spielers");
+        anfrage.Daten.SpielerSchlag.Should().Be("deine Dame schlägt meinen Bauern");
+        anfrage.Daten.GegnerSchlag.Should().Be("mein König schlägt deine Dame");
         anfrage.Daten.GegnerZugMerkmale.Should().Contain("Schlagzug");
         anfrage.Daten.Zugnummer.Should().Be(4);
         anfrage.BisherigeTexte.Should().Equal("Partiebeginn");
@@ -192,7 +192,7 @@ public sealed class SpruchAuswahlTests
 
         var anfrage = Spruchbau.Anfrage(partie, folge, [], SpruchEreignis.FigurGewonnen, 4, null, nurErsatz: false);
 
-        anfrage.Daten.GegnerSchlag.Should().Be("Läufer des Gegners schlägt Dame des Spielers");
+        anfrage.Daten.GegnerSchlag.Should().Be("mein Läufer schlägt deine Dame");
         anfrage.Daten.SpielerSchlag.Should().BeNull();
         anfrage.Werte.Figur.Should().Be('Q');
     }
@@ -206,7 +206,7 @@ public sealed class SpruchAuswahlTests
 
         var anfrage = Spruchbau.Anfrage(partie, folge, [], SpruchEreignis.Zug, 6, null, nurErsatz: false);
 
-        anfrage.Daten.GegnerSchlag.Should().Be("Bauer des Gegners schlägt Bauer des Spielers");
+        anfrage.Daten.GegnerSchlag.Should().Be("mein Bauer schlägt deinen Bauern");
     }
 
     [Fact]
