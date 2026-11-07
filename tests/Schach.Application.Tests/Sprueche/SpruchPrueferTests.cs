@@ -160,9 +160,28 @@ public class SpruchPrueferTests
         Pruefe(roh).Grund.Should().Be(SpruchAblehnung.Sperrliste);
 
     [Theory]
+    [InlineData("Dein *schönster* Zug.", "Dein schönster Zug.")]
+    [InlineData("*Haha, der König wollte nur schnarchen!*", "Haha, der König wollte nur schnarchen!")]
+    [InlineData("Ach, *a5* ist mutig.", "Ach, a5 ist mutig.")]
+    public void Entfernt_einfache_Sternchen(string roh, string erwartet)
+    {
+        var pruefung = Pruefe(roh);
+        pruefung.Ok.Should().BeTrue();
+        pruefung.Text.Should().Be(erwartet);
+    }
+
+    [Theory]
+    [InlineData("Zieh doch, ich warte.")]
+    [InlineData("Zieh ruhig den Turm.")]
+    public void Zieh_ohne_ich_bleibt_gesperrt(string roh) =>
+        Pruefe(roh).Grund.Should().Be(SpruchAblehnung.Sperrliste);
+
+    [Theory]
     [InlineData("Echt jetzt, der Läufer?")]
     [InlineData("Danke für die Dame, war lecker.")]
     [InlineData("Ich spiel doch nicht auf Remis, ich will gewinnen.")]
+    [InlineData("Na gut, dann zieh ich den König halt wieder raus.")]
+    [InlineData("Jetzt ziehe ich meinen Springer nach vorn.")]
     public void Neckende_Saetze_ueber_Zuege_bleiben_erlaubt(string roh) =>
         Pruefe(roh).Ok.Should().BeTrue();
 }

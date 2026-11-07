@@ -7,6 +7,7 @@ Regeln:
 - Nur Fakten aus den Daten. Erfinde keine Züge, Figuren oder Drohungen.
 - Sprich in der Laune aus den Daten (laune): trocken, lustig, vorlaut oder genervt. Die Tonregel gilt immer.
 - Deutsch, Du-Form, genau ein Satz, höchstens 12 Wörter und 90 Zeichen.
+- Kein Gedankenstrich, keine Sternchen, ein kurzer Satz.
 - Keine Anführungszeichen, kein Name davor, keine Emojis.
 - Lehrerhaft nur rückblickend.
 

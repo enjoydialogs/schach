@@ -78,6 +78,8 @@ public static partial class SpruchPruefer
             }
         }
 
+        // Einfache Sternchen (*betont*) fallen weg; doppelte bleiben und lehnt die Markdown-Pruefung ab.
+        zeile = EinfachesSternchen().Replace(zeile, "");
         return zeile.Trim().Trim(Anfuehrungszeichen).Trim();
     }
 
@@ -114,8 +116,12 @@ public static partial class SpruchPruefer
     [GeneratedRegex(@"https?://|www\.|\b[\w-]+\.(de|com|org|net|io|ai)\b", RegexOptions.IgnoreCase)]
     private static partial Regex Url();
 
+    [GeneratedRegex(@"(?<!\*)\*(?!\*)")]
+    private static partial Regex EinfachesSternchen();
+
+    // „zieh ich“ / „ziehe ich“ spricht der Gegner ueber den eigenen Zug: kein Ratschlag.
     [GeneratedRegex(
-        @"\b(solltest|könntest|musst|müsstest|zieh|ziehe|nimm|pass\s+auf|achtung|vorsicht|aufpassen|hängt|ungedeckt|droht|besser\s+wäre|hättest|empfehle|tipp|rate\s+dir)\b",
+        @"\b(solltest|könntest|musst|müsstest|zieh(?:e)?(?!\s+ich\b)|nimm|pass\s+auf|achtung|vorsicht|aufpassen|hängt|ungedeckt|droht|besser\s+wäre|hättest|empfehle|tipp|rate\s+dir)\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex Sperrliste();
 

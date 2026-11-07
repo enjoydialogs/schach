@@ -398,6 +398,7 @@ Abschnitte:
    - Nur Fakten aus den Daten.
    - Sprich in der Laune aus den Daten (`laune`). Die Tonregel gilt immer.
    - Deutsch, Du-Form, genau ein Satz, höchstens 12 Wörter und 90 Zeichen.
+   - Kein Gedankenstrich, keine Sternchen, ein kurzer Satz. (Spruch-Probe 2026-11-07: das Modell reihte Satzteile mit Gedankenstrichen und lief über 100 Zeichen.)
    - Keine Anführungszeichen, kein Name davor, keine Emojis.
    - Lehrerhaft nur rückblickend.
 3. **Persönlichkeit:** `{{persona}}` = Inhalt von `prompts/gegner/{key}.de.md`.
@@ -417,10 +418,10 @@ Abschnitte:
 ### 6.4 Prüfung (`SpruchPruefer`)
 
 Reine Klasse mit Unit-Tests. Schritte:
-1. Nur Textteile verwenden. Trimmen, erste Zeile nehmen, Anführungszeichen und `Name:` am Anfang entfernen.
+1. Nur Textteile verwenden. Trimmen, erste Zeile nehmen, Anführungszeichen und `Name:` am Anfang entfernen. Einfache Sternchen (`*betont*`) entfernen; doppelte bleiben und gelten in Schritt 3 als Markdown.
 2. Länger als 100 Zeichen: am letzten Satzzeichen ≤ 100 kürzen, sonst ablehnen.
 3. Ablehnen bei leer, Markdown, URL oder `{{`.
-4. Sperrliste (Wortgrenze, ohne Groß/Klein): solltest, könntest, musst, müsstest, zieh, ziehe, nimm, pass auf, achtung, vorsicht, aufpassen, hängt, ungedeckt, droht, besser wäre, hättest, empfehle, tipp, rate dir, „Sie“/„Ihnen“ als Anrede.
+4. Sperrliste (Wortgrenze, ohne Groß/Klein): solltest, könntest, musst, müsstest, zieh, ziehe (nicht vor „ich“: „zieh ich“ meint den eigenen Zug), nimm, pass auf, achtung, vorsicht, aufpassen, hängt, ungedeckt, droht, besser wäre, hättest, empfehle, tipp, rate dir, „Sie“/„Ihnen“ als Anrede.
 5. Sperrliste Beleidigungen (Wortgrenze, ohne Groß/Klein, mit gebeugten Formen wie „dummer“ oder „Idioten“): dumm, doof, blöd, Idiot, Trottel, Versager, Loser, Depp. Gilt für jede Frechheit.
 
 Jeder Fehler, Timeout, HTTP 429/401/5xx oder erschöpftes Budget führt zum Ersatzspruch (`Quelle = Ersatz`). Der Spieler sieht nie eine Fehlermeldung.

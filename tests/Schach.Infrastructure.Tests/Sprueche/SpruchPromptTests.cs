@@ -91,6 +91,8 @@ public partial class SpruchPromptTests
         prompt.Should().Contain("Nur Fakten aus den Daten.");
         prompt.Should().Contain("Deutsch, Du-Form, genau ein Satz, höchstens 12 Wörter und 90 Zeichen.");
         prompt.Should().Contain("Keine Anführungszeichen, kein Name davor, keine Emojis.");
+        prompt.Should().Contain("Kein Gedankenstrich, keine Sternchen, ein kurzer Satz.");
+        Spec.Should().Contain("Kein Gedankenstrich, keine Sternchen, ein kurzer Satz.");
         prompt.Should().Contain("Lehrerhaft nur rückblickend.");
         prompt.Should().Contain("laune");
         prompt.TrimEnd().Should().EndWith("Antworte nur mit dem Spruch.");
