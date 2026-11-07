@@ -1,0 +1,81 @@
+# E2E mit Playwright gegen `docker compose --profile full` (SCHACH-SPEC 15.2, Ticket #40).
+#
+# Nicht im PR-Gate: laeuft nur, wenn ein PR tests/Schach.E2E/** aendert, oder per Hand
+# (workflow_dispatch). Docker laeuft nur hier, nie auf den Windows-Entwicklungsrechnern.
+#
+# Testbetrieb (tests/Schach.E2E/compose.e2e.yml): Engine aus der Fixture, Ersatzsprueche statt LLM,
+# Mails als JSON-Dateien in E2E_MAIL_DIR (Bind-Mount), aus denen der Test den Code liest.
+name: e2e
+
+on:
+  pull_request:
+    paths:
+      - "tests/Schach.E2E/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playwright:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      # Auf Job-Ebene, damit jeder compose-Aufruf denselben Wert interpoliert (wie ci.yml, Job images).
+      SCHACH_ENGINE_FAKE_MODEL: "1"
+      COMPOSE_FILES: "-f docker-compose.yml -f tests/Schach.E2E/compose.e2e.yml"
+      E2E_MAIL_DIR: ${{ github.workspace }}/tests/Schach.E2E/.mail
+      E2E_BASE_URL: "http://localhost:8080"
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: tests/Schach.E2E/package-lock.json
+
+      # web laeuft als $APP_UID (nicht root) und muss in den Bind-Mount schreiben.
+      - name: Mail-Ordner anlegen
+        run: |
+          mkdir -p "$E2E_MAIL_DIR"
+          chmod 0777 "$E2E_MAIL_DIR"
+
+      - name: Images bauen (web, engine)
+        run: docker compose $COMPOSE_FILES --profile full build
+
+      - name: Stapel starten
+        run: docker compose $COMPOSE_FILES --profile full up -d --wait --wait-timeout 300
+
+      - name: Playwright installieren
+        working-directory: tests/Schach.E2E
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Playwright-Strecken
+        working-directory: tests/Schach.E2E
+        run: npx playwright test
+
+      - name: Bericht hochladen
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: |
+            tests/Schach.E2E/playwright-report/
+            tests/Schach.E2E/test-results/
+          retention-days: 14
+
+      - name: Container-Logs
+        if: always()
+        run: docker compose $COMPOSE_FILES --profile full logs --no-color --tail 300
+
+      - name: Aufraeumen
+        if: always()
+        run: docker compose $COMPOSE_FILES --profile full down -v
