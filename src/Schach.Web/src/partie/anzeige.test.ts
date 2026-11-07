@@ -47,8 +47,8 @@ describe('sichtbareStellung', () => {
 
 describe('sichtbarerSpruch', () => {
   const sprueche = [
-    { nachHalbzug: 0, ereignis: 'Partiebeginn' as const, text: 'Na dann.' },
-    { nachHalbzug: 2, ereignis: 'Zug' as const, text: 'Ach so.' },
+    { nachHalbzug: 0, ereignis: 'Partiebeginn' as const, text: 'Na dann.', stimme: null },
+    { nachHalbzug: 2, ereignis: 'Zug' as const, text: 'Ach so.', stimme: null },
   ]
 
   it('nimmt den letzten Spruch bis zum sichtbaren Halbzug', () => {

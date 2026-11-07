@@ -228,7 +228,7 @@ export class FakeServer {
       startFen: this.vorgaben.startFen ?? new Chess().fen(),
       gast: this.daten.gast,
       zuege: [],
-      sprueche: [{ nachHalbzug: 0, ereignis: 'Partiebeginn', text: FAKE_SPRUECHE.Partiebeginn }],
+      sprueche: [{ nachHalbzug: 0, ereignis: 'Partiebeginn', text: FAKE_SPRUECHE.Partiebeginn, stimme: null }],
       status: 'Offen',
       ergebnis: null,
       grund: null,
@@ -303,7 +303,7 @@ export class FakeServer {
       if (weg.seite === p.spielerFarbe) break
     }
     p.sprueche = p.sprueche.filter((s) => s.nachHalbzug <= p.zuege.length)
-    p.sprueche.push({ nachHalbzug: p.zuege.length, ereignis: 'Zuruecknahme', text: FAKE_SPRUECHE.Zuruecknahme })
+    p.sprueche.push({ nachHalbzug: p.zuege.length, ereignis: 'Zuruecknahme', text: FAKE_SPRUECHE.Zuruecknahme, stimme: null })
     p.letzterGegnerZug = null
     p.tipp = null
     p.zaehltFuerElo = false
@@ -326,7 +326,7 @@ export class FakeServer {
     // Vor Zug 20 immer abgelehnt; danach nimmt der Fake an, wenn er nicht mehr als 1 Bauer vorn liegt.
     if (zugnummer < 20 || this.materialAusSichtDesGegners(p, brett) > 1) {
       p.remisAbZug = zugnummer + 5
-      p.sprueche.push({ nachHalbzug: p.zuege.length, ereignis: 'RemisAbgelehnt', text: FAKE_SPRUECHE.RemisAbgelehnt })
+      p.sprueche.push({ nachHalbzug: p.zuege.length, ereignis: 'RemisAbgelehnt', text: FAKE_SPRUECHE.RemisAbgelehnt, stimme: null })
     } else {
       this.beende(p, 'Remis', 'Vereinbarung')
     }
@@ -608,7 +608,7 @@ export class FakeServer {
           ? 'Zug'
           : null
     if (ereignis) {
-      spruch = { nachHalbzug: dto.halbzug, ereignis, text: FAKE_SPRUECHE[ereignis] }
+      spruch = { nachHalbzug: dto.halbzug, ereignis, text: FAKE_SPRUECHE[ereignis], stimme: null }
       p.sprueche.push(spruch)
     }
     p.letzterGegnerZug = { ...dto, sichtbarAb: iso(gespieltAm), spruch }
@@ -664,7 +664,7 @@ export class FakeServer {
       (ergebnis === 'WeissGewinnt' && p.spielerFarbe === 'Weiss') ||
       (ergebnis === 'SchwarzGewinnt' && p.spielerFarbe === 'Schwarz')
     const ereignis: SpruchEreignis = ergebnis === 'Remis' ? 'Remis' : spielerGewinnt ? 'Niederlage' : 'Sieg'
-    p.sprueche.push({ nachHalbzug: p.zuege.length, ereignis, text: FAKE_SPRUECHE[ereignis] })
+    p.sprueche.push({ nachHalbzug: p.zuege.length, ereignis, text: FAKE_SPRUECHE[ereignis], stimme: null })
     if (p.gast || !p.zaehltFuerElo) return
     // Elo nach 3.7: K = 32, Untergrenze 100.
     const s = ergebnis === 'Remis' ? 0.5 : spielerGewinnt ? 1 : 0

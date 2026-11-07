@@ -35,9 +35,9 @@ describe('stellungen', () => {
 describe('spruchAn', () => {
   it('zeigt nur den Spruch an seinem Halbzug, bei mehreren den letzten', () => {
     const sprueche = [
-      { nachHalbzug: 0, ereignis: 'Partiebeginn' as const, text: 'Los' },
-      { nachHalbzug: 4, ereignis: 'Zug' as const, text: 'Hm' },
-      { nachHalbzug: 4, ereignis: 'FigurGewonnen' as const, text: 'Danke' },
+      { nachHalbzug: 0, ereignis: 'Partiebeginn' as const, text: 'Los', stimme: null },
+      { nachHalbzug: 4, ereignis: 'Zug' as const, text: 'Hm', stimme: null },
+      { nachHalbzug: 4, ereignis: 'FigurGewonnen' as const, text: 'Danke', stimme: null },
     ]
     expect(spruchAn(sprueche, 0)?.text).toBe('Los')
     expect(spruchAn(sprueche, 2)).toBeNull()
