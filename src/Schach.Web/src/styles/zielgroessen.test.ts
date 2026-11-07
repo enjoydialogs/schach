@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-// Zielgroessen (SCHACH-SPEC 15.3 Prototyp-Abnahme Punkt 1, Phase 4 #41): jedes Tippziel ist
-// mindestens 48 x 48 px hoch. Geprueft wird die Hoehe der Regel, die das Tippziel traegt; die Breite
-// ergibt sich aus Inhalt, Polsterung oder `min-width` (Knopf) und steht in docs/abnahme/mvp.md.
+// Zielgroessen (SCHACH-SPEC 15.3 Prototyp-Abnahme Punkt 1, Phase 4 #41): jedes Tippziel misst
+// mindestens 48 x 48 px. Geprueft wird nur die Hoehe der Basisregel, die das Tippziel traegt
+// (`height` oder `min-height`); spaetere Ueberschreibungen sieht der Test nicht. Die Breite ergibt
+// sich aus `min-width` oder dem Layout; die Begruendung je Klasse steht in docs/abnahme/mvp.md.
 
 const dateien = [
   '../styles/base.css',

@@ -150,3 +150,12 @@ Grundlage: Abhängigkeiten von `pip install ".[model]"` wie im `engine/Dockerfil
 | Komponente | Version | Lizenz | Quelle |
 |---|---|---|---|
 | PostgreSQL (Image `postgres:17`) | 17 | PostgreSQL License | https://www.postgresql.org |
+
+### Versionen zu früheren Zeilen ohne Version
+
+| Komponente | Version | Grundlage |
+|---|---|---|
+| Gera.Chess | 1.2.0 | `Directory.Packages.props` |
+| python-chess | ≥ 1.11.2 (aufgelöst 1.11.2) | `engine/pyproject.toml`, Auflösung am 2026-11-07 |
+| FastAPI | ≥ 0.162.1 (aufgelöst 0.162.2) | wie oben |
+| Uvicorn | ≥ 0.54.0 (aufgelöst 0.54.0) | wie oben |

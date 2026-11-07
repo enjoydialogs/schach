@@ -12,7 +12,7 @@ Stand: 2026-11-07, Phase 4 Teil 1 (#41). Phase 3 ist noch nicht abgeschlossen (#
 | 2 | Alle Teststufen grün, inkl. Playwright lokal | teilweise | Session + Betreiber |
 | 3 | Rauchtest grün | offen (für den Kandidaten) | Betreiber |
 | 4 | Pixel-7-Abnahme als installierte PWA | offen | Betreiber |
-| 5 | VPS-Messung, Limits, `SF_ARCH` | belegt | – |
+| 5 | VPS-Messung, Limits, `SF_ARCH` | belegt (Vorgaben bestätigt), Erststart offen | Betreiber (Erststart) |
 | 6 | Eichung | offen | Betreiber (Entwicklungsrechner) |
 | 7 | Spruch-Probe, Ersatzquote < 20 % in der Beta | offen | Betreiber |
 | 8 | Backup, Restore-Probe, Budgets, Warnmail | offen | Betreiber (#39) |
@@ -46,9 +46,10 @@ Stand: 2026-11-07, Phase 4 Teil 1 (#41). Phase 3 ist noch nicht abgeschlossen (#
 ### 5. VPS-Messung
 
 - Belegt in `docs/engine-messung.md` („Ergebnis VPS-Messung Teil 2“, 2026-11-07): Gegnerzug p95 67,7 ms (≤ 1 000), Tipp p95 987,7 ms (≤ 1 500), RSS 469 MiB von 2 GiB.
-- Limits: Vorgaben aus SCHACH-SPEC 11.2 bleiben; die Messung zeigt 0 % 503 bei 10 Partien.
-- `SF_ARCH`: `x86-64-avx2` (Vorgabe in `engine/Dockerfile` und `docker-compose.yml`). Stockfish 19 wählt AVX-512 zur Laufzeit selbst; `SF_ARCH` betrifft nur Fairy-Stockfish.
-- Noch nachzuholen, nicht Teil des Kriteriums: Erststart mit leerem Volume `engine-models`.
+- Gesetzt heißt hier: die Vorgaben wurden durch die Messung bestätigt, kein Wert wurde geändert.
+- Limits aus SCHACH-SPEC 11.2 sowie `MAIA_QUEUE_MAX` und `SF_POOL_SIZE` aus 5.2 bleiben auf den Vorgaben. Begründung: 0 % 503 auf `/move` und `/analyse` bei 10 parallelen Partien, Gegnerzug p95 bei 7 % des Grenzwerts. Nach der Beta mit deren Befunden erneut prüfen (Phase 4: „Limits nachziehen“).
+- `SF_ARCH` bleibt `x86-64-avx2`, wie in `docs/engine-messung.md` festgehalten. Das Produktions-Image baut `release.yml` aus `engine/Dockerfile` ohne Build-Arg, also mit dieser Vorgabe; `docker-compose.dokploy.yml` zieht nur das fertige Image. Stockfish 19 ist ein Universal-Binary und nutzt AVX-512 zur Laufzeit selbst; `SF_ARCH` wählt nur das Fairy-Stockfish-Build, das Ausweg-Engine ist. Ein Wechsel auf `x86-64-avx512` beträfe also nur Fairy-Stockfish; ob er sich lohnt, ist nicht gemessen.
+- Offen (SCHACH-SPEC 16.1, gehört zu Messung Teil 2): Erststart mit leerem Volume `engine-models` inklusive Hugging-Face-Download, mit `messung.py --erststart`.
 
 ### 6. Eichung
 
@@ -86,12 +87,13 @@ Stand: 2026-11-07, Phase 4 Teil 1 (#41). Phase 3 ist noch nicht abgeschlossen (#
 ### Kontraste
 
 - `src/Schach.Web/src/components/palette.test.ts` prüft je Palette (Lila, Pink, Grün, Blau) 20 Text-Hintergrund-Paare auf ≥ 4,5:1. Neu: Akzent auf Hover-Tint, Gefahr auf Grund und Glas, Weiß auf Gefahr, Warntext, gesperrte Knöpfe, Weiß auf dunklem Glas.
-- Befund: Lila-Akzent auf dem Hover-Tint der Outline- und Textknöpfe hatte 4,05:1. Akzent von `#1e7a62` auf `#1c715b` abgedunkelt: jetzt 4,53:1 (Grund 5,32:1, Weiß darauf 5,89:1).
+- Befund: Lila-Akzent auf dem Hover-Tint der Outline- und Textknöpfe hatte 4,05:1. Akzent von `#1e7a62` auf `#1c715b` abgedunkelt: jetzt 4,53:1 (Grund 5,32:1, Weiß darauf 5,89:1). SCHACH-SPEC 10.3 ist nachgezogen. `--avatar-vereinsspieler` bleibt bewusst `#1e7a62` (Spec 4.4, Weiß darauf 5,23:1).
 
 ### Zielgrößen
 
 - `src/Schach.Web/src/styles/zielgroessen.test.ts` prüft die Höhe von neun Tippziel-Klassen auf ≥ 48 px.
 - Befund: `.segment` (Auswahl in „Neue Partie“) war 44 px hoch, jetzt 48 px. Schalter und Farbwahl hatten schon eine Trefferfläche von 48 px über die ganze Zeile.
+- Breite: `.knopf` hat `min-width: 48px`, `.symbolknopf` ist 48 × 48, `.zugchip` hat `min-width: 48px`. Segmente, Zeilen, Leistenknöpfe, Schalter und die Farbwahl (Raster mit vier Spalten) teilen sich die volle Breite und sind damit breiter als 48 px. Der Test prüft nur die Höhe.
 
 ### Lighthouse
 

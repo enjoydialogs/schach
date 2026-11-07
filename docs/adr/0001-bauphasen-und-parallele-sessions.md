@@ -1,6 +1,6 @@
 # 0001: Bauphasen und parallele Bau-Sessions
 
-Status: angenommen (Betreiber, 2026-11-07). Nachträglich aufgeschrieben in Phase 4 (#41). Bezug: #19, SCHACH-SPEC 15.
+Status: angenommen (Betreiber, 2026-11-07, Bestätigung in #19). Nachträglich aufgeschrieben in Phase 4 (#41). Bezug: SCHACH-SPEC 15.
 
 ## Kontext
 
@@ -14,9 +14,9 @@ Status: angenommen (Betreiber, 2026-11-07). Nachträglich aufgeschrieben in Phas
 
 - **Fünf Phasen (0 bis 4), vier Deploys.** Phase 0 friert das Gerüst ein und stellt ein laufendes Skelett auf die Domain (Deploy 1). Phase 2 endet mit Deploy 2 (Rechtstexte live), Phase 3 mit Deploy 3 (Beta), Phase 4 mit Deploy 4 (MVP).
 - **Ein Bau-Issue = eine Session = ein Branch = ein PR**, Start von `main`. Ist ein Issue zu groß: Issue kommentieren und stoppen, nicht still kürzen.
-- **Höchstens vier Sessions parallel**: ein Trunk-Slot für den Partie-Kern, drei Seiten-Slots. Ein offener PR je Slot.
+- **Höchstens vier Sessions parallel**, ein offener PR je Slot. Die Slots je Phase stehen in SCHACH-SPEC 15.3: in Phase 2 ein Trunk-Slot (Partie-Kern S1c → S1d) und Seiten-Slots, in Phase 3 vier Slots, in Phase 4 zwei Slots plus Betreiber.
 - **Eingefrorene Dateien** ab Phase 0 (Lösung, zentrale Paketversionen, `Abstractions/*`, `Contracts/*`, `engine/API.md`, Dockerfiles, Compose, Workflows, `ci/*`). Änderung nur per eigenem kleinem Gerüst-PR.
-- **Append-Register** für Dateien, die jede Session braucht (`Program.cs` mit einem DI-Block je Session, `router.tsx`, `i18n/de.ts`, `api/types.ts`, `THIRD-PARTY-NOTICES.md`, FEN-Suite, `ControllerAuthorizationTests`). Nur anhängen, nie umsortieren.
+- **Append-Register** für Dateien, die jede Session braucht (`Directory.Packages.props`, `Program.cs` mit einem DI-Block je Session, `router.tsx`, `i18n/de.ts`, `api/types.ts`, `THIRD-PARTY-NOTICES.md`, `tests/fen-suite/*.json`, `ControllerAuthorizationTests`). Nur anhängen, nie umsortieren. `Directory.Packages.props` ist zugleich eingefroren: neue Pakete nur angehängt.
 - **Migrationen**: nur 0b schreibt `0001_Schema`. Jede weitere Änderung ist eine eigene Vorwärts-Migration auf aktuellem `main`.
 - **`main` per Merge aufnehmen**, nie Rebase oder Force-Push. Merge-fähig nur bei `behind_by = 0` und grünem CI.
 - **Messungen nach Deploy 2** laufen neben Phase 3, mit Platzhaltern bis zum Ergebnis (`Engine:Eichung` = Identität).
