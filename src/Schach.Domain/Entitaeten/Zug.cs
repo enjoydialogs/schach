@@ -27,7 +27,7 @@ public class Zug
     /// <summary><c>p / p_max</c> des gewaehlten Zugs.</summary>
     public double? PAnteil { get; set; }
 
-    /// <summary>Gewinnwahrscheinlichkeit <c>w</c> aus Sicht des Gegners.</summary>
+    /// <summary>Stilgewicht <c>w</c> des gewaehlten Zugs (SCHACH-SPEC 5.3 Schritt 7); 1,0 ausserhalb des Bandes.</summary>
     public double? W { get; set; }
 
     /// <summary>Volles <c>wdl</c> der Engine, als JSON gespeichert.</summary>

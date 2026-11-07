@@ -47,4 +47,18 @@ public sealed class ControllerAuthorizationTests
     {
         Anonym(controller.GetMethod(aktion)!).Should().Be(anonym);
     }
+
+    // --- S1c: Partie-Kern ---
+    [Theory]
+    [InlineData(typeof(PartienController), nameof(PartienController.Starten), true)]
+    [InlineData(typeof(PartienController), nameof(PartienController.Offen), false)]
+    [InlineData(typeof(PartienController), nameof(PartienController.Laden), true)]
+    [InlineData(typeof(PartienController), nameof(PartienController.Zug), true)]
+    [InlineData(typeof(PartienController), nameof(PartienController.Zuruecknehmen), true)]
+    [InlineData(typeof(PartienController), nameof(PartienController.Aufgeben), true)]
+    [InlineData(typeof(GegnerController), nameof(GegnerController.Alle), true)]
+    public void Partie_Kern(Type controller, string aktion, bool anonym)
+    {
+        Anonym(controller.GetMethod(aktion)!).Should().Be(anonym);
+    }
 }
