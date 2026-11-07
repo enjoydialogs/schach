@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Schach.Api.Auth;
 using Schach.Api.Contracts;
 using Schach.Infrastructure.Identity;
+using Domain = Schach.Domain;
 using Entitaeten = Schach.Domain.Entitaeten;
 
 namespace Schach.Api.Controllers;
@@ -68,45 +67,15 @@ public sealed class KontoController(KontoDienst konto) : ControllerBase
             [.. e.Sprueche.Select(sp => new SpruchDto(sp.NachHalbzug, Enum.Parse<SpruchEreignis>(sp.Ereignis.ToString()), sp.Text))]);
     }
 
-    /// <summary>
-    /// PGN aus den gespeicherten SAN der Zugfolge. Notloesung, bis der Regel-Adapter aus S1a
-    /// (<c>Schach.Domain.Pgn</c>, #25) auf <c>main</c> ist; dann diesen nutzen.
-    /// </summary>
+    /// <summary>PGN ueber <see cref="Domain.Pgn"/> aus der gespeicherten Zugfolge (UCI).</summary>
     internal static string ExportPgn(ExportPartie e)
     {
         var p = e.Partie;
-        var result = p.Ergebnis switch
-        {
-            Entitaeten.Ergebnis.WeissGewinnt => "1-0",
-            Entitaeten.Ergebnis.SchwarzGewinnt => "0-1",
-            Entitaeten.Ergebnis.Remis => "1/2-1/2",
-            _ => "*",
-        };
-        var (weiss, schwarz) = p.SpielerFarbe == Entitaeten.Farbe.Weiss ? ("Spieler", p.GegnerId) : (p.GegnerId, "Spieler");
-        var sb = new StringBuilder()
-            .Append(CultureInfo.InvariantCulture, $"[Event \"Schach\"]\n")
-            .Append(CultureInfo.InvariantCulture, $"[Site \"schach.enjoy-dialogs.de\"]\n")
-            .Append(CultureInfo.InvariantCulture, $"[Date \"{p.ErstelltAm.UtcDateTime:yyyy.MM.dd}\"]\n")
-            .Append("[Round \"-\"]\n")
-            .Append(CultureInfo.InvariantCulture, $"[White \"{weiss}\"]\n")
-            .Append(CultureInfo.InvariantCulture, $"[Black \"{schwarz}\"]\n")
-            .Append(CultureInfo.InvariantCulture, $"[Result \"{result}\"]\n");
-        if (p.Grund is { } grund)
-        {
-            sb.Append(CultureInfo.InvariantCulture, $"[Termination \"{grund}\"]\n");
-        }
-
-        sb.Append('\n');
-        foreach (var z in e.Zuege)
-        {
-            if (z.Halbzug % 2 == 1)
-            {
-                sb.Append(CultureInfo.InvariantCulture, $"{(z.Halbzug + 1) / 2}. ");
-            }
-
-            sb.Append(z.San).Append(' ');
-        }
-
-        return sb.Append(result).Append('\n').ToString();
+        var gegner = Domain.GegnerKatalog.Finde(p.GegnerId)?.Name ?? p.GegnerId;
+        var (weiss, schwarz) = p.SpielerFarbe == Entitaeten.Farbe.Weiss ? ("Spieler", gegner) : (gegner, "Spieler");
+        var ende = p.Ergebnis is { } erg && p.Grund is { } grund
+            ? new Domain.Partieende(Enum.Parse<Domain.Ergebnis>(erg.ToString()), Enum.Parse<Domain.Grund>(grund.ToString()))
+            : null;
+        return Domain.Pgn.Erzeuge(new Domain.PgnKopf(weiss, schwarz, DateOnly.FromDateTime(p.ErstelltAm.UtcDateTime)), e.Zuege.Select(z => z.Uci), ende);
     }
 }
