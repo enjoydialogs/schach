@@ -5,7 +5,7 @@ import { neueAdresse } from '../helfer/mail'
 import { eigenerZugAnzeige, spieleZugTippenTippen, startePartieGegen } from '../helfer/partie'
 
 // Strecke 3 (SCHACH-SPEC 15.2, 10.3 Punkt 8): Spieler-Partie ohne Uhr → Tipp → Pille „Zählt nicht
-// für die Elo“ → Zurücknehmen.
+// für die Elo“ → Zurücknehmen → Remis-Angebot (abgelehnt vor Zug 20, Sperre).
 test('Spieler-Partie mit Tipp und Zurücknehmen', async ({ page }) => {
   await meldeAnPerCode(page, neueAdresse('tipp'))
   await page.getByRole('link', { name: 'Neue Partie' }).click()
@@ -38,4 +38,20 @@ test('Spieler-Partie mit Tipp und Zurücknehmen', async ({ page }) => {
   await expect.poll(async () => (await zustand(page, id)).halbzug).toBe(vorher.halbzug - 2)
   await expect(eigenerZugAnzeige(page)).toBeVisible()
   await expect(page.locator('.partie__eigene .pille')).toHaveText('Zählt nicht für die Elo')
+
+  // Remis-Angebot gegen den echten Server (SCHACH-SPEC 3.5): vor Zug 20 lehnt jeder Gegner ab, ohne
+  // Engine. Die Ablehnung sperrt weitere Angebote fuer 5 Zuege. Nach dem Zuruecknehmen steht die
+  // Partie wieder bei Zug 1, also ist das naechste Angebot ab Zug 1 + 5 = 6 moeglich.
+  const remisKnopf = leiste.getByRole('button', { name: 'Remis anbieten' })
+  const remis = page.waitForResponse(
+    (r) => r.request().method() === 'POST' && r.url().endsWith(`/partien/${id}/remis-angebot`),
+  )
+  await remisKnopf.click()
+  expect((await remis).status()).toBe(200)
+  // Erst wenn die Leiste wieder frei ist, beweist der deaktivierte Knopf die Sperre (nicht „beschaeftigt“).
+  await expect(leiste.getByRole('button', { name: 'Aufgeben' })).toBeEnabled()
+  await expect(remisKnopf).toBeDisabled()
+  const nachRemis = await zustand(page, id)
+  expect(nachRemis.status).toBe('Offen')
+  expect(nachRemis.remisAngebotMoeglichAbZug).toBe(6)
 })

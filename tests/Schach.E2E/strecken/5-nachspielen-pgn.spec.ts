@@ -5,7 +5,8 @@ import { meldeAnPerCode } from '../helfer/konto'
 import { neueAdresse } from '../helfer/mail'
 import { gibAuf, spieleZugTippenTippen, startePartieGegen } from '../helfer/partie'
 
-// Strecke 5 (SCHACH-SPEC 15.2, 10.8): Nachspielen einer beendeten Partie plus PGN-Download.
+// Strecke 5 (SCHACH-SPEC 15.2, 10.8): Nachspielen einer beendeten Partie plus PGN-Download. Dazu
+// die Elo-Zeile im Partieende-Blatt (10.3) und die Partienliste (10.7).
 test('Nachspielen und PGN herunterladen', async ({ page }) => {
   // Ohne Web Share faellt „PGN teilen“ auf den Download zurueck (components/datei.ts).
   await page.addInitScript(() => {
@@ -19,6 +20,8 @@ test('Nachspielen und PGN herunterladen', async ({ page }) => {
   await spieleZugTippenTippen(page, id)
   await spieleZugTippenTippen(page, id)
   const { ende } = await gibAuf(page)
+  // Spieler-Partie ohne Tipp zaehlt: Elo-Zeile aus eloVorher/eloNachher des Servers (SCHACH-SPEC 10.3).
+  await expect(ende.locator('.ende__elo')).toHaveText(/^Elo \d+ \(.+\)$/)
 
   await ende.getByRole('button', { name: 'Nachspielen' }).click()
   await page.waitForURL((url) => url.pathname === `/nachspielen/${id}`)
@@ -48,4 +51,21 @@ test('Nachspielen und PGN herunterladen', async ({ page }) => {
   const inhalt = await readFile(await datei.path(), 'utf8')
   expect(inhalt).toBe(pgn)
   expect(inhalt).toContain('[Result "0-1"]')
+
+  // Partienliste gegen den echten Server (`GET /partien?limit=50`, SCHACH-SPEC 10.7): die eine
+  // beendete Partie steht dort und fuehrt zurueck ins Nachspielen. `limit=50` grenzt die Seite gegen
+  // die Install-Pruefung ab (`/partien?limit=1`, pwa/install.ts).
+  const liste = page.waitForResponse((r) => {
+    const url = new URL(r.url())
+    return r.request().method() === 'GET' && url.pathname.endsWith('/partien') && url.searchParams.get('limit') === '50'
+  })
+  await page.goto('/partien')
+  expect((await liste).status()).toBe(200)
+  const zeilen = page.locator('ul.liste a.partiezeile')
+  await expect(zeilen).toHaveCount(1)
+  await expect(zeilen.first()).toHaveAttribute('href', `/nachspielen/${id}`)
+  await expect(zeilen.first()).toContainText('Finn')
+  await expect(zeilen.first()).toContainText('Niederlage')
+  await zeilen.first().click()
+  await page.waitForURL((url) => url.pathname === `/nachspielen/${id}`)
 })

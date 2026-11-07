@@ -145,16 +145,23 @@ describe('usePartie gegen die echte API', () => {
     expect(gets).toBe(getsVorher)
   })
 
-  it('409 ohne Zustand (Concurrency-Konflikt): laedt neu', async () => {
-    post('zuege', () => HttpResponse.json({ title: 'Die Partie wurde inzwischen geändert.', status: 409 }, { status: 409 }))
+  // DomainExceptionHandler: Concurrency-Konflikt und Engine-Ausfall tragen `fehler`, aber keinen Zustand.
+  it.each([
+    ['409 HalbzugVeraltet (Concurrency-Konflikt)', 409, 'HalbzugVeraltet'],
+    ['503 GeradeVielLos (Engine-Ausfall)', 503, 'GeradeVielLos'],
+  ])('%s ohne Zustand auf /zuege: laedt neu', async (_, status, fehler) => {
+    post('zuege', () => HttpResponse.json({ fehler, zustand: null, offenePartieId: null }, { status }))
     const { result } = await oeffne()
+    const getsVorher = gets
     aufGet = () => HttpResponse.json(nachE4())
 
     act(() => result.current.ziehe('e2e4'))
     await lauf()
     await lauf()
 
+    expect(gets).toBeGreaterThan(getsVorher)
     expect(result.current.zustand?.halbzug).toBe(2)
+    expect(result.current.hinweis).toBe(de.status.zugNichtMoeglich)
   })
 
   it('400 ZugUnzulaessig: setzt zurueck ohne neu zu laden', async () => {
