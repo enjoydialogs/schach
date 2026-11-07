@@ -1,0 +1,55 @@
+/* Nachspielen (SCHACH-SPEC 10.8): Layout `Fest` aus partie.css, statt der eigenen Zeile die
+   Zugleiste 48 px mit SAN-Chips. */
+
+.nachspielen__titel {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zugleiste {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 48px;
+  margin: 0;
+  padding: 0 16px;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+
+.zugleiste::-webkit-scrollbar {
+  display: none;
+}
+
+.zugleiste li {
+  flex: none;
+}
+
+.zugchip {
+  min-width: 48px;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.zugchip[aria-current='true'] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+  font-weight: 600;
+}
