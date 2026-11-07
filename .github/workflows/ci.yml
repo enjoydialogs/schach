@@ -96,6 +96,9 @@ jobs:
     timeout-minutes: 30
     env:
       COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      # Engine antwortet aus der Fixture: die CI laedt nie das Maia-Modell von Hugging Face.
+      # Auf Job-Ebene, damit jeder compose-Aufruf denselben Wert interpoliert.
+      SCHACH_ENGINE_FAKE_MODEL: "1"
     steps:
       - uses: actions/checkout@v7
 

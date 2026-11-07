@@ -44,6 +44,16 @@ Einmalig, vom Betreiber:
    `bash deploy/ops/engine-aus-web.sh "$(docker ps --format '{{.Names}}' | grep -- '-web-1$' | grep schach)"`
    Erwartet: `HTTP/1.1 200 OK` und `{"status":"ok"}`.
 
+## Engine-Modell (Maia-3)
+
+Der Dienst `engine` lädt beim ersten Start die Maia-3-Gewichte (ca. 21 MB) von `huggingface.co` in das Volume `engine-models` (`/models`). Bis das Modell geprüft geladen ist, meldet `/healthz` 503 und der Dienst versucht es mit wachsender Pause erneut. Die Compose-Datei sorgt bereits für beides, was er dafür braucht: `engine` hängt zusätzlich an `dokploy-network` (`internal` hat keine Route nach draußen), und das Image legt `/models` für UID 10001 an, sodass ein neues Volume diese Rechte übernimmt.
+
+Pflichten des Betreibers:
+
+1. Ausgehendes HTTPS (443) von der Box zu `huggingface.co` erlauben (Firewall des VPS bzw. Anbieters).
+2. Nur falls `engine-models` schon existiert und nicht UID 10001 gehört (von Hand oder von einem anderen Image angelegt; Log: `Permission denied` unter `/models`), einmalig umbiegen:
+   `docker run --rm -v <projekt>_engine-models:/models alpine chown -R 10001 /models`
+
 ## Postgres-Passwort ändern
 
 `POSTGRES_PASSWORD` wirkt nur beim ersten Anlegen des Volumes `pgdata`. Zum Ändern zuerst in der Datenbank umbiegen, dann den Wert im Panel tauschen und neu deployen:
