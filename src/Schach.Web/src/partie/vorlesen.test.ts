@@ -129,6 +129,16 @@ describe('naechsteAnsage', () => {
     expect(s.token).toBe('tok4')
   })
 
+  it('liest denselben Spruch mit neuem Token nicht erneut vor', () => {
+    // Data Protection verschluesselt mit Zufall: jede Antwort traegt ein neues Token.
+    let s = naechsteAnsage(null, null, true)
+    s = naechsteAnsage(s.bekannt, spruch(2, 'erstes'), true)
+    expect(s.token).toBe('erstes')
+
+    s = naechsteAnsage(s.bekannt, spruch(2, 'zweites'), true)
+    expect(s.token).toBeNull()
+  })
+
   it('schweigt bei ausgeschaltetem Schalter und ohne Stimme, merkt sich den Spruch aber', () => {
     let s = naechsteAnsage(null, null, true)
     s = naechsteAnsage(s.bekannt, spruch(2), false)

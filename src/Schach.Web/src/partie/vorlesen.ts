@@ -61,8 +61,12 @@ export class Vorleser {
   }
 }
 
+/**
+ * Erkennt einen Spruch ueber Antworten hinweg. Nicht ueber das Token: Data Protection verschluesselt
+ * mit Zufall, jede Antwort traegt fuer denselben Spruch ein neues.
+ */
 export function spruchSchluessel(spruch: SpruchDto): string {
-  return `${spruch.nachHalbzug}:${spruch.stimme ?? ''}`
+  return `${spruch.nachHalbzug}:${spruch.ereignis}:${spruch.text}`
 }
 
 /**
