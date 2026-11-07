@@ -93,6 +93,10 @@ builder.Services.AddSingleton(builder.Configuration.GetSection(Schach.Applicatio
 builder.Services.AddSingleton<Schach.Application.Partien.TippCache>();
 builder.Services.AddScoped<Schach.Application.Partien.PartieSweep>();
 
+// #77: Sprachausgabe der Sprueche (SCHACH-SPEC 6.9): Stimm-Token, GET /sprachausgabe/{token},
+// Ton-Cache, eigenes Budget, Sweep-Block E.
+builder.Services.AddSprachausgabe(builder.Configuration);
+
 var app = builder.Build();
 
 if (telemetryEnabled)

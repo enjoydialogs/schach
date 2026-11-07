@@ -72,4 +72,12 @@ public sealed class ControllerAuthorizationTests
     {
         Anonym(controller.GetMethod(aktion)!).Should().Be(anonym);
     }
+
+    // --- #77: Sprachausgabe ---
+    [Theory]
+    [InlineData(typeof(SprachausgabeController), nameof(SprachausgabeController.Ton), true)]
+    public void Sprachausgabe(Type controller, string aktion, bool anonym)
+    {
+        Anonym(controller.GetMethod(aktion)!).Should().Be(anonym);
+    }
 }

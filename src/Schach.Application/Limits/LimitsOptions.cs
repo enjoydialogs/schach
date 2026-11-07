@@ -39,4 +39,8 @@ public sealed class LimitsOptions
 
     /// <summary>Limiter <c>magic-link-je-ip</c>, FixedWindow 10 min (SCHACH-SPEC 11.3).</summary>
     public int AnmeldungenJeIpUnd10Minuten { get; set; } = 5;
+
+    /// <summary>Limiter <c>sprachausgabe-je-ip</c>, Sliding 1 min (SCHACH-SPEC 6.9). Ein Spruch je
+    /// Gegnerzug plus Wiederholen per Tipp; CGNAT teilt sich die IP.</summary>
+    public int SprachausgabenJeIpUndMinute { get; set; } = 60;
 }

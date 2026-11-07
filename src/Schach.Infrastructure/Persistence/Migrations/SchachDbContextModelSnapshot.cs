@@ -285,6 +285,28 @@ namespace Schach.Infrastructure.Persistence.Migrations
                     b.ToTable("Spieler", (string)null);
                 });
 
+            modelBuilder.Entity("Schach.Domain.Entitaeten.SprachausgabeVerbrauch", b =>
+                {
+                    b.Property<DateOnly>("Monat")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Aufrufe")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Fehler")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("Zeichen")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Zeitueberschreitungen")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Monat");
+
+                    b.ToTable("SprachausgabeVerbrauch", (string)null);
+                });
+
             modelBuilder.Entity("Schach.Domain.Entitaeten.Spruch", b =>
                 {
                     b.Property<long>("Id")
@@ -316,6 +338,34 @@ namespace Schach.Infrastructure.Persistence.Migrations
                     b.HasIndex("PartieId");
 
                     b.ToTable("Spruch", (string)null);
+                });
+
+            modelBuilder.Entity("Schach.Domain.Entitaeten.SpruchStimme", b =>
+                {
+                    b.Property<byte[]>("Hash")
+                        .HasColumnType("bytea");
+
+                    b.Property<byte[]>("Audio")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<DateTimeOffset>("ErstelltAm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Zeichen")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("ZuletztGenutztAm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Hash");
+
+                    b.HasIndex("ZuletztGenutztAm");
+
+                    b.ToTable("SpruchStimme", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_SpruchStimme_Hash_32", "octet_length(\"Hash\") = 32");
+                        });
                 });
 
             modelBuilder.Entity("Schach.Domain.Entitaeten.Zug", b =>

@@ -20,6 +20,9 @@ internal sealed class SchachApiFactory(
     /// <summary>S1c: deterministische Engine ohne Netz statt <c>EngineHttpClient</c>.</summary>
     public FakeEngine Engine { get; } = new();
 
+    /// <summary>#77: Sprachausgabe ohne Netz; ohne <c>Sprachausgabe:Stimmen:*</c> bleibt jeder Gegner stumm.</summary>
+    public FakeStimme Stimme { get; } = new();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
@@ -40,6 +43,7 @@ internal sealed class SchachApiFactory(
         }
 
         builder.ConfigureServices(s => s.AddSingleton<IEngineClient>(Engine));
+        builder.ConfigureServices(s => s.AddSingleton<Schach.Application.Sprachausgabe.ISprachProvider>(Stimme));
 
         if (zeit is not null)
         {

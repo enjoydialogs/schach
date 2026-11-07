@@ -1,11 +1,13 @@
 using Schach.Application.Partien;
+using Schach.Application.Sprachausgabe;
 using Schach.Infrastructure.Identity;
 
 namespace Schach.Api.HostedServices;
 
 /// <summary>
 /// Sweep alle 5 s (SCHACH-SPEC 8.7) mit den Bloecken A (Uhren), B (ausstehende Gegnerzuege),
-/// C (Gast-Partien nach 24 h) aus <see cref="PartieSweep"/> und D (<see cref="AnmeldungenAufraeumen"/>).
+/// C (Gast-Partien nach 24 h) aus <see cref="PartieSweep"/>, D (<see cref="AnmeldungenAufraeumen"/>)
+/// und E (Ton-Cache der Sprachausgabe nach 90 Tagen ohne Nutzung, <see cref="SprachausgabeDienst"/>).
 /// Jeder Block laeuft in eigenem Scope, ein Fehler stoppt die Schleife nicht. <c>Sweep:Aktiv=false</c>
 /// schaltet die Schleife ab (Api.Tests rufen die Bloecke selbst).
 /// </summary>
@@ -27,6 +29,7 @@ internal sealed partial class SweepDienst(IServiceScopeFactory scopes, TimeProvi
             await BlockAsync("B", sp => sp.GetRequiredService<PartieSweep>().GegnerzuegeAsync(stoppingToken), stoppingToken);
             await BlockAsync("C", sp => sp.GetRequiredService<PartieSweep>().GastPartienAsync(stoppingToken), stoppingToken);
             await BlockAsync("D", sp => sp.GetRequiredService<AnmeldungenAufraeumen>().AusfuehrenAsync(stoppingToken), stoppingToken);
+            await BlockAsync("E", sp => sp.GetRequiredService<SprachausgabeDienst>().AufraeumenAsync(stoppingToken), stoppingToken);
         }
     }
 

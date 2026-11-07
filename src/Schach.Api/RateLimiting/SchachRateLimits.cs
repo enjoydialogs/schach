@@ -29,6 +29,9 @@ public static class SchachRateLimits
     public const string TippJePartie = "tipp-je-partie";
     public const string AktionJePartie = "aktion-je-partie";
 
+    /// <summary><c>GET /sprachausgabe/{token}</c> (SCHACH-SPEC 6.9), Sliding 1 min je IP.</summary>
+    public const string SprachausgabeJeIp = "sprachausgabe-je-ip";
+
     /// <summary>Metrik-Name fuer Ablehnungen des GlobalLimiters auf <c>…/zuege</c>.</summary>
     public const string EngineZuegeGleichzeitig = "engine-zuege-gleichzeitig";
 
@@ -81,6 +84,15 @@ public static class SchachRateLimits
                 o.AddPolicy(ZuegeJePartie, context => JePartie(context, limits.ZuegeJePartieUndMinute));
                 o.AddPolicy(TippJePartie, context => JePartie(context, limits.TippsJePartieUndMinute));
                 o.AddPolicy(AktionJePartie, context => JePartie(context, limits.AktionenJePartieUndMinute));
+                o.AddPolicy(SprachausgabeJeIp, context => RateLimitPartition.GetSlidingWindowLimiter(
+                    ClientAdresse(context),
+                    _ => new SlidingWindowRateLimiterOptions
+                    {
+                        PermitLimit = limits.SprachausgabenJeIpUndMinute,
+                        Window = TimeSpan.FromMinutes(1),
+                        SegmentsPerWindow = 6,
+                        QueueLimit = 0,
+                    }));
 
                 o.GlobalLimiter = new MarkierenderLimiter(PartitionedRateLimiter.CreateChained(
                     Gleichzeitig("/zuege", EngineZuegeGleichzeitig, limits.EngineZuegeGleichzeitig, limits.EngineZuegeWarteschlange),
