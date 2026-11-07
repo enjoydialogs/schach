@@ -7,8 +7,6 @@ import { gibAuf, spieleZugTippenTippen, startePartieGegen } from '../helfer/part
 
 // Strecke 5 (SCHACH-SPEC 15.2, 10.8): Nachspielen einer beendeten Partie plus PGN-Download.
 test('Nachspielen und PGN herunterladen', async ({ page }) => {
-  test.fixme(true, '#31 (Partie-Rand) fehlt auf main: der Zustand traegt noch kein PGN, „PGN teilen“ bleibt aus.')
-
   // Ohne Web Share faellt „PGN teilen“ auf den Download zurueck (components/datei.ts).
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'canShare', { value: undefined, configurable: true })

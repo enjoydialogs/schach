@@ -5,11 +5,6 @@ import { eigenerZugAnzeige, spieleZugTippenTippen, startePartieGegen } from '../
 
 // Strecke 4 (SCHACH-SPEC 15.2, 10.3 Punkt 6): Partie 5+3 ohne Zurücknehmen und Tipp, Uhren laufen.
 test('Partie 5+3: kein Zurücknehmen, kein Tipp, Uhren laufen', async ({ page }) => {
-  test.fixme(
-    true,
-    '#31 (Zeitablauf lazy, Uhr im Partie-Kern) und #38 (Web gegen echte API: Uhr, Polling) fehlen auf main.',
-  )
-
   await meldeAnPerCode(page, neueAdresse('uhr'))
   await page.getByRole('link', { name: 'Neue Partie' }).click()
   const id = await startePartieGegen(page, 'Finn', '5+3')
