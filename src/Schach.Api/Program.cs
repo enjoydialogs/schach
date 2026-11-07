@@ -1,12 +1,15 @@
 using System.Globalization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Schach.Api.Auth;
 using Schach.Api.Contracts;
+using Schach.Api.HostedServices;
 using Schach.Api.Middleware;
 using Schach.Api.RateLimiting;
 using Schach.Api.Telemetry;
 using Schach.Infrastructure;
 using Schach.Infrastructure.Engine;
+using Schach.Infrastructure.Identity;
 using Schach.Infrastructure.Persistence;
 
 // Program.cs ist ein Append-Register (SCHACH-SPEC 15.1 Regel 5): jede Session haengt genau einen
@@ -69,6 +72,12 @@ builder.Services.AddSchachEngine(builder.Configuration);
 builder.Services.AddSchachRateLimiter(builder.Configuration);
 builder.Services.AddHostedService<ForwardedHeadersPruefung>();
 
+// S2a: Konto und Magic Link (SCHACH-SPEC 9, 11.3). Cookie schach_sitzung mit Stempelpruefung,
+// Antiforgery global (X-CSRF-TOKEN), Limiter magic-link-je-ip, Mail, Sweep-Block D.
+builder.Services.AddSchachKonto(builder.Configuration);
+builder.Services.AddSchachSitzung(builder.Configuration);
+builder.Services.AddHostedService<SweepDienst>();
+
 var app = builder.Build();
 
 if (telemetryEnabled)
@@ -109,8 +118,10 @@ app.UseStaticFiles(spaFiles);
 // Rueckfallroute, und StaticFileMiddleware tritt beiseite (Kronrat, Erst-Deploy 2026-08-10).
 // Reihenfolge danach nach SCHACH-SPEC 11.4: Routing, RateLimiter (S2b), Authentication (S2a).
 app.UseRouting();
+// Ein Aufruf fuer alle Policies (S2a magic-link-je-ip, S2b Rest und GlobalLimiter).
 app.UseRateLimiter();
-// S2a: app.UseAuthentication(); app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/healthz", new() { Predicate = _ => false });
