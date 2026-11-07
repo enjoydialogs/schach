@@ -47,6 +47,9 @@ internal static partial class SchachSitzung
         services.AddAuthorization();
 
         services.AddAntiforgery(o => o.HeaderName = CsrfHeader);
+        // AddControllers bringt die ViewFeatures nicht mit; dort lebt der Filter hinter
+        // AutoValidateAntiforgeryTokenAttribute. AddViews registriert ihn (ohne Razor-Seiten).
+        services.AddMvcCore().AddViews();
         services.Configure<MvcOptions>(o => o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
 
         var jeIp = configuration.GetValue("Limits:AnmeldungenJeIpUnd10Minuten", new AnmeldungOptionen().AnmeldungenJeIpUnd10Minuten);
