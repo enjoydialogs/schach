@@ -5,6 +5,7 @@ using Schach.Api.Contracts;
 using Schach.Api.Middleware;
 using Schach.Api.Telemetry;
 using Schach.Infrastructure;
+using Schach.Infrastructure.Betrieb;
 using Schach.Infrastructure.Persistence;
 
 // Program.cs ist ein Append-Register (SCHACH-SPEC 15.1 Regel 5): jede Session haengt genau einen
@@ -61,6 +62,9 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // S2a: Cookie-Authentifizierung, Antiforgery (X-CSRF-TOKEN), Magic Link, Mail
 // S2b: Engine-Client, Rate-Limiter (AddRateLimiter), Meter
 // S2c: Sprueche, LLM, Budgetwaechter
+
+// S2d: Betrieb (SCHACH-SPEC 14.2): Meter "Schach", Warnzeilen, Betreibermails, Tageszeile 06:00.
+builder.Services.AddSchachBetrieb(builder.Configuration);
 
 var app = builder.Build();
 
