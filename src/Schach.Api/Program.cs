@@ -66,6 +66,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // S2a: Cookie-Authentifizierung, Antiforgery (X-CSRF-TOKEN), Magic Link, Mail
 // S2b: Engine-Client, Rate-Limiter (AddRateLimiter), Meter
 // S2c: Sprueche, LLM, Budgetwaechter
+builder.Services.AddSprueche(builder.Configuration);
 
 // S2b: Engine-Client (Engine:BaseUrl), Limits und Ueberlastsperre, Rate-Limiter, Meter (SCHACH-SPEC 5.2, 11.2, 11.4, 14.2).
 builder.Services.AddSchachEngine(builder.Configuration);
