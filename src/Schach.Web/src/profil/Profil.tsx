@@ -4,7 +4,7 @@ import { api } from '../api/client'
 import type { AbmeldenAnfrage, GegnerDto, KontoExportDto } from '../api/types'
 import { Avatar } from '../components/Avatar'
 import { Schalter } from '../components/BottomSheet'
-import { isoDatum, ladeHerunter } from '../components/datei'
+import { isoDatum, ladeHerunter, langDatum } from '../components/datei'
 import { Dialog } from '../components/Dialog'
 import { Bilanz } from '../components/GegnerZeile'
 import { zeigeHinweis } from '../components/hinweisSpeicher'
@@ -15,11 +15,12 @@ import { gastPartieId } from '../components/SpeicherSchluessel'
 import { ladeSitzung, useSitzung } from '../components/sitzung'
 import { de, t } from '../i18n/de'
 import { useEinstellungen } from '../partie/einstellungen'
+import { fuelle } from '../partie/text'
 import './profil.css'
 
 /**
  * Profil (`/profil`, SCHACH-SPEC 10.9): E-Mail, Elo, Bilanz je Gegner, die drei Schalter,
- * Export, Abmelden, Konto loeschen. „Spieler seit …“ fehlt: `SpielerDto` traegt kein Anlagedatum.
+ * „Spieler seit …“, Export, Abmelden, Konto loeschen.
  */
 export function Profil() {
   const navigate = useNavigate()
@@ -78,6 +79,9 @@ export function Profil() {
         <span className="profil__elo" data-testid="profil-elo">
           {spieler?.elo}
         </span>
+        {spieler !== null && (
+          <span className="profil__seit">{fuelle(de.profilSeit.spielerSeit, { datum: langDatum(spieler.erstelltAm) })}</span>
+        )}
       </section>
 
       <h2 className="abschnitt">{t('profil.bilanz')}</h2>

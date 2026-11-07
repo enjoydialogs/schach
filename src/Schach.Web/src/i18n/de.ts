@@ -318,6 +318,19 @@ export const de = {
     mailNichtGesendet: 'Die Mail konnte nicht gesendet werden. Bitte versuch es später noch einmal.',
     zuViele: 'Zu viele Versuche. Bitte warte kurz.',
   },
+  // S3d: Install- und Update-Hinweis (SCHACH-SPEC 10.13).
+  pwa: {
+    neueVersion: 'Neue Version verfügbar',
+    neuLaden: 'Neu laden',
+    installTitel: 'Schach als App installieren',
+    installText: 'Dann startet Schach vom Startbildschirm, ohne Browserleiste.',
+    installieren: 'Installieren',
+    spaeter: 'Später',
+  },
+  // Profil (10.9), nach #64 (SpielerDto.erstelltAm).
+  profilSeit: {
+    spielerSeit: 'Spieler seit {datum}',
+  },
 } as const
 
 type Pfade<T, P extends string = ''> = {

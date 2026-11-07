@@ -1,0 +1,18 @@
+/* Update-Hinweis (SCHACH-SPEC 10.13), unter dem Offline-Banner in jeder `Seite`. */
+.update {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 -16px;
+  padding: 0 4px 0 16px;
+  min-height: 48px;
+  background: var(--accent-tint);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.update__knopf {
+  min-height: 48px;
+  flex: none;
+}

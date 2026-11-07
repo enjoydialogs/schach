@@ -1,4 +1,5 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { langDatum } from '../components/datei'
 import { mitFakeServer, zeigeApp } from '../components/testApp'
 
 // Profil (SCHACH-SPEC 10.9, 9.7).
@@ -17,6 +18,14 @@ describe('Profil', () => {
     const bilanz = await screen.findByRole('list', { name: 'Bilanz' })
     expect(within(bilanz).getAllByRole('listitem')).toHaveLength(8)
     expect(within(bilanz).getByText('Theo').closest('li')).toHaveTextContent('S 0 · R 0 · N 1')
+  })
+
+  it('zeigt „Spieler seit“ mit dem Anlagedatum des Kontos', async () => {
+    zeigeApp('/profil')
+    const seit = await screen.findByText(/^Spieler seit /)
+    expect(seit).toHaveTextContent(/^Spieler seit \d{1,2}\. \S+ \d{4}$/)
+    const { erstelltAm } = t.fake.sitzung().spieler!
+    expect(seit).toHaveTextContent(`Spieler seit ${langDatum(erstelltAm)}`)
   })
 
   it('schaltet die drei Einstellungen mit denselben localStorage-Schluesseln', async () => {
