@@ -28,7 +28,7 @@ public enum Persoenlichkeit
 
 /// <summary>Ein Gegner mit fester Elo (Produktkonstante), Stilgewichten und Spruch-Ton.</summary>
 /// <param name="Key">Stabile Id in DB und API.</param>
-/// <param name="Frechheit">Tonregel-Stufe der Sprüche (Spec 4.2).</param>
+/// <param name="Frechheit">Wie frech die Sprüche sein dürfen; wählt die Tonregel (Spec 4.2).</param>
 /// <param name="Launen">Gewichte der Laune je Spruch (Spec 6.3).</param>
 /// <param name="AbstandTierB">Überschreibt <c>Spruch:AbstandTierB</c>; <c>null</c> heißt Konfiguration (Spec 6.2).</param>
 /// <param name="AbstandTierC">Überschreibt <c>Spruch:AbstandTierC</c>; <c>null</c> heißt Konfiguration (Spec 6.2).</param>
@@ -50,29 +50,24 @@ public static class GegnerKatalog
 {
     public static IReadOnlyList<Gegner> Alle { get; } =
     [
-        Neu("ilse", "Ilse", 600, Stufe.Anfaenger, Persoenlichkeit.Gemuetlich, "Keine Eile. Wir spielen in aller Ruhe, ja?")
-            with { Frechheit = Frechheit.Freundlich, Launen = new(1, 1, 0, 0) },
-        Neu("finn", "Finn", 800, Stufe.Anfaenger, Persoenlichkeit.Aggressiv, "Ich greif einfach immer an!")
-            with { Frechheit = Frechheit.Vorlaut, Launen = new(1, 2, 3, 1), AbstandTierB = 1, AbstandTierC = 2 },
-        Neu("oscar", "Oscar", 1000, Stufe.Hobbyspieler, Persoenlichkeit.Lehrerhaft, "Ich erklär dir hinterher gern, warum ich so gezogen hab.")
-            with { Frechheit = Frechheit.Freundlich, Launen = new(1, 1, 0, 0) },
-        Neu("nele", "Nele", 1200, Stufe.Hobbyspieler, Persoenlichkeit.Verspielt, "Mal gucken, was passiert, wenn ich das probiere.")
-            with { Frechheit = Frechheit.Neckend, Launen = new(1, 3, 2, 0) },
-        Neu("theo", "Theo", 1400, Stufe.Vereinsspieler, Persoenlichkeit.Vorsichtig, "Sicher ist sicher. Ich decke erst mal alles ab.")
-            with { Frechheit = Frechheit.Freundlich, Launen = new(3, 1, 0, 0) },
-        Neu("sementa", "Sementa", 1600, Stufe.Vereinsspieler, Persoenlichkeit.Eitel, "Elegant, oder? So sind meine Züge immer.")
-            with { Frechheit = Frechheit.Vorlaut, Launen = new(1, 2, 3, 1), AbstandTierB = 1, AbstandTierC = 2 },
-        Neu("konrad", "Konrad", 1900, Stufe.Turnierspieler, Persoenlichkeit.Lehrerhaft, "Erst die Grundsätze, dann der Angriff.")
-            with { Frechheit = Frechheit.Neckend, Launen = new(3, 1, 1, 0) },
-        Neu("maren", "Maren", 2200, Stufe.Meister, Persoenlichkeit.Aggressiv, "Ich opfere gern eine Figur für den Angriff.")
-            with { Frechheit = Frechheit.Vorlaut, Launen = new(2, 1, 3, 1) },
+        Neu("ilse", "Ilse", 600, Stufe.Anfaenger, Persoenlichkeit.Gemuetlich, "Keine Eile. Wir spielen in aller Ruhe, ja?", Frechheit.Freundlich, new(1, 1, 0, 0)),
+        Neu("finn", "Finn", 800, Stufe.Anfaenger, Persoenlichkeit.Aggressiv, "Ich greif einfach immer an!", Frechheit.Vorlaut, new(1, 2, 3, 1))
+            with { AbstandTierB = 1, AbstandTierC = 2 },
+        Neu("oscar", "Oscar", 1000, Stufe.Hobbyspieler, Persoenlichkeit.Lehrerhaft, "Ich erklär dir hinterher gern, warum ich so gezogen hab.", Frechheit.Freundlich, new(1, 1, 0, 0)),
+        Neu("nele", "Nele", 1200, Stufe.Hobbyspieler, Persoenlichkeit.Verspielt, "Mal gucken, was passiert, wenn ich das probiere.", Frechheit.Neckend, new(1, 3, 2, 0)),
+        Neu("theo", "Theo", 1400, Stufe.Vereinsspieler, Persoenlichkeit.Vorsichtig, "Sicher ist sicher. Ich decke erst mal alles ab.", Frechheit.Freundlich, new(3, 1, 0, 0)),
+        Neu("sementa", "Sementa", 1600, Stufe.Vereinsspieler, Persoenlichkeit.Eitel, "Elegant, oder? So sind meine Züge immer.", Frechheit.Vorlaut, new(1, 2, 3, 1))
+            with { AbstandTierB = 1, AbstandTierC = 2 },
+        Neu("konrad", "Konrad", 1900, Stufe.Turnierspieler, Persoenlichkeit.Lehrerhaft, "Erst die Grundsätze, dann der Angriff.", Frechheit.Neckend, new(3, 1, 1, 0)),
+        Neu("maren", "Maren", 2200, Stufe.Meister, Persoenlichkeit.Aggressiv, "Ich opfere gern eine Figur für den Angriff.", Frechheit.Vorlaut, new(2, 1, 3, 1)),
     ];
 
     /// <summary>Gegner zum Key oder <c>null</c>.</summary>
     public static Gegner? Finde(string key) => Alle.FirstOrDefault(g => string.Equals(g.Key, key, StringComparison.Ordinal));
 
-    private static Gegner Neu(string key, string name, int elo, Stufe stufe, Persoenlichkeit persoenlichkeit, string vorstellung) =>
-        new(key, name, elo, stufe, persoenlichkeit, vorstellung, Stilgewichte.Fuer(persoenlichkeit), Frechheit.Freundlich, new(1, 1, 0, 0));
+    private static Gegner Neu(
+        string key, string name, int elo, Stufe stufe, Persoenlichkeit persoenlichkeit, string vorstellung, Frechheit frechheit, Launengewichte launen) =>
+        new(key, name, elo, stufe, persoenlichkeit, vorstellung, Stilgewichte.Fuer(persoenlichkeit), frechheit, launen);
 }
 
 /// <summary>Gewichtsvektor über die Zugmerkmale (Spec 4.2, 1,0 = neutral).</summary>

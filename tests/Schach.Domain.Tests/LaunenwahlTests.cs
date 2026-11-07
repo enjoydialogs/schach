@@ -42,9 +42,9 @@ public sealed class LaunenwahlTests
     [InlineData(Frechheit.Freundlich, new[] { Laune.Trocken, Laune.Lustig })]
     [InlineData(Frechheit.Neckend, new[] { Laune.Trocken, Laune.Lustig, Laune.Vorlaut })]
     [InlineData(Frechheit.Vorlaut, new[] { Laune.Trocken, Laune.Lustig, Laune.Vorlaut, Laune.Genervt })]
-    public void Vorlaut_und_genervt_nie_unter_ihrer_Stufe_auch_bei_falschen_Gewichten(Frechheit frechheit, Laune[] erlaubt)
+    public void Vorlaut_und_genervt_nie_unter_ihrer_Frechheit_auch_bei_falschen_Gewichten(Frechheit frechheit, Laune[] erlaubt)
     {
-        // Gewichte, die vorlaut und genervt stark bevorzugen: die Stufe muss trotzdem greifen.
+        // Gewichte, die vorlaut und genervt stark bevorzugen: die Frechheit muss trotzdem greifen.
         var gewichte = new Launengewichte(1, 1, 10, 10);
         var launen = Enumerable.Range(0, 50)
             .SelectMany(seed => Enumerable.Range(1, 40).Select(h => Launenwahl.Waehle(frechheit, gewichte, seed, h)))
@@ -61,7 +61,7 @@ public sealed class LaunenwahlTests
     }
 
     [Fact]
-    public void Katalog_Gegner_sagen_nie_etwas_ueber_ihrer_Stufe()
+    public void Katalog_Gegner_bleiben_in_ihrer_Frechheit()
     {
         foreach (var gegner in GegnerKatalog.Alle)
         {

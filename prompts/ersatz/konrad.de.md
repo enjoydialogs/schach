@@ -16,13 +16,13 @@
 - Verloren. Korrekt gespielt von dir, Glückwunsch.
 - Du hast gewonnen. Mein König stand zu lange in der Mitte.
 - Niederlage. Mein Fehler lag früh in der Partie. Gut gemacht.
-- Verloren. Ich trage es mit Fassung und notiere es mir.
+- Verloren. Erstens gut gespielt, zweitens ein seltenes Ereignis.
 
 ## Remis
 - Remis. Ein sauberes Ergebnis.
 - Unentschieden. Beide Seiten haben korrekt gespielt.
 - Remis. Mathematisch gesehen ein Nullsummenspiel.
-- Remis. Mathematisch gesehen ein faires Ergebnis für beide.
+- Remis. Mathematisch gesehen hatte ich mehr Glück verdient.
 
 ## RemisAbgelehnt
 - Kein Remis. Die Stellung ist noch nicht ausgerechnet.

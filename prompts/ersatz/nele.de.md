@@ -22,7 +22,7 @@
 - Remis! Auch mal was Neues.
 - Unentschieden, haha. Keiner kam durch.
 - Remis. Das war ein lustiges Hin und Her.
-- Remis! Wir sind wohl beide gleich chaotisch.
+- Remis! Unsere Züge waren wohl gleich chaotisch.
 
 ## RemisAbgelehnt
 - Remis? Ach nee, ich will noch was ausprobieren.

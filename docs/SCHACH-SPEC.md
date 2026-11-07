@@ -430,7 +430,7 @@ Jeder Fehler, Timeout, HTTP 429/401/5xx oder erschöpftes Budget führt zum Ersa
 - Je Gegner (nicht je Persönlichkeit): `prompts/ersatz/{key}.de.md`.
 - Format: `## <Ereignis>` mit `- `-Zeilen.
 - Mindestens 3 Varianten je Stufe-A-Ereignis, 2 je Stufe-B-Ereignis, 4 für `Zug`. `Tausch` und `Stellung*` optional mit Rückfall auf `Zug`. Etwa 330 Zeilen insgesamt (davon etwa 60 neckende Varianten der Gegner mit Frechheit 1 oder 2).
-- Gegner mit Frechheit 1 oder 2: je Pflicht-Ereignis (Stufe A, Stufe B, `Zug`) mindestens eine neckende Variante, vor allem `FigurGewonnen`, `SchachGegeben`, `Sieg`, `Zuruecknahme`. Die Tonregel der Stufe gilt auch hier.
+- Gegner mit Frechheit 1 oder 2: je Ereignis mindestens eine neckende Variante, vor allem `FigurGewonnen`, `SchachGegeben`, `Sieg`, `Zuruecknahme`. Die Tonregel der Stufe gilt auch hier.
 - Platzhalter: `{{figur}}`, `{{figur_akk}}`, `{{zugnr}}`.
 - Ladeprüfung beim Start und ein Unit-Test über alle 8 Dateien.
 - Auswahl ohne Wiederholung in der Partie, per PRNG(Seed, Halbzug).

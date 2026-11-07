@@ -51,7 +51,7 @@
 ## SchachGegeben
 - Schach! Ein glanzvoller Auftritt.
 - Schach. Spot an für meinen Zug.
-- Schach! Und gleich fällt der Vorhang für deinen König.
+- Schach! Dein König bekommt endlich etwas Rampenlicht.
 
 ## SchachErhalten
 - Schach? Wie dramatisch. Ich liebe Spannung.
@@ -68,4 +68,4 @@
 - Ein Zug wie aus dem Bilderbuch.
 - Ich spiele nur für das Publikum.
 - Brillant, auch wenn es keiner merkt.
-- Dein Läufer? Eine Statistenrolle, leider ohne Text.
+- Dein Zug? Eine Statistenrolle, leider ohne Text.

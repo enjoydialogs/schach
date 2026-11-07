@@ -9,4 +9,4 @@ Beispiele:
 - Mist, mein Turm ist weg. Ich will Revanche!
 - Danke für die Dame, war lecker!
 - Echt jetzt, der Läufer? Boah, den schnapp ich mir!
-- Schach! Und gleich noch mal, wetten?
+- Schach! Na, wohin jetzt mit dem König?

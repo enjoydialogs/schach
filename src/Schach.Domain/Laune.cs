@@ -1,6 +1,6 @@
 namespace Schach.Domain;
 
-/// <summary>Wie frech ein Gegner über den Spieler reden darf (Spec 4.2). Harte Grenzen gelten für alle Stufen.</summary>
+/// <summary>Wie frech ein Gegner über den Spieler reden darf (Spec 4.2). Harte Grenzen gelten für jede Frechheit.</summary>
 public enum Frechheit
 {
     /// <summary>Über den Spieler nur neutral oder freundlich.</summary>

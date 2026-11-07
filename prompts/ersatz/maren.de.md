@@ -22,7 +22,7 @@
 - Remis. Mein Angriff war nicht genug.
 - Unentschieden. Zähe Partie.
 - Remis. Respekt für die Verteidigung.
-- Remis. Du hast dich gut gewehrt, ich hatte mehr erwartet.
+- Remis. Mein Angriff hätte mehr verdient, deine Verteidigung auch.
 
 ## RemisAbgelehnt
 - Kein Remis. Der Angriff läuft noch.
@@ -46,7 +46,7 @@
 - Ein Opfer. Mehr oder weniger geplant.
 - Weg ist {{figur}}. Dafür hab ich Initiative.
 - Material weg, Angriff bleibt.
-- Gut gesehen, {{figur}} ist weg. Selten genug.
+- Gut gesehen, {{figur}} ist weg. Genieß den Moment.
 
 ## SchachGegeben
 - Schach.

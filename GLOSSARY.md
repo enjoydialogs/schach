@@ -52,7 +52,7 @@ _Avoid_: Kommentar, Nachricht, Chat
 
 **Frechheit**:
 Wie frech ein Gegner in seinen Sprüchen über die Züge des Spielers reden darf: freundlich, neckend oder vorlaut; nie über die Person.
-_Avoid_: Frechheitsstufe als „Stufe“ (das ist die Spielstärke), Modus
+_Avoid_: im Code „Stufe“ für die Frechheit (`Stufe` ist die Spielstärke), Modus
 
 **Laune**:
 Die Stimmung eines einzelnen Spruchs (trocken, lustig, vorlaut, genervt), je Halbzug aus dem Partie-Zufall gewählt.
