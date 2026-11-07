@@ -40,6 +40,17 @@ public sealed class WireFormatTests
     }
 
     [Fact]
+    public void Spieler_traegt_erstelltAm_in_UTC_mit_Z()
+    {
+        var id = Guid.Parse("0b6f2a3c-5d4e-4f10-9a8b-7c6d5e4f3a2b");
+        var spieler = new SpielerDto(id, "anna@example.test", 800, new DateTimeOffset(2026, 11, 7, 13, 5, 9, TimeSpan.FromHours(1)));
+
+        var json = JsonSerializer.Serialize(spieler, Options);
+
+        json.Should().Be("""{"id":"0b6f2a3c-5d4e-4f10-9a8b-7c6d5e4f3a2b","email":"anna@example.test","elo":800,"erstelltAm":"2026-11-07T12:05:09.000Z"}""");
+    }
+
+    [Fact]
     public void Zeitpunkt_mit_Offset_wird_nach_UTC_gelesen()
     {
         var zug = JsonSerializer.Deserialize<ZugDto>(
