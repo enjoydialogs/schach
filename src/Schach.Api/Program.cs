@@ -7,8 +7,8 @@ using Schach.Api.HostedServices;
 using Schach.Api.Middleware;
 using Schach.Api.Telemetry;
 using Schach.Infrastructure;
-using Schach.Infrastructure.Identity;
 using Schach.Infrastructure.Betrieb;
+using Schach.Infrastructure.Identity;
 using Schach.Infrastructure.Persistence;
 
 // Program.cs ist ein Append-Register (SCHACH-SPEC 15.1 Regel 5): jede Session haengt genau einen
