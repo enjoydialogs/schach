@@ -20,7 +20,7 @@ test('Nachspielen und PGN herunterladen', async ({ page }) => {
   const id = await startePartieGegen(page, 'Finn')
   await spieleZugTippenTippen(page, id)
   await spieleZugTippenTippen(page, id)
-  const ende = await gibAuf(page)
+  const { ende } = await gibAuf(page)
 
   await ende.getByRole('button', { name: 'Nachspielen' }).click()
   await page.waitForURL((url) => url.pathname === `/nachspielen/${id}`)

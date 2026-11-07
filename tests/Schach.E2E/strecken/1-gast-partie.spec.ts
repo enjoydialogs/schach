@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { sitzung, zustand } from '../helfer/api'
+import { apiGet, sitzung, zustand } from '../helfer/api'
 import { gibAuf, spieleZugTippenTippen, startePartieGegen } from '../helfer/partie'
 
 // Strecke 1 (SCHACH-SPEC 15.2): Gast-Partie. Start → Finn → 3 Zuege per Tippen-Tippen → Aufgeben →
@@ -20,7 +20,10 @@ test('Gast-Partie gegen Finn bis zum Endblatt', async ({ page }) => {
   }
   expect((await zustand(page, id)).halbzug).toBe(6)
 
-  const ende = await gibAuf(page)
+  const { ende, zustand: z } = await gibAuf(page)
+  expect(z.status).toBe('Beendet')
+  expect(z.grund).toBe('Aufgabe')
+  expect(z.ergebnis).toBe('SchwarzGewinnt')
   await expect(ende).toContainText('Aufgabe')
   await expect(ende).toContainText('Du hast die Partie aufgegeben.')
   // Gast: Hinweis aufs Konto statt Elo-Zeile, kein „Nachspielen“.
@@ -28,9 +31,8 @@ test('Gast-Partie gegen Finn bis zum Endblatt', async ({ page }) => {
   await expect(ende.getByRole('button', { name: 'Nachspielen' })).toHaveCount(0)
   await expect(ende.getByRole('button', { name: 'Neue Partie' })).toBeVisible()
 
-  const z = await zustand(page, id)
-  expect(z.status).toBe('Beendet')
-  expect(z.grund).toBe('Aufgabe')
+  // Gast-Partien speichert der Server nicht: beim Beenden geloescht (SCHACH-SPEC 8.11).
+  expect((await apiGet(page, `/partien/${id}`)).status).toBe(404)
 
   // Schliessbar, die Stellung bleibt sichtbar.
   await ende.getByRole('button', { name: 'Schließen' }).click()

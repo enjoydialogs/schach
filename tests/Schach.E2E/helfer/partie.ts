@@ -71,13 +71,19 @@ export async function spieleZugTippenTippen(page: Page, id: string): Promise<Zus
   return danach
 }
 
-/** „Aufgeben“ in der Knopfleiste, dann im Dialog bestaetigen. Liefert das Endblatt. */
-export async function gibAuf(page: Page): Promise<Locator> {
+/**
+ * „Aufgeben“ in der Knopfleiste, dann im Dialog bestaetigen. Liefert das Endblatt und den Zustand
+ * aus der Antwort (eine Gast-Partie loescht der Server beim Beenden, SCHACH-SPEC 8.11).
+ */
+export async function gibAuf(page: Page): Promise<{ ende: Locator; zustand: Zustand }> {
   await page.locator('.partie__knoepfe').getByRole('button', { name: 'Aufgeben' }).click()
   const frage = page.getByRole('dialog', { name: 'Partie aufgeben?' })
   await expect(frage).toBeVisible()
+  const antwort = page.waitForResponse((r) => r.request().method() === 'POST' && /\/api\/v1\/partien\/[^/]+\/aufgeben$/.test(r.url()))
   await frage.getByRole('button', { name: 'Aufgeben' }).click()
+  const a = await antwort
+  expect(a.status(), 'POST /aufgeben').toBe(200)
   const ende = page.getByRole('dialog', { name: 'Du hast verloren' })
   await expect(ende).toBeVisible()
-  return ende
+  return { ende, zustand: (await a.json()) as Zustand }
 }
