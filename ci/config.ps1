@@ -14,7 +14,7 @@ $script:Solution = 'Schach.slnx'
 # xUnit v3 auf Microsoft.Testing.Platform (global.json test.runner).
 $script:TestRunner = 'MTP'
 
-# Stufen in Anzeigereihenfolge. `engine` meldet SKIP, solange engine/pyproject.toml fehlt (Phase 0c).
+# Stufen in Anzeigereihenfolge.
 $script:Stages = @(
     'secrets'
     'scripts'

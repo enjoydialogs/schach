@@ -1,0 +1,144 @@
+# Schach auf Dokploy (SCHACH-SPEC 13.5). Eingefroren ab Phase 0. Runbook: deploy/README.md.
+#
+# Dokploy klont dieses Repository und fuehrt aus:
+#   docker compose -p <dienstname> -f docker-compose.dokploy.yml up -d
+# mit der .env, die sein Environment-Tab neben diese Datei schreibt (Schluessel:
+# deploy/.env.dokploy.example). Domain: schach.enjoy-dialogs.de am Dienst `web`, Port 8080.
+#
+# Was hier absichtlich fehlt (nach Kronrat):
+#
+#   * KEINE VEROEFFENTLICHTEN PORTS, KEIN PROXY. Dokploys Traefik besitzt 80/443. Sobald im
+#     Domains-Tab die Domain an `web` haengt, haengt Dokploy `web` an `dokploy-network` und setzt die
+#     Router-Labels. Die PR-CI prueft, dass kein Dienst `ports:` hat.
+#   * TRAEFIK IST DER EINZIGE VERTRAUTE PROXY. ForwardedHeaders__KnownNetworks nennt das Subnetz von
+#     dokploy-network; der Wert steht nur im Panel (SCHACH-SPEC 11.4). Niemals
+#     ASPNETCORE_FORWARDEDHEADERS_ENABLED setzen: das vertraut jedem Client.
+#   * IMAGES BEWEGEN SICH UEBER DAS TAG `prod`, NICHT UEBER SHAs. release.yml zeigt `prod` auf einen
+#     gebauten SHA und bittet dann Dokploy um den Deploy; `pull_policy: always` holt, was das Tag
+#     jetzt benennt. Ein Rollback ist ein Dispatch mit einem aelteren SHA.
+#   * KEIN MIGRATOR. `web` fuehrt beim Start MigrateAsync aus (Einzelinstanz).
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      POSTGRES_DB: schach
+      POSTGRES_USER: schach
+      # Wirkt NUR bei der ersten Initialisierung des Volumes. Spaeter im Panel geaendert, aendert es
+      # nichts an der Datenbank, und `web` scheitert beim naechsten Start an der Anmeldung. Dann zuerst
+      # von Hand umbiegen (deploy/README.md, „Postgres-Passwort aendern“).
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD im Dokploy-Environment setzen}
+    volumes:
+      # Named Volume, kein Bind-Mount: Dokploys Backups sehen nur Named Volumes, und ein Bind unter
+      # dem Checkout raeumte der naechste Deploy weg.
+      - pgdata:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U schach -d schach"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+
+  engine:
+    image: ${REGISTRY:?REGISTRY im Dokploy-Environment setzen}/schach-engine:${IMAGE_TAG:?IMAGE_TAG im Dokploy-Environment setzen}
+    pull_policy: always
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      # Nebenlaeufigkeit (SCHACH-SPEC 5.2). Vorgaben passen zur VPS-Messung Teil 1 (14.4).
+      MAIA_TORCH_THREADS: ${MAIA_TORCH_THREADS:-1}
+      MAIA_QUEUE_MAX: ${MAIA_QUEUE_MAX:-32}
+      SF_POOL_SIZE: ${SF_POOL_SIZE:-2}
+      SF_MAX_MOVETIME_MS: ${SF_MAX_MOVETIME_MS:-800}
+      FAIRY_POOL_SIZE: ${FAIRY_POOL_SIZE:-1}
+      ENGINE_ROLES: ${ENGINE_ROLES:-maia,stockfish,fairy}
+    volumes:
+      # Maia-3-Gewichte, beim ersten Start von Hugging Face geladen (nie im Image, SCHACH-SPEC 13.6).
+      - engine-models:/models
+    # `internal` fuer web, `dokploy-network` fuer den Weg nach draussen (Hugging Face): `internal`
+    # hat keine Route ins Internet.
+    networks: [internal, dokploy-network]
+    healthcheck:
+      # Das Python-Image hat weder curl noch wget. urlopen wirft bei 503 ("starting").
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/healthz', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      # Erststart laedt das Modell (ab S4a).
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+
+  web:
+    image: ${REGISTRY}/schach-web:${IMAGE_TAG}
+    pull_policy: always
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      # Eine Rolle fuer alles: die App migriert beim Start selbst und braucht DDL.
+      # GSS Encryption Mode=Disable haengt SchachConnectionString selbst an.
+      ConnectionStrings__Schach: "Host=postgres;Port=5432;Database=schach;Username=schach;Password=${POSTGRES_PASSWORD}"
+      ForwardedHeaders__KnownNetworks: ${TRAEFIK_NETWORK:?TRAEFIK_NETWORK auf das Subnetz von dokploy-network setzen}
+      # Engine-Dienst im Netz `internal` (Client ab S2b, SCHACH-SPEC 5.2).
+      Engine__BaseUrl: "http://engine:8081"
+      # Logs als einzeiliges JSON (SCHACH-SPEC 14.3).
+      Logging__Console__FormatterName: "json"
+      # Geheimnisse nur im Panel (SCHACH-SPEC 11.5, 13.5). Leer startet die App trotzdem:
+      # ohne Lettermint-Token Console-Mail, ohne Mistral-Schluessel Ersatzsprueche.
+      Email__Lettermint__ApiToken: ${LETTERMINT_API_TOKEN:-}
+      Email__FromAddress: ${EMAIL_FROM_ADDRESS:-}
+      Email__ReplyToAddress: ${EMAIL_REPLY_TO_ADDRESS:-}
+      Email__OperatorEmail: ${OPERATOR_EMAIL:-}
+      Llm__ApiKey: ${MISTRAL_API_KEY:-}
+      # Tracing: aus ohne Endpunkt (SchachTracing). Mit Monitoring-Projekt auf der Box z. B. der
+      # Collector-Alias auf dokploy-network.
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_SERVICE_NAME: "schach"
+    # Nur `internal`. Dokploy haengt `dokploy-network` an, sobald die Domain konfiguriert ist; es
+    # hier zu deklarieren liesse Dokploy es doppelt anhaengen.
+    networks: [internal]
+    healthcheck:
+      # Das aspnet-Image hat weder curl noch wget; bash + /dev/tcp kommt ohne Zusatzpaket aus.
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /healthz HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && head -n 1 <&3 | grep -q ' 200 '"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 60s
+    # Nur Postgres. `web` haengt nicht vom Engine-Health ab (SCHACH-SPEC 5.2).
+    depends_on:
+      postgres: { condition: service_healthy }
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+
+networks:
+  # Alles, was mit der Datenbank spricht. `internal: true`: keine Route nach draussen.
+  internal:
+    driver: bridge
+    internal: true
+  # Traefiks Netz, von Dokploy angelegt.
+  dokploy-network:
+    external: true
+
+volumes:
+  pgdata:
+  engine-models:
