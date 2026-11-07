@@ -7,8 +7,6 @@ import { eigenerZugAnzeige, spieleZugTippenTippen, startePartieGegen } from '../
 // Strecke 3 (SCHACH-SPEC 15.2, 10.3 Punkt 8): Spieler-Partie ohne Uhr → Tipp → Pille „Zählt nicht
 // für die Elo“ → Zurücknehmen.
 test('Spieler-Partie mit Tipp und Zurücknehmen', async ({ page }) => {
-  test.fixme(true, '#31 (Partie-Rand) fehlt auf main: POST /partien/{id}/tipp gibt es noch nicht.')
-
   await meldeAnPerCode(page, neueAdresse('tipp'))
   await page.getByRole('link', { name: 'Neue Partie' }).click()
   const id = await startePartieGegen(page, 'Finn', 'Ohne Uhr')
