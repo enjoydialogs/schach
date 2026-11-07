@@ -30,7 +30,16 @@ public sealed record Stilparameter(
     double BandFaktor = 0.25,
     int BandMax = 8,
     double GewichtMin = 0.5,
-    double GewichtMax = 2.0);
+    double GewichtMax = 2.0)
+{
+    /// <summary>Stil eines Gegners: Gewichte aus seiner Persönlichkeit, τ aus der Eichung seiner Spielstärke.</summary>
+    public static Stilparameter Fuer(Gegner gegner, Eichung eichung)
+    {
+        ArgumentNullException.ThrowIfNull(gegner);
+        ArgumentNullException.ThrowIfNull(eichung);
+        return new Stilparameter(gegner.Gewichte, eichung.Temperatur);
+    }
+}
 
 /// <summary>Lage für die Remis-Vermeidung (Spec 5.3 Schritt 4a, 3.5).</summary>
 /// <param name="Materialbilanz">Aus Sicht des Gegners vor seinem Zug (<see cref="Materialbilanz"/>).</param>

@@ -2,7 +2,7 @@ namespace Schach.Domain.Entitaeten;
 
 /// <summary>Was der Aufrufer nach <see cref="PartieBeenden.Beenden"/> noch tun muss.</summary>
 /// <param name="Loeschen">Gast-Partie: die Zeilen (Partie, Züge, Sprüche) in derselben Transaktion löschen.</param>
-public sealed record Partieende(bool Loeschen);
+public sealed record BeendenFolge(bool Loeschen);
 
 /// <summary>
 /// Domänenweg <c>Partie.Beenden(ergebnis, grund)</c> (Spec 8.11). Ändert nur die übergebenen
@@ -20,7 +20,7 @@ public static class PartieBeenden
     /// <param name="spieler">Besitzer der Partie; <c>null</c> bei Gast-Partien.</param>
     /// <param name="bilanz">Zeile <c>(SpielerId, GegnerId)</c>, ggf. neu angelegt; <c>null</c> bei Gast-Partien.</param>
     /// <exception cref="InvalidOperationException">Die Partie ist schon beendet.</exception>
-    public static Partieende Beenden(
+    public static BeendenFolge Beenden(
         this Partie partie,
         Ergebnis ergebnis,
         Grund grund,
@@ -45,7 +45,7 @@ public static class PartieBeenden
         {
             partie.EloVorher = null;
             partie.EloNachher = null;
-            return new Partieende(Loeschen: true);
+            return new BeendenFolge(Loeschen: true);
         }
 
         if (spieler is null || spieler.Id != spielerId)
@@ -91,7 +91,7 @@ public static class PartieBeenden
                 break;
         }
 
-        return new Partieende(Loeschen: false);
+        return new BeendenFolge(Loeschen: false);
     }
 
     /// <summary>Ergebnis aus Sicht des Spielers mit der Farbe <paramref name="spielerFarbe"/>.</summary>

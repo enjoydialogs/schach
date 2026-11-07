@@ -20,6 +20,24 @@ public sealed class StilgewichtungTests
     private static Zugmerkmal OhneMerkmale(string uci) => Zugmerkmal.Keine;
 
     [Fact]
+    public void Temperatur_kommt_aus_der_Eichung_und_nie_aus_der_Persoenlichkeit()
+    {
+        var finn = GegnerKatalog.Finde("finn")!;
+        var ilse = GegnerKatalog.Finde("ilse")!;
+        var eichungAnfaenger = Eichung.Identitaet(finn) with { Temperatur = 1.3 };
+
+        var fuerFinn = Stilparameter.Fuer(finn, eichungAnfaenger);
+        var fuerIlse = Stilparameter.Fuer(ilse, eichungAnfaenger);
+
+        fuerFinn.Temperatur.Should().Be(1.3);
+        fuerIlse.Temperatur.Should().Be(1.3);
+        fuerFinn.Gewichte.Should().Be(Stilgewichte.Fuer(Persoenlichkeit.Aggressiv));
+        fuerIlse.Gewichte.Should().Be(Stilgewichte.Fuer(Persoenlichkeit.Gemuetlich));
+        fuerFinn.BandFaktor.Should().Be(0.25);
+        fuerFinn.BandMax.Should().Be(8);
+    }
+
+    [Fact]
     public void Kandidatenband_enthaelt_Zuege_ab_einem_Viertel_von_p_max()
     {
         // p_max = 0,40, Schwelle 0,10: e2e4, d2d4, g1f3.
