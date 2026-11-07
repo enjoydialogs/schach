@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Schach.Application.Abstractions;
 using Schach.Application.Llm;
 using Schach.Application.Sprueche;
+using Schach.Domain;
 using Schach.Infrastructure.Llm;
 
 namespace Schach.Infrastructure;
@@ -55,12 +56,19 @@ public static class SpruecheDependencyInjection
     }
 }
 
-/// <summary>Liest <c>prompts/gegner/{key}.de.md</c>.</summary>
+/// <summary>Liest <c>prompts/gegner/{key}.de.md</c> und <c>prompts/tonregel/{frechheit}.de.md</c>.</summary>
 internal sealed class PromptPersonaQuelle(IPromptCatalog prompts) : IPersonaQuelle
 {
     private static readonly Dictionary<string, string> Leer = [];
 
     public string Persona(string gegnerKey) => prompts.Render($"gegner/{gegnerKey}.de.md", Leer).Trim();
+
+    /// <summary>Die Zeilen tragen ihre Einrueckung selbst; darum nur am Ende kuerzen.</summary>
+    public string Tonregel(string gegnerKey)
+    {
+        var frechheit = GegnerKatalog.Finde(gegnerKey)?.Frechheit ?? Frechheit.Freundlich;
+        return prompts.Render($"tonregel/{frechheit.ToString().ToLowerInvariant()}.de.md", Leer).TrimEnd();
+    }
 }
 
 /// <summary>
@@ -76,12 +84,14 @@ internal sealed class ErsatzLadepruefung(IServiceProvider services, IPromptCatal
         foreach (var key in katalog.Gegner)
         {
             _ = persona.Persona(key);
+            _ = persona.Tonregel(key);
         }
 
         _ = prompts.Render(SpruchDienst.PromptDatei, new Dictionary<string, string>
         {
             ["name"] = "",
             ["persona"] = "",
+            ["tonregel"] = "",
             ["daten"] = "",
         });
         return Task.CompletedTask;

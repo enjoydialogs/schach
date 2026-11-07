@@ -2,6 +2,7 @@ using System.Net;
 using Microsoft.Extensions.Logging;
 using Schach.Application.Abstractions;
 using Schach.Application.Llm;
+using Schach.Domain;
 using Schach.Domain.Entitaeten;
 
 namespace Schach.Application.Sprueche;
@@ -37,12 +38,29 @@ public sealed class SpruchOptions
 
     /// <summary>Mit Bedenkzeit und weniger Gegner-Restzeit: Ersatzspruch statt Mistral (6.2).</summary>
     public long MinGegnerRestMs { get; set; } = 30_000;
+
+    /// <summary>Kopie mit den Abstaenden des Gegners aus dem Gegner-Katalog, sonst unveraendert (6.2).
+    /// Deckel wie <see cref="MaxJePartie"/> bleiben.</summary>
+    public SpruchOptions FuerGegner(string gegnerKey)
+    {
+        var kopie = (SpruchOptions)MemberwiseClone();
+        if (GegnerKatalog.Finde(gegnerKey) is { } gegner)
+        {
+            kopie.AbstandTierB = gegner.AbstandTierB ?? AbstandTierB;
+            kopie.AbstandTierC = gegner.AbstandTierC ?? AbstandTierC;
+        }
+
+        return kopie;
+    }
 }
 
-/// <summary>Persoenlichkeits-Notiz <c>prompts/gegner/{key}.de.md</c> fuer <c>{{persona}}</c>.</summary>
+/// <summary>Prompt-Bausteine je Gegner: Notiz <c>prompts/gegner/{key}.de.md</c> fuer <c>{{persona}}</c>
+/// und die Tonregel seiner Frechheit fuer <c>{{tonregel}}</c> (SCHACH-SPEC 4.2, 6.3).</summary>
 public interface IPersonaQuelle
 {
     string Persona(string gegnerKey);
+
+    string Tonregel(string gegnerKey);
 }
 
 /// <param name="Partie">Die Partie; <see cref="Partie.MistralAufrufe"/> wird hier hochgezaehlt, der Aufrufer speichert.</param>
@@ -159,6 +177,7 @@ public sealed partial class SpruchDienst(
                 {
                     ["name"] = anfrage.GegnerName,
                     ["persona"] = persona.Persona(key),
+                    ["tonregel"] = persona.Tonregel(key),
                     ["daten"] = anfrage.Daten.AlsJson(),
                 },
                 options.MaxTokens,

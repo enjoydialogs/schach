@@ -9,6 +9,7 @@ namespace Schach.Application.Sprueche;
 /// Genau diese Felder, nie FEN und nie Spieler-Identitaet (kein Name, keine E-Mail, keine Elo,
 /// keine Konto-ID). Material-Werte aus Sicht des Gegners.
 /// </summary>
+/// <param name="Laune">Laune dieses Spruchs, klein geschrieben (trocken, lustig, vorlaut, genervt).</param>
 public sealed record SpruchDaten(
     string Ereignis,
     int Zugnummer,
@@ -23,6 +24,7 @@ public sealed record SpruchDaten(
     string? Stellung,
     IReadOnlyList<string> GegnerZugMerkmale,
     string? Grund,
+    string Laune,
     IReadOnlyList<string> LetzteSprueche)
 {
     public const int MaxLetzteSprueche = 3;

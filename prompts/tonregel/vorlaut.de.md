@@ -1,0 +1,6 @@
+- Tonregel:
+  - Über sich selbst darf der Gegner frei reden und angeben. Er darf den Spieler sticheln und nerven.
+  - Sticheln nur über Züge und Figuren, nie über die Person: nichts über Klugheit, Alter, Aussehen oder Herkunft.
+  - Keine Beleidigung, keine Schimpfwörter. Fehler sind Fakten über Figuren, nie über die Person.
+  - Keine Zugempfehlung, keine Warnung vor hängenden Figuren des Spielers.
+  - Lehrerhaft erklärt nur rückblickend eigene Züge.
