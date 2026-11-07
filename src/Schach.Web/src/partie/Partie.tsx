@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router'
 import { Brett } from '../brett/Brett'
 import { de, t } from '../i18n/de'
 import { schachFeld, sichtbarerSpruch } from './anzeige'
-import { BottomSheet, Schalter } from '../components/BottomSheet'
+import { BottomSheet, Regler, Schalter } from '../components/BottomSheet'
 import { PaletteWahl } from '../components/PaletteWahl'
 import { Dialog } from '../components/Dialog'
 import { useEinstellungen } from './einstellungen'
@@ -12,7 +12,7 @@ import { knoepfe as knoepfeFuer, type KnopfArt } from './knoepfe'
 import { EigeneZeile, Knopfleiste, Kopfzeile, Spruchblase, Statuszeile, Uhr, type StatusArt } from './teile'
 import { fuelle } from './text'
 import { aktuellerTipp, naechsterTippSchritt, tippMarkierung, tippText, zeigePfeil } from './tipp'
-import { audioKontext } from './toene'
+import { audioKontext, spieleTon } from './toene'
 import { usePartie } from './usePartie'
 import { useVorlesen } from './vorlesen'
 import { ungedeckteFiguren, warnungsText } from './warnung'
@@ -33,7 +33,7 @@ export function Partie({
 }) {
   const navigate = useNavigate()
   const [einstellungen, setzeEinstellung] = useEinstellungen()
-  const p = usePartie(id, einstellungen.toeneUndVibration)
+  const p = usePartie(id, einstellungen.toeneUndVibration, einstellungen.toeneLautstaerke)
   const [offen, setOffen] = useState<Offen>('keins')
   const [endeGeschlossen, setEndeGeschlossen] = useState(false)
 
@@ -54,6 +54,8 @@ export function Partie({
     z !== null && anzeige !== null,
     einstellungen.spruecheVorlesen,
     neuGestartet,
+    undefined,
+    einstellungen.spruecheLautstaerke,
   )
 
   if (z === null || anzeige === null) {
@@ -199,10 +201,23 @@ export function Partie({
             an={einstellungen.toeneUndVibration}
             onWechsel={(an) => setzeEinstellung('toeneUndVibration', an)}
           />
+          <Regler
+            text={t('menue.toeneLautstaerke')}
+            wert={einstellungen.toeneLautstaerke}
+            aktiv={einstellungen.toeneUndVibration}
+            onWechsel={(wert) => setzeEinstellung('toeneLautstaerke', wert)}
+            onLoslassen={() => spieleTon('zug', einstellungen.toeneLautstaerke)}
+          />
           <Schalter
             text={t('menue.spruecheVorlesen')}
             an={einstellungen.spruecheVorlesen}
             onWechsel={(an) => setzeEinstellung('spruecheVorlesen', an)}
+          />
+          <Regler
+            text={t('menue.spruecheLautstaerke')}
+            wert={einstellungen.spruecheLautstaerke}
+            aktiv={einstellungen.spruecheVorlesen}
+            onWechsel={(wert) => setzeEinstellung('spruecheLautstaerke', wert)}
           />
           <PaletteWahl />
           <button type="button" className="sheet__zeile" onClick={() => navigate('/')}>

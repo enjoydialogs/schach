@@ -97,6 +97,8 @@ export const de = {
     partieVerlassen: 'Partie verlassen',
     schliessen: 'Schließen',
     spruecheVorlesen: 'Sprüche vorlesen',
+    toeneLautstaerke: 'Lautstärke Töne',
+    spruecheLautstaerke: 'Lautstärke Sprüche',
   },
   dialog: {
     abbrechen: 'Abbrechen',
