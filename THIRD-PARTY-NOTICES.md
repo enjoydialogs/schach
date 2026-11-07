@@ -75,3 +75,12 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
+
+## Browser, Ergänzung S3d (PWA)
+
+| Komponente | Version | Lizenz | Quelle | Verwendet in |
+|---|---|---|---|---|
+| Workbox (workbox-window, workbox-precaching, workbox-routing, workbox-core) | 7.4.1 | MIT | https://github.com/GoogleChrome/workbox | Registrierung und Service Worker (`sw.js`, `workbox-*.js`) |
+| vite-plugin-pwa | 2.0.0 | MIT | https://github.com/vite-pwa/vite-plugin-pwa | nur Bau: erzeugt `sw.js` und `manifest.webmanifest` |
+
+Die App-Icons (`public/icons/`) zeigen die Silhouette des Cburnett-Springers (BSD-3-Clause, Hinweis oben), erzeugt mit `src/Schach.Web/scripts/icons.mjs`.
