@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Ellipsis, Flag, Handshake, Lightbulb, Plus, Rewind, Undo2, type LucideIcon } from 'lucide-react'
 import type { Farbe, GegnerDto, Stufe, UhrDto, UhrSeite } from '../api/types'
 import { de, t } from '../i18n/de'
@@ -28,20 +29,26 @@ export function Avatar({ gegner }: { gegner: GegnerDto }) {
 export function Uhr({
   uhr,
   seite,
-  jetztClient,
   versatzMs,
   aktiv,
   label,
 }: {
   uhr: UhrDto
   seite: UhrSeite
-  jetztClient: number
   versatzMs: number
   /** Hervorgehoben: wer sichtbar am Zug ist (der Gegner auch waehrend seiner Denkzeit). */
   aktiv: boolean
   label: string
 }) {
-  const rest = restMs(uhr, seite, jetztClient, versatzMs)
+  // Nur die laufende Uhr tickt, und nur sie rendert neu.
+  const laeuft = uhr.laeuftFuer === seite
+  const [jetzt, setJetzt] = useState(() => Date.now())
+  useEffect(() => {
+    if (!laeuft) return
+    const takt = setInterval(() => setJetzt(Date.now()), 250)
+    return () => clearInterval(takt)
+  }, [laeuft])
+  const rest = restMs(uhr, seite, jetzt, versatzMs)
   const zustand = uhrZustand(rest, aktiv)
   return (
     <span className={`uhr uhr--${zustand}`} role="timer" aria-label={label}>

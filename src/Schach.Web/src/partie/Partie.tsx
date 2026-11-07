@@ -107,7 +107,6 @@ export function Partie({ id, neuePartiePfad = '/neu' }: { id: string; neuePartie
       <Uhr
         uhr={z.uhr}
         seite="Gegner"
-        jetztClient={p.jetztClient}
         versatzMs={p.versatzMs}
         aktiv={z.status === 'Offen' && !spielerAmZug}
         label={fuelle(de.partie.uhrGegner, { name: z.gegner.name })}
@@ -118,7 +117,6 @@ export function Partie({ id, neuePartiePfad = '/neu' }: { id: string; neuePartie
       <Uhr
         uhr={z.uhr}
         seite="Spieler"
-        jetztClient={p.jetztClient}
         versatzMs={p.versatzMs}
         aktiv={spielerAmZug}
         label={t('partie.uhrEigene')}

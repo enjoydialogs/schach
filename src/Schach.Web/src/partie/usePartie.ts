@@ -13,7 +13,6 @@ import { restMs, uhrVersatz } from './uhr'
 
 const POLL_MS = 3_000
 const HINWEIS_MS = 3_000
-const TAKT_MS = 250
 
 export type LadeStand = 'laedt' | 'bereit' | 'nichtGefunden' | 'fehler'
 
@@ -36,24 +35,12 @@ export interface PartieSteuerung {
   limitWartet: boolean
   tippStand: TippStand | null
   setTippStand: (stand: TippStand | null) => void
-  jetztClient: number
   versatzMs: number
   ziehe: (uci: string) => void
   nimmZurueck: () => void
   gibAuf: () => void
   bieteRemis: () => void
   holeTipp: () => void
-}
-
-function useTakt(aktiv: boolean): number {
-  const [jetzt, setJetzt] = useState(() => Date.now())
-  useEffect(() => {
-    if (!aktiv) return
-    const takt = setInterval(() => setJetzt(Date.now()), TAKT_MS)
-    return () => clearInterval(takt)
-  }, [aktiv])
-  // Ruht der Takt, braucht niemand die Zeit; der erste Schlag nach dem Start holt sie nach.
-  return jetzt
 }
 
 export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
@@ -225,10 +212,16 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
     )
   }, [id, sende, uebernimm])
 
-  // Takt nur, wenn etwas laeuft: Uhr, unsichtbarer Gegnerzug oder ein Hinweis.
-  const uhrLaeuft = zustand?.status === 'Offen' && zustand.uhr?.laeuftFuer != null
-  const gegnerZugVerborgen = zustand?.gegnerZug != null
-  const jetztClient = useTakt(uhrLaeuft || gegnerZugVerborgen)
+  // Kein Dauertakt fuer den ganzen Bildschirm (das Brett soll beim Ziehen nicht neu rendern): die
+  // Zeit springt nur, wenn der Gegnerzug sichtbar wird. Die Uhren ticken in `Uhr` selbst.
+  const [jetztClient, setJetztClient] = useState(() => Date.now())
+  const sichtbarAb = zustand?.gegnerZug?.sichtbarAb ?? null
+  useEffect(() => {
+    if (sichtbarAb === null) return
+    const warte = Math.max(0, Date.parse(sichtbarAb) - versatzMs - Date.now())
+    const zeitgeber = setTimeout(() => setJetztClient(Date.now()), warte + 20)
+    return () => clearTimeout(zeitgeber)
+  }, [sichtbarAb, versatzMs])
   const jetztServer = jetztClient + versatzMs
 
   let anzeige: Anzeige | null = null
@@ -258,18 +251,21 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
   }, [ausstehend, ladeZustand])
 
   // Ein GET beim lokal berechneten Uhrablauf (8.1).
-  const abgelaufen =
-    zustand !== null &&
-    zustand.status === 'Offen' &&
-    zustand.uhr !== null &&
-    zustand.uhr.laeuftFuer !== null &&
-    restMs(zustand.uhr, zustand.uhr.laeuftFuer, jetztClient, versatzMs) === 0
   const ablaufGemeldet = useRef<number | null>(null)
   useEffect(() => {
-    if (!abgelaufen || zustand === null || ablaufGemeldet.current === zustand.halbzug) return
-    ablaufGemeldet.current = zustand.halbzug
-    void ladeZustand()
-  }, [abgelaufen, zustand, ladeZustand])
+    const uhr = zustand?.uhr
+    if (zustand === null || zustand.status !== 'Offen' || !uhr || uhr.laeuftFuer === null) return
+    const rest = restMs(uhr, uhr.laeuftFuer, Date.now(), versatzMs)
+    // Vor amZugSeit steht die Uhr; der Rest zaehlt erst ab dann.
+    const start = uhr.amZugSeit === null ? 0 : Math.max(0, Date.parse(uhr.amZugSeit) - versatzMs - Date.now())
+    const halbzug = zustand.halbzug
+    const zeitgeber = setTimeout(() => {
+      if (ablaufGemeldet.current === halbzug) return
+      ablaufGemeldet.current = halbzug
+      void ladeZustand()
+    }, start + rest + 50)
+    return () => clearTimeout(zeitgeber)
+  }, [zustand, versatzMs, ladeZustand])
 
   // Toene fuer sichtbar gewordene Gegnerzuege und das Partieende.
   const tonHalbzug = useRef<number | null>(null)
@@ -306,7 +302,6 @@ export function usePartie(id: string, toeneAn: boolean): PartieSteuerung {
     limitWartet,
     tippStand,
     setTippStand,
-    jetztClient,
     versatzMs,
     ziehe,
     nimmZurueck: () => halbzugAktion('zuruecknehmen'),
