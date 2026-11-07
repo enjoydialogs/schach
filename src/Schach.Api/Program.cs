@@ -87,6 +87,12 @@ builder.Services.AddScoped<Schach.Application.Partien.PartieDienst>();
 // S2d: Betrieb (SCHACH-SPEC 14.2): Meter "Schach", Warnzeilen, Betreibermails, Tageszeile 06:00.
 builder.Services.AddSchachBetrieb(builder.Configuration);
 
+// S1d: Partie-Rand (SCHACH-SPEC 3.5, 6, 7.3, 8.7): Remis-Angebot, Tipp (Cache je FEN), Sweep-Bloecke A bis C.
+builder.Services.AddSingleton(builder.Configuration.GetSection(Schach.Application.Partien.TippOptions.SectionName)
+    .Get<Schach.Application.Partien.TippOptions>() ?? new Schach.Application.Partien.TippOptions());
+builder.Services.AddSingleton<Schach.Application.Partien.TippCache>();
+builder.Services.AddScoped<Schach.Application.Partien.PartieSweep>();
+
 var app = builder.Build();
 
 if (telemetryEnabled)

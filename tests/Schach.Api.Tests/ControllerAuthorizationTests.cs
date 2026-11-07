@@ -61,4 +61,15 @@ public sealed class ControllerAuthorizationTests
     {
         Anonym(controller.GetMethod(aktion)!).Should().Be(anonym);
     }
+
+    // --- S1d: Partie-Rand ---
+    [Theory]
+    [InlineData(typeof(PartienController), nameof(PartienController.RemisAngebot), true)]
+    [InlineData(typeof(PartienController), nameof(PartienController.Tipp), true)]
+    [InlineData(typeof(PartienController), nameof(PartienController.Pgn), true)]
+    [InlineData(typeof(PartienController), nameof(PartienController.Liste), false)]
+    public void Partie_Rand(Type controller, string aktion, bool anonym)
+    {
+        Anonym(controller.GetMethod(aktion)!).Should().Be(anonym);
+    }
 }

@@ -1,21 +1,31 @@
+using Schach.Application.Partien;
 using Schach.Infrastructure.Identity;
 
 namespace Schach.Api.HostedServices;
 
 /// <summary>
-/// Sweep alle 5 s (SCHACH-SPEC 8.7). S2a bringt nur Block D (<see cref="AnmeldungenAufraeumen"/>);
-/// S1d haengt die Bloecke A bis C hier an. Jeder Block laeuft in eigenem Scope, ein Fehler stoppt
-/// die Schleife nicht.
+/// Sweep alle 5 s (SCHACH-SPEC 8.7) mit den Bloecken A (Uhren), B (ausstehende Gegnerzuege),
+/// C (Gast-Partien nach 24 h) aus <see cref="PartieSweep"/> und D (<see cref="AnmeldungenAufraeumen"/>).
+/// Jeder Block laeuft in eigenem Scope, ein Fehler stoppt die Schleife nicht. <c>Sweep:Aktiv=false</c>
+/// schaltet die Schleife ab (Api.Tests rufen die Bloecke selbst).
 /// </summary>
-internal sealed partial class SweepDienst(IServiceScopeFactory scopes, TimeProvider zeit, ILogger<SweepDienst> log) : BackgroundService
+internal sealed partial class SweepDienst(IServiceScopeFactory scopes, TimeProvider zeit, IConfiguration konfiguration, ILogger<SweepDienst> log) : BackgroundService
 {
     public static readonly TimeSpan Takt = TimeSpan.FromSeconds(5);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        if (!konfiguration.GetValue("Sweep:Aktiv", true))
+        {
+            return;
+        }
+
         using var timer = new PeriodicTimer(Takt, zeit);
         while (await timer.WaitForNextTickAsync(stoppingToken))
         {
+            await BlockAsync("A", sp => sp.GetRequiredService<PartieSweep>().UhrenAsync(stoppingToken), stoppingToken);
+            await BlockAsync("B", sp => sp.GetRequiredService<PartieSweep>().GegnerzuegeAsync(stoppingToken), stoppingToken);
+            await BlockAsync("C", sp => sp.GetRequiredService<PartieSweep>().GastPartienAsync(stoppingToken), stoppingToken);
             await BlockAsync("D", sp => sp.GetRequiredService<AnmeldungenAufraeumen>().AusfuehrenAsync(stoppingToken), stoppingToken);
         }
     }
