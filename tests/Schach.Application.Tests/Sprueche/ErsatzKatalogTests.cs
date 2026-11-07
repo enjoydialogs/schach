@@ -6,7 +6,7 @@ namespace Schach.Application.Tests.Sprueche;
 /// <summary>SCHACH-SPEC 6.5: Format, Pruefung und Auswahl der Ersatzsprueche.</summary>
 public class ErsatzKatalogTests
 {
-    private const string Gueltig = """
+    internal const string Gueltig = """
         # Finn
 
         ## Partiebeginn

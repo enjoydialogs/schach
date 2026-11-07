@@ -61,6 +61,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // S2a: Cookie-Authentifizierung, Antiforgery (X-CSRF-TOKEN), Magic Link, Mail
 // S2b: Engine-Client, Rate-Limiter (AddRateLimiter), Meter
 // S2c: Sprueche, LLM, Budgetwaechter
+builder.Services.AddSprueche(builder.Configuration);
 
 var app = builder.Build();
 
