@@ -3,11 +3,6 @@ using Schach.Domain.Entitaeten;
 
 namespace Schach.Domain.Tests;
 
-// Partie traegt die Enums aus Entitaeten (0b); Regeln (S1a) hat gleichnamige im Wurzelnamensraum.
-using Ergebnis = Schach.Domain.Entitaeten.Ergebnis;
-using Farbe = Schach.Domain.Entitaeten.Farbe;
-using Grund = Schach.Domain.Entitaeten.Grund;
-
 /// <summary>Domänenweg <c>Partie.Beenden(ergebnis, grund)</c> nach SCHACH-SPEC 8.11 und 3.7, 3.8.</summary>
 public sealed class PartieBeendenTests
 {

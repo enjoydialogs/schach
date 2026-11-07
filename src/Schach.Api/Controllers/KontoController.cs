@@ -72,9 +72,9 @@ public sealed class KontoController(KontoDienst konto) : ControllerBase
     {
         var p = e.Partie;
         var gegner = Domain.GegnerKatalog.Finde(p.GegnerId)?.Name ?? p.GegnerId;
-        var (weiss, schwarz) = p.SpielerFarbe == Entitaeten.Farbe.Weiss ? ("Spieler", gegner) : (gegner, "Spieler");
+        var (weiss, schwarz) = p.SpielerFarbe == Domain.Farbe.Weiss ? ("Spieler", gegner) : (gegner, "Spieler");
         var ende = p.Ergebnis is { } erg && p.Grund is { } grund
-            ? new Domain.Partieende(Enum.Parse<Domain.Ergebnis>(erg.ToString()), Enum.Parse<Domain.Grund>(grund.ToString()))
+            ? new Domain.Partieende(erg, grund)
             : null;
         return Domain.Pgn.Erzeuge(new Domain.PgnKopf(weiss, schwarz, DateOnly.FromDateTime(p.ErstelltAm.UtcDateTime)), e.Zuege.Select(z => z.Uci), ende);
     }

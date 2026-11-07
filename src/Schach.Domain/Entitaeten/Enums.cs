@@ -2,7 +2,8 @@ namespace Schach.Domain.Entitaeten;
 
 // Domaenen-Enums der gespeicherten Spalten (SCHACH-SPEC 8.4a, 8.12). In Postgres als Text, darum
 // sind die Namen Teil des Schemas: nicht umbenennen. Die Member gleichen den Wire-Enums in
-// Schach.Api.Contracts, damit die Abbildung ueber den Namen geht.
+// Schach.Api.Contracts, damit die Abbildung ueber den Namen geht. Farbe, Ergebnis und Grund
+// liegen in Schach.Domain (Regeln/), eine Menge fuer Regeln und Entitaeten.
 
 /// <summary>Bedenkzeit einer Partie (SCHACH-SPEC 3.2).</summary>
 public enum Bedenkzeit
@@ -14,40 +15,11 @@ public enum Bedenkzeit
     JeZug90s,
 }
 
-/// <summary>Seite auf dem Brett: <c>Partie.SpielerFarbe</c> und <c>Zug.Seite</c>.</summary>
-public enum Farbe
-{
-    Weiss,
-    Schwarz,
-}
-
 /// <summary>Zustand einer Partie (SCHACH-SPEC 8.2).</summary>
 public enum PartieStatus
 {
     Offen,
     Beendet,
-}
-
-/// <summary>Ergebnis einer beendeten Partie (SCHACH-SPEC 3.6).</summary>
-public enum Ergebnis
-{
-    WeissGewinnt,
-    SchwarzGewinnt,
-    Remis,
-}
-
-/// <summary>Grund des Partieendes (SCHACH-SPEC 3.6).</summary>
-public enum Grund
-{
-    Matt,
-    Aufgabe,
-    Zeit,
-    Patt,
-    Wiederholung,
-    FuenfzigZuege,
-    Material,
-    ZeitOhneMattmaterial,
-    Vereinbarung,
 }
 
 /// <summary>Anlass eines Spruchs (SCHACH-SPEC 6.1).</summary>

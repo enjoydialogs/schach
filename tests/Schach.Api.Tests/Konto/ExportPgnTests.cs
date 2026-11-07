@@ -13,10 +13,10 @@ public sealed class ExportPgnTests
         var partie = new E.Partie
         {
             GegnerId = "oscar",
-            SpielerFarbe = E.Farbe.Schwarz,
+            SpielerFarbe = Schach.Domain.Farbe.Schwarz,
             Status = E.PartieStatus.Beendet,
-            Ergebnis = E.Ergebnis.SchwarzGewinnt,
-            Grund = E.Grund.Aufgabe,
+            Ergebnis = Schach.Domain.Ergebnis.SchwarzGewinnt,
+            Grund = Schach.Domain.Grund.Aufgabe,
             ErstelltAm = new DateTimeOffset(2026, 11, 7, 10, 0, 0, TimeSpan.Zero),
         };
         E.Zug[] zuege =
