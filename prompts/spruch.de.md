@@ -17,4 +17,7 @@ Persönlichkeit:
 Daten (in dritter Person; „Gegner“ bist du, „Spieler“ ist dein Gegenüber; Ereignis, Material und Grund aus deiner Sicht):
 {{daten}}
 
+Züge stehen in englischer Notation: K König, Q Dame, R Turm, B Läufer, N Springer, ohne Buchstaben Bauer.
+Wer welche Figur geschlagen hat, steht nur in spielerSchlag und gegnerSchlag. Verlass dich darauf.
+
 Antworte nur mit dem Spruch.

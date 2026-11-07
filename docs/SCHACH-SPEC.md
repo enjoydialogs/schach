@@ -402,7 +402,7 @@ Abschnitte:
    - Keine Anführungszeichen, kein Name davor, keine Emojis.
    - Lehrerhaft nur rückblickend.
 3. **Persönlichkeit:** `{{persona}}` = Inhalt von `prompts/gegner/{key}.de.md`.
-4. **Daten** als JSON in dritter Person: `ereignis, zugnummer, phase, spielerFarbe, bedenkzeit, spielerZug, gegnerZug, schach, materialAenderung, materialBilanz, stellung, gegnerZugMerkmale, grund, laune, letzteSprueche (≤ 3)`. Züge in SAN, `laune` aus Abschnitt 4.2. Nie FEN, nie Spieler-Identität (kein Name, keine E-Mail, keine Elo, keine Konto-ID).
+4. **Daten** als JSON in dritter Person: `ereignis, zugnummer, phase, spielerFarbe, bedenkzeit, spielerZug, gegnerZug, spielerSchlag, gegnerSchlag, schach, materialAenderung, materialBilanz, stellung, gegnerZugMerkmale, grund, laune, letzteSprueche (≤ 3)`. Züge in SAN mit englischen Buchstaben; `spielerSchlag` und `gegnerSchlag` nennen einen Schlag in Worten mit Besitzer („Läufer des Gegners schlägt Dame des Spielers“), sonst `null`, `laune` aus Abschnitt 4.2. Nie FEN, nie Spieler-Identität (kein Name, keine E-Mail, keine Elo, keine Konto-ID).
 5. „Antworte nur mit dem Spruch.“
 
 **Aufruf:**

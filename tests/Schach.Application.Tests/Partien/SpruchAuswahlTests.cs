@@ -176,9 +176,37 @@ public sealed class SpruchAuswahlTests
         anfrage.Daten.MaterialBilanz.Should().Be(8);
         anfrage.Daten.SpielerZug.Should().Be("Qxf7+");
         anfrage.Daten.GegnerZug.Should().Be("Kxf7");
+        anfrage.Daten.SpielerSchlag.Should().Be("Dame des Spielers schlägt Bauer des Gegners");
+        anfrage.Daten.GegnerSchlag.Should().Be("König des Gegners schlägt Dame des Spielers");
         anfrage.Daten.GegnerZugMerkmale.Should().Contain("Schlagzug");
         anfrage.Daten.Zugnummer.Should().Be(4);
         anfrage.BisherigeTexte.Should().Equal("Partiebeginn");
+    }
+
+    [Fact]
+    public void Anfrage_nennt_wer_wen_schlug()
+    {
+        // 1. e4 d6 2. Dg4?? Lxg4: der Läufer des Gegners schlägt die Dame des Spielers.
+        var folge = Folge("e2e4", "d7d6", "d1g4", "c8g4");
+        var partie = new Partie { Id = Guid.NewGuid(), GegnerId = "konrad", SpielerFarbe = Farbe.Weiss, Fen = folge[^1].FenDanach, Seed = 1 };
+
+        var anfrage = Spruchbau.Anfrage(partie, folge, [], SpruchEreignis.FigurGewonnen, 4, null, nurErsatz: false);
+
+        anfrage.Daten.GegnerSchlag.Should().Be("Läufer des Gegners schlägt Dame des Spielers");
+        anfrage.Daten.SpielerSchlag.Should().BeNull();
+        anfrage.Werte.Figur.Should().Be('Q');
+    }
+
+    [Fact]
+    public void Anfrage_nennt_en_passant_als_Bauernschlag()
+    {
+        // 1. a3 d5 2. a4 d4 3. e4 dxe3 e.p.
+        var folge = Folge("a2a3", "d7d5", "a3a4", "d5d4", "e2e4", "d4e3");
+        var partie = new Partie { Id = Guid.NewGuid(), GegnerId = "konrad", SpielerFarbe = Farbe.Weiss, Fen = folge[^1].FenDanach, Seed = 1 };
+
+        var anfrage = Spruchbau.Anfrage(partie, folge, [], SpruchEreignis.Zug, 6, null, nurErsatz: false);
+
+        anfrage.Daten.GegnerSchlag.Should().Be("Bauer des Gegners schlägt Bauer des Spielers");
     }
 
     [Fact]

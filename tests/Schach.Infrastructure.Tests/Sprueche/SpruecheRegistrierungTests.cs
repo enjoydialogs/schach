@@ -35,7 +35,7 @@ public sealed class SpruecheRegistrierungTests
         var partie = new Partie { Id = Guid.NewGuid(), GegnerId = "konrad", Seed = 3 };
         var spruch = await sp.GetRequiredService<SpruchDienst>().ErzeugeAsync(
             new SpruchAnfrage(partie, "Konrad", SpruchEreignis.Sieg, 40,
-                new SpruchDaten("Sieg", 20, "Endspiel", "Weiss", "OhneUhr", null, "Dh7#", true, 0, 5, null, [], "Matt", "trocken", []),
+                new SpruchDaten("Sieg", 20, "Endspiel", "Weiss", "OhneUhr", null, "Qh7#", null, null, true, 0, 5, null, [], "Matt", "trocken", []),
                 new ErsatzWerte(null, 20), []),
             Ct);
 

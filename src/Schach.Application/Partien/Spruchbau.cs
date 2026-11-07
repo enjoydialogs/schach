@@ -57,6 +57,8 @@ public static class Spruchbau
             partie.Bedenkzeit.ToString(),
             spielerZug?.San,
             gegnerZug?.San,
+            Schlag(folge, spielerZug, "Spielers", "Gegners"),
+            Schlag(folge, gegnerZug, "Gegners", "Spielers"),
             Stellung.AusFen(fen).IstSchach,
             lage?.MaterialAenderung ?? 0,
             Brettlage.Material(fen, gegnerFarbe),
@@ -102,6 +104,37 @@ public static class Spruchbau
         // Kein Stein auf dem Zielfeld: en passant, geschlagen wurde ein Bauer.
         return Zugmerkmale.Schlagzug(fenVor, zug.Uci) ? Brettlage.FigurAuf(fenVor, zug.Uci[2..4]) ?? 'p' : null;
     }
+
+    /// <summary>Schlag von <paramref name="zug"/> in Worten, z. B. „Läufer des Gegners schlägt Dame des Spielers“.</summary>
+    private static string? Schlag(IReadOnlyList<Zug> folge, Zug? zug, string ziehender, string geschlagener)
+    {
+        if (zug is null)
+        {
+            return null;
+        }
+
+        var fenVor = FenVor(folge, zug.Halbzug);
+        if (!Zugmerkmale.Schlagzug(fenVor, zug.Uci))
+        {
+            return null;
+        }
+
+        var figur = Figurname(Brettlage.FigurAuf(fenVor, zug.Uci[..2]));
+        // Kein Stein auf dem Zielfeld: en passant, geschlagen wurde ein Bauer.
+        var opfer = Figurname(Brettlage.FigurAuf(fenVor, zug.Uci[2..4]) ?? 'p');
+        return $"{figur} des {ziehender} schlägt {opfer} des {geschlagener}";
+    }
+
+    private static string Figurname(char? figur) => char.ToLowerInvariant(figur ?? ' ') switch
+    {
+        'k' => "König",
+        'q' => "Dame",
+        'r' => "Turm",
+        'b' => "Läufer",
+        'n' => "Springer",
+        'p' => "Bauer",
+        _ => "Figur",
+    };
 
     /// <summary>Laune aus dem Partie-PRNG (6.3); unbekannte Gegner bleiben trocken.</summary>
     private static string Laune(Partie partie, int nachHalbzug)

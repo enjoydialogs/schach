@@ -53,7 +53,7 @@ public sealed class SpruchDienstTests
 
     private static SpruchAnfrage Anfrage(Partie partie, SpruchEreignis ereignis = SpruchEreignis.Zug) => new(
         partie, "Finn", ereignis, 12,
-        new SpruchDaten(ereignis.ToString(), 6, "Eröffnung", "Weiss", partie.Bedenkzeit.ToString(), "e4", "e5", false, 0, 0, null, [], null, "trocken", []),
+        new SpruchDaten(ereignis.ToString(), 6, "Eröffnung", "Weiss", partie.Bedenkzeit.ToString(), "e4", "e5", null, null, false, 0, 0, null, [], null, "trocken", []),
         new ErsatzWerte(null, 6), []);
 
     private Task<Spruch> Spruch(Partie partie, SpruchEreignis ereignis = SpruchEreignis.Zug) =>
