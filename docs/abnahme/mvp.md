@@ -76,7 +76,7 @@ Stand: 2026-11-07, Phase 4 Teil 1 (#41). Phase 3 ist noch nicht abgeschlossen (#
 - Quellcode-Link mit Commit-SHA im Footer (`src/Schach.Web/src/components/quellcode.ts`).
 - gitleaks läuft in `ci.yml`.
 - Renovate: `renovate.json` ist konfiguriert, aber die Renovate-App ist für das Repo nicht installiert (kein Dependency-Dashboard-Issue, kein Onboarding-PR, Stand 2026-11-07). **Betreiber:** GitHub-App Renovate für `enjoydialogs/schach` freischalten und prüfen, dass das Dashboard-Issue erscheint.
-- Servernamen: vor dem MVP per `git grep` auf Hostnamen und IPs prüfen.
+- Servernamen: `git grep` auf IPv4-Adressen und Hostnamen am 2026-11-07 (Stand dieses PRs). Treffer nur `schach.enjoy-dialogs.de` (öffentliche Domain, Spec 13.5) und `203.0.113.7` (Dokumentations-Adresse TEST-NET-3 in `SchachMeterTests`). Vor Deploy 4 auf dem Kandidaten wiederholen.
 
 ### 11. Beta
 

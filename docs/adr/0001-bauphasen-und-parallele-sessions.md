@@ -7,7 +7,7 @@ Status: angenommen (Betreiber, 2026-11-07, Bestätigung in #19). Nachträglich a
 - Schach wird fast vollständig von Agenten-Sessions gebaut. Eine Session hat ein begrenztes Kontextfenster und sieht nur ihren eigenen Branch.
 - Der Betreiber ist eine Person. Er prüft und merged jeden PR selbst und bedient den VPS, Dokploy, Mistral, Lettermint und das Pixel 7.
 - Ohne Regeln kollidieren parallele Sessions: zwei Sessions ändern dieselbe Datei, schreiben konkurrierende Migrationen oder ändern einen Vertrag, auf den eine andere Session baut.
-- Kronrat hat mit `docs/agents/build-protocol.md` gezeigt, dass ein festes Bau-Protokoll mit eingefrorenem Gerüst und Append-Registern parallele Sessions trägt.
+- Kronrat arbeitet mit einem festen Bau-Protokoll (`docs/agents/build-protocol.md`): eingefrorenes Gerüst und Append-Register. Schach folgt diesem Muster.
 - Einige Fragen lassen sich erst nach einem Deploy beantworten (VPS-Messung Teil 2, Eichung, Spruch-Probe, Beta). Sie dürfen den Bau nicht blockieren.
 
 ## Entscheidung
@@ -24,7 +24,7 @@ Status: angenommen (Betreiber, 2026-11-07, Bestätigung in #19). Nachträglich a
 
 ## Folgen
 
-- Sessions blockieren sich selten. Konflikte entstehen fast nur in den Append-Registern und lösen sich beim Merge durch Anhängen.
+- Sessions sollen sich nicht gegenseitig blockieren. Konflikte sollen nur in den Append-Registern entstehen und sich beim Merge durch Anhängen lösen.
 - Verträge (Zustand-DTO, Fehler-DTO, `engine/API.md`) ändern sich nicht nebenbei. Eine Vertragsänderung kostet einen eigenen PR und ist damit sichtbar.
 - Der Betreiber ist der Engpass: jeder PR wartet auf seinen Merge, jede Messung und jeder Deploy auf seine Zeit. Das ist gewollt, weil er die Verantwortung für das öffentliche Repo und den VPS trägt.
 - Phase 4 hängt an Dingen außerhalb des Repos (Beta-Tester, Eichlauf auf dem Entwicklungsrechner, Deploy). Sie lässt sich darum nur zum Teil von einer Session erledigen; der Rest steht als offener Punkt in `docs/abnahme/mvp.md`.
