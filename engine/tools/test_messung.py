@@ -39,7 +39,7 @@ class FakeTransport:
 
 
 def konfig(**aenderungen):
-    basis = dict(partien=4, gegnerzuege=6, dauer_s=None, denkzeit_s=(0.0, 0.0), tipp_rate=0.0, seed=1)
+    basis = {"partien": 4, "gegnerzuege": 6, "dauer_s": None, "denkzeit_s": (0.0, 0.0), "tipp_rate": 0.0, "seed": 1}
     basis.update(aenderungen)
     return m.Konfig(**basis)
 

@@ -314,9 +314,9 @@ def _zelle(wert: Any) -> str:
 def als_markdown(bericht: dict[str, Any]) -> str:
     k = bericht["konfig"]
     zeilen = [
-        f"Partien parallel: {k['partien']}, Dauer je Phase: {_zelle(k['dauer_s'])} s, "
+        (f"Partien parallel: {k['partien']}, Dauer je Phase: {_zelle(k['dauer_s'])} s, "
         f"Denkzeit {k['denkzeit_s'][0]}–{k['denkzeit_s'][1]} s, Tipp-Rate {k['tipp_rate']}, "
-        f"Tipp {k['tipp_movetime_ms']} ms / MultiPV {k['tipp_multipv']}",
+        f"Tipp {k['tipp_movetime_ms']} ms / MultiPV {k['tipp_multipv']}"),
         "",
     ]
     if "erststart" in bericht:
@@ -346,8 +346,8 @@ def als_markdown(bericht: dict[str, Any]) -> str:
             "",
             f"RSS: max {_zelle(r['max'])} MiB, zuletzt {_zelle(r['letzter'])} MiB ({r['proben']} Proben)",
             "",
-            f"Kriterium 5: Gegnerzug p95 ≤ {GRENZE_GEGNERZUG_MS} ms: {_zelle(k5['gegnerzug_p95_ok'])}; "
-            f"Tipp p95 ≤ {GRENZE_TIPP_MS} ms: {_zelle(k5['tipp_p95_ok'])}",
+            (f"Kriterium 5: Gegnerzug p95 ≤ {GRENZE_GEGNERZUG_MS} ms: {_zelle(k5['gegnerzug_p95_ok'])}; "
+            f"Tipp p95 ≤ {GRENZE_TIPP_MS} ms: {_zelle(k5['tipp_p95_ok'])}"),
             "",
         ]
     return "\n".join(zeilen)
