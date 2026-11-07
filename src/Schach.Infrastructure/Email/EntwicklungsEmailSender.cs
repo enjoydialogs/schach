@@ -58,8 +58,9 @@ public sealed class FileEmailSender(IOptions<EmailOptionen> optionen) : IEmailSe
             await File.WriteAllTextAsync(datei, JsonSerializer.Serialize(email), cancellationToken);
             return true;
         }
-        catch (IOException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
         {
+            // Wie jeder Sender: nie werfen (SCHACH-SPEC 9.3), sonst wird aus 503 MailNichtGesendet ein 500.
             return false;
         }
     }
