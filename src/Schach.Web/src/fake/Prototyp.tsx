@@ -56,6 +56,8 @@ export function Prototyp() {
     try {
       await starteFake()
       fakeServer.gast = gast
+      // Seit S3b gilt „eine offene Partie je Spieler“ (409): der Prototyp raeumt sie vorher ab.
+      fakeServer.gibOffeneAuf()
       fakeServer.vorgaben = {
         startFen: STELLUNGEN[stellung].fen,
         spielerStartMs: uhrKnapp && bedenkzeit !== 'OhneUhr' ? 25_000 : undefined,
