@@ -9,7 +9,7 @@ import './brett.css'
 
 // Tipp-Pfeil in Akzentfarbe. react-chessboard setzt die Farbe als SVG-Attribut, dort greift keine
 // CSS-Variable; der Wert spiegelt --accent aus palette.css.
-const PFEIL_FARBE = '#2e6bd6'
+const PFEIL_FARBE = '#1e7a62'
 
 export interface BrettProps {
   /** Angezeigte Stellung (FEN vom Server, optimistisch fortgeschrieben). */
@@ -85,6 +85,9 @@ export function Brett(props: BrettProps) {
     squareStyles: stile,
     lightSquareStyle: { backgroundColor: 'var(--board-light)' },
     darkSquareStyle: { backgroundColor: 'var(--board-dark)' },
+    // Koordinaten in der Gegenfarbe des Feldes; die Bibliothek setzt sonst Braun fest.
+    lightSquareNotationStyle: { color: 'var(--board-dark)', fontWeight: 600 },
+    darkSquareNotationStyle: { color: 'var(--board-light)', fontWeight: 600 },
     canDragPiece: ({ piece }) => eingabeAktiv && piece.pieceType[0] === eigene,
     onSquareClick: ({ square }) => {
       if (!eingabeAktiv) return

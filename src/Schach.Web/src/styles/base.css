@@ -28,9 +28,9 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(60% 45% at 12% 8%, var(--backdrop-blau), transparent 70%),
-    radial-gradient(50% 40% at 92% 30%, var(--backdrop-gold), transparent 70%),
-    radial-gradient(70% 50% at 50% 105%, var(--backdrop-holz), transparent 70%),
+    radial-gradient(60% 45% at 8% 4%, var(--backdrop-pfirsich), transparent 70%),
+    radial-gradient(55% 45% at 96% 34%, var(--backdrop-flieder), transparent 70%),
+    radial-gradient(75% 50% at 30% 104%, var(--backdrop-minze), transparent 70%),
     var(--bg);
 }
 
