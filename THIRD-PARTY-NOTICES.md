@@ -75,3 +75,11 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
+
+## Engine-Dienst, Ergänzung Weitergabe (ADR 0002)
+
+| Komponente | Lizenz | Quelle | Verwendet in |
+|---|---|---|---|
+| Maia-3 (Code), Commit `1e13597c42d4858b7cfd7cfdae01e297263364b2` | AGPL-3.0 | https://github.com/CSSLab/maia3/tree/1e13597c42d4858b7cfd7cfdae01e297263364b2 | geänderter Auszug in `engine/src/schach_engine/maia3/` (ab S4a) |
+
+Weitergabe im öffentlichen Engine-Image (ADR 0002): Corresponding Source der Binaries sind die Upstream-Tags https://github.com/official-stockfish/Stockfish/tree/sf_19 und https://github.com/fairy-stockfish/Fairy-Stockfish/tree/fairy_sf_14. GPL-Text, sha256 und Quellen liegen im Image unter `/usr/share/doc/schach-engine/` (`COPYING`, `NOTICES.md`).

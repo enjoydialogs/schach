@@ -86,9 +86,15 @@ jobs:
           - name: schach-web
             context: .
             file: Dockerfile
+            licenses: MIT
+            description: "Schach: Web-App und Server (ASP.NET Core mit React-Client)"
+            documentation: README.md
           - name: schach-engine
             context: engine
             file: engine/Dockerfile
+            licenses: AGPL-3.0-or-later AND GPL-3.0-or-later
+            description: "Schach: Engine-Dienst (Maia-3, Stockfish 19, Fairy-Stockfish 14); Hinweise in /usr/share/doc/schach-engine"
+            documentation: engine/README.md
     steps:
       - uses: actions/checkout@v7
         with:
@@ -116,6 +122,9 @@ jobs:
           CONTEXT: ${{ matrix.context }}
           FILE: ${{ matrix.file }}
           VERSION: ${{ steps.version.outputs.value }}
+          LICENSES: ${{ matrix.licenses }}
+          DESCRIPTION: ${{ matrix.description }}
+          DOCUMENTATION: ${{ matrix.documentation }}
         run: |
           docker buildx build "$CONTEXT" \
             --file "$FILE" \
@@ -123,6 +132,9 @@ jobs:
             --build-arg "INFORMATIONAL_VERSION=$VERSION" \
             --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
             --label "org.opencontainers.image.revision=$TAG" \
+            --label "org.opencontainers.image.licenses=$LICENSES" \
+            --label "org.opencontainers.image.description=$DESCRIPTION" \
+            --label "org.opencontainers.image.documentation=https://github.com/${GITHUB_REPOSITORY}/blob/$TAG/$DOCUMENTATION" \
             --tag "$REGISTRY/$NAME:$TAG" \
             --tag "$REGISTRY/$NAME:main" \
             --cache-from "type=gha,scope=$NAME" \
