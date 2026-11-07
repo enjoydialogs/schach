@@ -197,6 +197,18 @@ public sealed class SpruchDienstTests
         _provider.Aufrufe.Should().Be(0);
     }
 
+    [Fact]
+    public async Task Partieende_durch_den_Sweep_ist_ein_Ersatzspruch()
+    {
+        var partie = Partie();
+
+        var spruch = await Dienst().ErzeugeAsync(Anfrage(partie, SpruchEreignis.Sieg) with { NurErsatz = true }, Ct);
+
+        spruch.Quelle.Should().Be(SpruchQuelle.Ersatz);
+        _provider.Aufrufe.Should().Be(0);
+        partie.MistralAufrufe.Should().Be(0);
+    }
+
     [Theory]
     [InlineData(false, 19, SpruchEreignis.Zug, SpruchQuelle.Mistral)]
     [InlineData(false, 20, SpruchEreignis.Zug, SpruchQuelle.Ersatz)]

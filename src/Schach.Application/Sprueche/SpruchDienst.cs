@@ -51,6 +51,7 @@ public interface IPersonaQuelle
 /// <param name="Daten">Daten fuer den Prompt (6.3, Abschnitt 4).</param>
 /// <param name="Werte">Platzhalter fuer den Ersatzspruch.</param>
 /// <param name="BisherigeTexte">Alle Spruchtexte dieser Partie, gegen Wiederholung.</param>
+/// <param name="NurErsatz">Ohne Mistral, z. B. Partieende durch den Sweep (SCHACH-SPEC 6.1).</param>
 public sealed record SpruchAnfrage(
     Partie Partie,
     string GegnerName,
@@ -58,7 +59,8 @@ public sealed record SpruchAnfrage(
     int NachHalbzug,
     SpruchDaten Daten,
     ErsatzWerte Werte,
-    IReadOnlyCollection<string> BisherigeTexte);
+    IReadOnlyCollection<string> BisherigeTexte,
+    bool NurErsatz = false);
 
 /// <summary>
 /// Erzeugt genau einen Spruch (SCHACH-SPEC 6). Fragt Mistral nur, wenn Anbieter, 429-Pause,
@@ -111,7 +113,7 @@ public sealed partial class SpruchDienst(
         var partie = anfrage.Partie;
         var gast = partie.SpielerId is null;
 
-        if (anfrage.Ereignis == SpruchEreignis.Partiebeginn || resolver.IsOff || guard.IstPausiert)
+        if (anfrage.NurErsatz || anfrage.Ereignis == SpruchEreignis.Partiebeginn || resolver.IsOff || guard.IstPausiert)
         {
             return false;
         }
