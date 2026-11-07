@@ -5,7 +5,8 @@ import { meldeAnPerCode } from '../helfer/konto'
 import { neueAdresse } from '../helfer/mail'
 import { gibAuf, spieleZugTippenTippen, startePartieGegen } from '../helfer/partie'
 
-// Strecke 5 (SCHACH-SPEC 15.2, 10.8): Nachspielen einer beendeten Partie plus PGN-Download.
+// Strecke 5 (SCHACH-SPEC 15.2, 10.8): Nachspielen einer beendeten Partie plus PGN-Download. Dazu
+// die Elo-Zeile im Partieende-Blatt (10.3) und die Partienliste (10.7).
 test('Nachspielen und PGN herunterladen', async ({ page }) => {
   // Ohne Web Share faellt „PGN teilen“ auf den Download zurueck (components/datei.ts).
   await page.addInitScript(() => {
@@ -51,11 +52,13 @@ test('Nachspielen und PGN herunterladen', async ({ page }) => {
   expect(inhalt).toBe(pgn)
   expect(inhalt).toContain('[Result "0-1"]')
 
-  // Partienliste gegen den echten Server (`GET /partien?limit`, SCHACH-SPEC 10.7): die eine
-  // beendete Partie steht dort und fuehrt zurueck ins Nachspielen.
-  const liste = page.waitForResponse(
-    (r) => r.request().method() === 'GET' && new URL(r.url()).pathname === '/api/v1/partien',
-  )
+  // Partienliste gegen den echten Server (`GET /partien?limit=50`, SCHACH-SPEC 10.7): die eine
+  // beendete Partie steht dort und fuehrt zurueck ins Nachspielen. `limit=50` grenzt die Seite gegen
+  // die Install-Pruefung ab (`/partien?limit=1`, pwa/install.ts).
+  const liste = page.waitForResponse((r) => {
+    const url = new URL(r.url())
+    return r.request().method() === 'GET' && url.pathname.endsWith('/partien') && url.searchParams.get('limit') === '50'
+  })
   await page.goto('/partien')
   expect((await liste).status()).toBe(200)
   const zeilen = page.locator('ul.liste a.partiezeile')
