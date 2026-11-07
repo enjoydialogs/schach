@@ -1,0 +1,24 @@
+# Compose-Override fuer die E2E-Strecken (SCHACH-SPEC 15.2, Ticket #40). Nur zusammen mit dem
+# lokalen Compose, nie mit docker-compose.dokploy.yml:
+#
+#   docker compose -f docker-compose.yml -f tests/Schach.E2E/compose.e2e.yml --profile full up -d --wait
+#
+# Relative Pfade gelten ab dem Ordner der ERSTEN Datei (Repo-Wurzel), nicht ab diesem Ordner.
+# Der Mail-Ordner muss vor dem Start existieren und fuer $APP_UID schreibbar sein (chmod 0777),
+# sonst antwortet POST /auth/anmeldung mit einem Fehler (.github/workflows/e2e.yml legt ihn an).
+
+services:
+  engine:
+    environment:
+      # Fixture statt Maia-Modell: kein Download, echte Zuege (engine/src/schach_engine/fixture.py).
+      SCHACH_ENGINE_FAKE_MODEL: "1"
+
+  web:
+    environment:
+      # Mails als JSON-Dateien statt Versand; der Test liest den Code daraus (kein Dev-Endpunkt).
+      Email__Provider: "File"
+      Email__FileDirectory: "/e2e-mail"
+      # Ersatzsprueche statt LLM-Aufruf (kein Fremd-Host, kein Schluessel).
+      Llm__Provider: "DeterministicFallback"
+    volumes:
+      - ./tests/Schach.E2E/.mail:/e2e-mail

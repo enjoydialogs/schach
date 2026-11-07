@@ -1,0 +1,6 @@
+node_modules/
+playwright-report/
+test-results/
+blob-report/
+# Mails des FileEmailSender (Bind-Mount aus compose.e2e.yml)
+.mail/
