@@ -35,5 +35,36 @@
   --avatar-meister: #122e5e;
   --avatar-meister-text: #ffffff;
 
+  /* Glas-Ebene: helle, halbtransparente Flaechen ueber einem weichen Farbhintergrund.
+     Die Spec-Farben oben bleiben unveraendert; Glas liegt nur darueber.
+     Deckkraft >= 0.72, damit --text-muted auf Glas 4.5:1 haelt. */
+  --on-accent: #ffffff;
+  --glass-surface: rgba(255, 255, 255, 0.72);
+  --glass-surface-strong: rgba(255, 255, 255, 0.86);
+  --glass-tint: rgba(46, 107, 214, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-hairline: rgba(30, 35, 41, 0.08);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glass-blur: 18px;
+  --glass-dark: rgba(30, 35, 41, 0.84);
+  --scrim: rgba(30, 35, 41, 0.32);
+  --scrim-leicht: rgba(30, 35, 41, 0.24);
+  --backdrop-blau: rgba(46, 107, 214, 0.16);
+  --backdrop-gold: rgba(240, 165, 0, 0.12);
+  --backdrop-holz: rgba(181, 136, 99, 0.14);
+  --disabled-bg: rgba(30, 35, 41, 0.08);
+  --disabled-text: #6b7178;
+  --fokus-ring: 0 0 0 3px rgba(46, 107, 214, 0.35);
+
+  /* Hoehenstufen: Kontakt, Mitte, Umgebung (shadow-elevation) */
+  --shadow-1: 0 1px 2px rgba(30, 35, 41, 0.06), 0 2px 8px rgba(30, 35, 41, 0.05);
+  --shadow-2: 0 1px 3px rgba(30, 35, 41, 0.08), 0 6px 16px rgba(30, 35, 41, 0.07), 0 18px 40px rgba(30, 35, 41, 0.06);
+  --shadow-3: 0 2px 4px rgba(30, 35, 41, 0.1), 0 12px 28px rgba(30, 35, 41, 0.12), 0 32px 64px rgba(30, 35, 41, 0.12);
+  --glow-accent: 0 6px 20px rgba(46, 107, 214, 0.3);
+
+  --dauer-kurz: 150ms;
+  --dauer-mittel: 240ms;
+  --kurve-raus: cubic-bezier(0.22, 1, 0.36, 1);
+
   color-scheme: light;
 }

@@ -4,10 +4,14 @@
   box-sizing: border-box;
 }
 
+/* Nur html traegt --bg; body bleibt durchsichtig, sonst deckt es den Glas-Hintergrund zu. */
+html {
+  background: var(--bg);
+}
+
 html,
 body {
   margin: 0;
-  background: var(--bg);
   color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
   font-size: 16px;
@@ -15,8 +19,29 @@ body {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Glas-Hintergrund: weiche Farbflecken ueber --bg, fest hinter allem. Ohne sie haette das Glas
+   nichts zu verwischen. Rein dekorativ, faengt keine Eingaben. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 45% at 12% 8%, var(--backdrop-blau), transparent 70%),
+    radial-gradient(50% 40% at 92% 30%, var(--backdrop-gold), transparent 70%),
+    radial-gradient(70% 50% at 50% 105%, var(--backdrop-holz), transparent 70%),
+    var(--bg);
+}
+
 a {
   color: var(--accent);
+}
+
+/* Fokus nur fuer Tastatur, einheitlich fuer alle Bedienelemente. */
+:where(a, button, [role='switch'], summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Layout "Seite" (10.1): scrollt, 16 px Rand, Kopf- und Fusszeile. */
@@ -34,6 +59,7 @@ a {
 .wortmarke {
   font-size: 28px;
   font-weight: 700;
+  letter-spacing: -0.02em;
   margin: 24px 0 8px;
 }
 
@@ -51,10 +77,25 @@ a {
   border: 0;
   border-radius: 12px;
   background: var(--accent);
-  color: #ffffff;
+  color: var(--on-accent);
   font: inherit;
   font-weight: 600;
   text-decoration: none;
+  box-shadow: var(--glass-highlight), var(--shadow-1);
+  transition:
+    transform var(--dauer-kurz) var(--kurve-raus),
+    box-shadow var(--dauer-kurz) var(--kurve-raus),
+    background-color var(--dauer-kurz) var(--kurve-raus);
+}
+
+.knopf:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+@media (hover: hover) {
+  .knopf:hover:not(:disabled) {
+    box-shadow: var(--glass-highlight), var(--glow-accent);
+  }
 }
 
 /* Fusszeile 12 px (10.1) */
@@ -67,4 +108,30 @@ a {
 
 .fusszeile a {
   color: inherit;
+}
+
+/* Glas braucht backdrop-filter. Fehlt er oder will das System keine Transparenz: deckende Flaechen. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --glass-surface: var(--surface);
+    --glass-surface-strong: var(--surface);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-surface: var(--surface);
+    --glass-surface-strong: var(--surface);
+    --glass-dark: var(--text);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

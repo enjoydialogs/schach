@@ -1,3 +1,4 @@
+import { useUeberlage } from '../components/useUeberlage'
 import { t } from '../i18n/de'
 import type { Umwandlungsfigur } from './auswahl'
 import { Figur } from './figuren'
@@ -19,9 +20,12 @@ export function Umwandlung({
   onWahl: (figur: Umwandlungsfigur) => void
   onAbbruch: () => void
 }) {
+  const flaeche = useUeberlage<HTMLDivElement>(onAbbruch)
   return (
     <div className="umwandlung" data-testid="umwandlung-hintergrund" onClick={onAbbruch}>
       <div
+        ref={flaeche}
+        tabIndex={-1}
         className="umwandlung__kacheln"
         role="dialog"
         aria-label={t('brett.umwandlungTitel')}
