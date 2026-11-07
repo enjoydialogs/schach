@@ -1,7 +1,8 @@
-"""Fixture-Engine fuer Phase 0c (SCHACH-SPEC 15.3): antwortet vertragstreu, rechnet aber nicht.
+"""Fixture-Engine (SCHACH-SPEC 15.2): antwortet vertragstreu, rechnet aber nicht.
 
-Die Zuege sind echt (python-chess), die Wahrscheinlichkeiten und Bewertungen fest. S4a ersetzt
-diese Klasse durch Maia-3, Stockfish und Fairy-Stockfish; der HTTP-Vertrag bleibt.
+Die Zuege sind echt (python-chess), die Wahrscheinlichkeiten und Bewertungen fest. Seit S4a nur
+noch mit `SCHACH_ENGINE_FAKE_MODEL=1` (pytest, CI-Stufe engine); sonst rechnen Maia-3, Stockfish
+und Fairy-Stockfish (`kerne.py`).
 """
 
 import chess
