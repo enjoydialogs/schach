@@ -120,6 +120,18 @@ services:
       Limits__EngineZuegeWarteschlange: ${LIMITS_ENGINE_ZUEGE_WARTESCHLANGE:-48}
       Limits__StockfishTippsGleichzeitig: ${LIMITS_STOCKFISH_TIPPS_GLEICHZEITIG:-2}
       Limits__StockfishTippsWarteschlange: ${LIMITS_STOCKFISH_TIPPS_WARTESCHLANGE:-4}
+      Limits__SprachausgabenJeIpUndMinute: ${LIMITS_SPRACHAUSGABEN_JE_IP_UND_MINUTE:-60}
+      # Sprachausgabe (SCHACH-SPEC 6.9, #77). Voice-Ids nur im Panel, nie im Repo. Ohne Id bleibt der
+      # Gegner stumm; ohne Mistral-Schluessel ist die Sprachausgabe aus.
+      Sprachausgabe__MonthlyBudgetEuroCents: ${SPRACHAUSGABE_BUDGET_CENT:-500}
+      Sprachausgabe__Stimmen__finn__VoiceId: ${SPRACHAUSGABE_STIMME_FINN:-}
+      Sprachausgabe__Stimmen__ilse__VoiceId: ${SPRACHAUSGABE_STIMME_ILSE:-}
+      Sprachausgabe__Stimmen__konrad__VoiceId: ${SPRACHAUSGABE_STIMME_KONRAD:-}
+      Sprachausgabe__Stimmen__maren__VoiceId: ${SPRACHAUSGABE_STIMME_MAREN:-}
+      Sprachausgabe__Stimmen__nele__VoiceId: ${SPRACHAUSGABE_STIMME_NELE:-}
+      Sprachausgabe__Stimmen__oscar__VoiceId: ${SPRACHAUSGABE_STIMME_OSCAR:-}
+      Sprachausgabe__Stimmen__sementa__VoiceId: ${SPRACHAUSGABE_STIMME_SEMENTA:-}
+      Sprachausgabe__Stimmen__theo__VoiceId: ${SPRACHAUSGABE_STIMME_THEO:-}
       # Tracing: aus ohne Endpunkt (SchachTracing). Mit Monitoring-Projekt auf der Box z. B. der
       # Collector-Alias auf dokploy-network.
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
