@@ -20,5 +20,8 @@ services:
       Email__FileDirectory: "/e2e-mail"
       # Ersatzsprueche statt LLM-Aufruf (kein Fremd-Host, kein Schluessel).
       Llm__Provider: "DeterministicFallback"
+      # Alle Strecken melden sich von derselben IP an (Strecken 2 bis 6: sechs Mal in wenigen
+      # Minuten). Die Vorgabe 5 je 10 Minuten wuerde die letzte Anmeldung mit 429 ablehnen.
+      Limits__AnmeldungenJeIpUnd10Minuten: "50"
     volumes:
       - ./tests/Schach.E2E/.mail:/e2e-mail
