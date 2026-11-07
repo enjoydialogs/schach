@@ -636,7 +636,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
+  min-height: 48px;
   border-radius: 8px;
   cursor: pointer;
   transition:

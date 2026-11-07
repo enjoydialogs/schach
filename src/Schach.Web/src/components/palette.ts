@@ -7,7 +7,7 @@ import { paletteId } from './SpeicherSchluessel'
 // dass sie mit palette.css uebereinstimmen.
 
 export const PALETTEN = [
-  { id: 'lila', grund: '#f4f2fb', brett: '#a898d8', akzent: '#1e7a62' },
+  { id: 'lila', grund: '#f4f2fb', brett: '#a898d8', akzent: '#1c715b' },
   { id: 'pink', grund: '#fcf1f6', brett: '#e09cba', akzent: '#1b6a7e' },
   { id: 'gruen', grund: '#eff7f2', brett: '#8ec6a7', akzent: '#6a45b0' },
   { id: 'blau', grund: '#f0f4fb', brett: '#94afde', akzent: '#a3336b' },
