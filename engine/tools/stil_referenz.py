@@ -94,6 +94,16 @@ GEGNER: tuple[GegnerEintrag, ...] = (
 )
 
 
+# Spielstaerken (SCHACH-SPEC 4.1, Feld `stufe`). Temperatur und Fairy-Ausweg gelten je Spielstaerke.
+SPIELSTAERKEN: dict[str, tuple[str, ...]] = {
+    "anfaenger": ("ilse", "finn"),
+    "hobbyspieler": ("oscar", "nele"),
+    "vereinsspieler": ("theo", "sementa"),
+    "turnierspieler": ("konrad",),
+    "meister": ("maren",),
+}
+
+
 def gegner(key: str) -> GegnerEintrag:
     for g in GEGNER:
         if g.key == key:

@@ -182,3 +182,48 @@ def test_uci_anker_setzt_limit_strength_und_elo(engine_url, tmp_path):
         assert "elo 1500 limit true" in texte
     finally:
         sp.schliessen()
+
+
+def test_fairy_ausweg_gilt_fuer_die_ganze_spielstaerke_anfaenger():
+    im_band = e.Treffer(800, 1.0, e.Schaetzung(820, 760, 880, 50), True)
+    daneben = e.Treffer(600, 1.0, e.Schaetzung(900, 800, 1000, 50), False)
+    block = e.engine_eichung({"ilse": daneben, "finn": im_band})["Engine"]["Eichung"]
+    assert block["ilse"]["Engine"] == "Fairy"
+    assert block["finn"] == {"SelfElo": 800, "Temperatur": 1.0, "Engine": "Fairy"}
+
+
+def test_temperatur_abweichung_je_spielstaerke_wird_gemeldet():
+    a = e.Treffer(1000, 1.0, e.Schaetzung(1000, 950, 1050, 50), True)
+    b = e.Treffer(1200, 0.8, e.Schaetzung(1200, 1150, 1250, 50), True)
+    c = e.Treffer(1400, 1.0, e.Schaetzung(1400, 1350, 1450, 50), True)
+    konfig = e.engine_eichung({"oscar": a, "nele": b, "theo": c})
+    assert konfig["tau_abweichung"] == ["hobbyspieler"]
+
+
+def test_uci_anker_ausserhalb_des_bereichs_bricht_vorher_ab():
+    fake = [sys.executable, str(Path(__file__).parents[1] / "tests" / "fake_uci.py")]
+    with pytest.raises(ValueError, match="UCI_Elo"):
+        e.pruefe_uci_anker(fake, [400, 1000])  # fake_uci: min 500
+    e.pruefe_uci_anker(fake, [500, 2850])
+
+
+def test_stil_ueberspringt_fairy_gegner(engine_url, tmp_path):
+    eichung_datei = tmp_path / "e.json"
+    eintrag = {"SelfElo": 600, "Temperatur": 1.0, "Engine": "Fairy"}
+    eichung_datei.write_text(json.dumps({"Engine": {"Eichung": {"ilse": eintrag}}}), encoding="utf-8")
+    aus = tmp_path / "s.json"
+    code = e.main([
+        "stil", "--url", engine_url, "--gegner", "ilse", "--partien", "2", "--eichung", str(eichung_datei),
+        "--spiele", str(tmp_path / "s.jsonl"), "--ausgabe", str(aus),
+    ])  # fmt: skip
+    assert code == 0
+    assert json.loads(aus.read_text(encoding="utf-8"))["stil"]["ilse"] == {"uebersprungen": "Engine Fairy hat keinen Stil"}
+    assert not (tmp_path / "s.jsonl").exists()
+
+
+def test_abgeschnittene_letzte_zeile_wird_ignoriert(tmp_path):
+    spiele = tmp_path / "x.jsonl"
+    spiele.write_text('{"id": "a", "art": "staerke"}\n{"id": "b", "ar', encoding="utf-8")
+    lauf = e.Lauf(HttpTransport("http://127.0.0.1:9"), spiele)
+    assert set(lauf._fertig) == {"a"}
+    assert spiele.read_text(encoding="utf-8").endswith("\n")  # naechste Zeile beginnt sauber

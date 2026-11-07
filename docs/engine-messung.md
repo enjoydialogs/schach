@@ -37,20 +37,28 @@ Der Engine-Container hat keinen Port nach außen. Gemessen wird aus einem Wegwer
 1. `engine/tools` auf die Box kopieren, z. B. nach `~/schach-tools`.
 2. Netz des Engine-Containers finden: `docker inspect <engine-container> --format '{{json .NetworkSettings.Networks}}'` (das Compose-Netz `internal`).
 3. Cgroup-Pfad für RSS finden (cgroup v2): `docker inspect <engine-container> --format '{{.Id}}'`, dann `ls /sys/fs/cgroup/system.slice/ | grep <id>`.
-4. Messung starten, höchstens 5 Minuten:
+4. `chess` vorab installieren. Das Netz `internal` hat keine Route nach draußen, darum im Standardnetz:
 
    ```sh
-   docker run --rm --network <internal-netz> \
-     -v ~/schach-tools:/tools:ro -v /sys/fs/cgroup:/host-cgroup:ro \
-     python:3.12-slim sh -c "pip install -q chess==1.11.2 && cd /tools && python messung.py \
-       --url http://engine:8081 --partien 10 --dauer 120 --phasen maia,gemischt \
-       --rss-befehl 'cat /host-cgroup/system.slice/docker-<id>.scope/memory.current' \
-       --json /tmp/m.json --markdown /dev/stdout"
+   docker run --rm -v ~/schach-tools/site:/site python:3.12-slim pip install -q --target /site chess==1.11.2
    ```
 
-5. Ohne cgroup-Zugriff: RSS in einer zweiten SSH-Sitzung sammeln, `while sleep 2; do docker stats --no-stream --format '{{.MemUsage}}' <engine-container>; done`.
-6. Erststart inklusive Hugging-Face-Download (nur mit leerem Volume `engine-models`, also vor dem ersten Start oder nach bewusstem Löschen): den Wegwerf-Container mit `--erststart` starten, dann den Engine-Container starten. Die Zeit bis `/healthz` 200 steht oben im Bericht.
-7. Ergebnis unten eintragen und in #15 kommentieren. Danach `MAIA_QUEUE_MAX`, `SF_POOL_SIZE`, die Limits aus 11.2 und `SF_ARCH` setzen.
+5. Messung starten, höchstens 5 Minuten (zwei Phasen à 120 s):
+
+   ```sh
+   mkdir -p ~/schach-messung
+   docker run --rm --network <internal-netz> -e PYTHONPATH=/site \
+     -v ~/schach-tools:/tools:ro -v ~/schach-tools/site:/site:ro \
+     -v ~/schach-messung:/out -v /sys/fs/cgroup:/host-cgroup:ro \
+     python:3.12-slim sh -c "cd /tools && python messung.py \
+       --url http://engine:8081 --partien 10 --dauer 120 --phasen maia,gemischt \
+       --rss-befehl 'cat /host-cgroup/system.slice/docker-<id>.scope/memory.current' \
+       --json /out/m.json --markdown /out/m.md"
+   ```
+
+6. Ohne cgroup-Zugriff: RSS in einer zweiten SSH-Sitzung sammeln, `while sleep 2; do docker stats --no-stream --format '{{.MemUsage}}' <engine-container>; done`.
+7. Erststart inklusive Hugging-Face-Download (nur mit leerem Volume `engine-models`, also vor dem ersten Start oder nach bewusstem Löschen): den Wegwerf-Container mit `--erststart` starten, dann den Engine-Container starten. Die Zeit bis `/healthz` 200 steht oben im Bericht.
+8. Ergebnis unten eintragen und in #15 kommentieren. Danach `MAIA_QUEUE_MAX`, `SF_POOL_SIZE`, die Limits aus 11.2 und `SF_ARCH` setzen.
 
 ### Ergebnis VPS-Messung Teil 2
 
@@ -100,8 +108,10 @@ python eichung.py staerke --url http://127.0.0.1:8081 --gegner alle --partien 10
 - Elo-Schätzung: Maximum Likelihood über alle Partien gegen alle Anker. Remis zählen halb. Dazu ein 95-%-Intervall.
 - Suche je Gegner: Temperaturen (`--temperaturen`, äußere Schleife), darin SelfElo-Offsets (`--offsets`, Standard `0,-100,100,…,±400`). Der erste Versuch im Band ±100 gewinnt. So bleibt der Wert so nah wie möglich an der Identität.
 - `--partien` gilt je Anker und Versuch. 100 × 3 Anker ergeben ±40 Elo Intervall.
-- Ausgabe: Block `Engine:Eichung` je Gegner-Key, Liste `nicht_im_band` und alle Versuche.
-- Trifft 600 oder 800 nicht ins Band, steht dort `Engine: "Fairy"` mit `SelfElo` = Gegner-Elo als `fairy_skill` (5.4 a).
+- Ausgabe: Block `Engine:Eichung` je Gegner-Key, Liste `nicht_im_band`, Liste `tau_abweichung` und alle Versuche.
+- Trifft 600 oder 800 nicht ins Band, spielt die ganze Spielstärke Anfänger (Ilse und Finn) mit `Engine: "Fairy"`, `SelfElo` = Gegner-Elo als `fairy_skill` (5.1, 5.4 a).
+- τ gilt nur je Spielstärke (5.3 Schritt 2). Bekommen Gegner derselben Spielstärke verschiedene τ, steht die Spielstärke in `tau_abweichung`. Dann eine gemeinsame τ wählen und mit `--temperaturen <τ>` für beide nachmessen.
+- `--anker uci` prüft vor dem Spielen, ob alle Anker im `UCI_Elo`-Bereich der Engine liegen (Stockfish ab 1320), und bricht sonst ab.
 
 ### (b) Stil gegen neutral und (c) Sichtbarkeit
 
@@ -111,6 +121,7 @@ python eichung.py stil --url http://127.0.0.1:8081 --gegner alle --partien 400 \
 ```
 
 - Je Gegner spielen gestylte Gewichte gegen neutrale, gleiche SelfElo und Temperatur aus (a), Farben abwechselnd.
+- Gegner mit `Engine: "Fairy"` werden übersprungen; der Fairy-Pfad hat keinen Stil.
 - Bestanden bei 45 bis 55 % für die gestylte Seite. Bei 400 Partien ist das 95-%-Intervall etwa ±5 %.
 - Nicht bestanden: erneut mit `--gewicht-max 1.5` oder `--band-faktor 0.5` (5.4 b). Die Elo wird nie verschoben.
 - Sichtbarkeit (c) aus denselben Partien: Raten aller Merkmale je Zug für beide Seiten.
@@ -121,7 +132,7 @@ python eichung.py stil --url http://127.0.0.1:8081 --gegner alle --partien 400 \
 ### Fortsetzen und Auswerten
 
 - Jede fertige Partie steht als Zeile in der `--spiele`-Datei. Die ID enthält Gegner, SelfElo, Temperatur, Anker und Nummer. Der Seed kommt aus der ID.
-- Derselbe Aufruf mit derselben Datei spielt nur fehlende Partien. Abbruch mit Strg+C ist sicher; halbe Partien gehen verloren.
+- Derselbe Aufruf mit derselben Datei spielt nur fehlende Partien. Abbruch mit Strg+C ist sicher; halbe Partien gehen verloren, eine halb geschriebene letzte Zeile wird beim nächsten Start übersprungen.
 - `python eichung.py auswerten --spiele eichung/staerke.jsonl` fasst eine Datei neu zusammen.
 - Partieende: Regeln von python-chess mit `claim_draw` (Wiederholung, 50 Züge), sonst Remis nach `--max-halbzuege` (Standard 300).
 
