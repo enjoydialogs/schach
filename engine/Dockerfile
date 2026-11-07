@@ -1,26 +1,52 @@
 # Engine-Dienst (SCHACH-SPEC 5.2), Image `schach-engine`, AGPL-3.0-or-later. Eingefroren ab Phase 0.
 #
-# Phase 0c: der Stub mit Fixture-Antworten (src/schach_engine/fixture.py). S4a ergaenzt PyTorch CPU,
-# Maia-3 und die gepinnten Stockfish-/Fairy-Stockfish-Binaries in einem kleinen Geruest-PR.
+# S4a (#29): PyTorch CPU, Maia-3 (geaenderter CSSLab-Code in src/schach_engine/maia3/), Stockfish 19
+# und Fairy-Stockfish 14 als gepinnte Release-Binaries mit sha256-Pruefung (docker/hole_binaries.py).
 #
 # Gewichte nie im Repo und nie im Image (SCHACH-SPEC 13.6): Maia-3 laedt beim ersten Start von
-# Hugging Face nach /models, dem Volume `engine-models`.
+# Hugging Face nach /models, dem Volume `engine-models` (src/schach_engine/modell_download.py).
 #
 # Python-Basis aus ECR Public (Docker Official Image, ohne Docker-Hub-Pull-Limit auf CI-Runnern).
 # Debian slim, nicht Alpine: PyTorch-CPU-Wheels gibt es nur fuer glibc.
 ARG PYTHON_REGISTRY=public.ecr.aws/docker/library
+
+# --- Stufe 1: Binaries laden und pruefen -------------------------------------------------------
+FROM ${PYTHON_REGISTRY}/python:3.12-slim-bookworm AS binaries
+
+# Ziel-CPU (SCHACH-SPEC 5.2). Der VPS kann x86-64-avx512, avx2 bleibt Standard und Fallback.
+# Stockfish 19 gibt es nur als Universal-Binary (waehlt AVX2/AVX-512 zur Laufzeit); SF_ARCH waehlt
+# das Fairy-Stockfish-Build. Unbekannte Werte brechen den Build ab.
+ARG SF_ARCH=x86-64-avx2
+
+COPY docker/hole_binaries.py /tmp/hole_binaries.py
+RUN python /tmp/hole_binaries.py --arch "${SF_ARCH}" --ziel /opt/engines
+
+# --- Stufe 2: Laufzeit ------------------------------------------------------------------------
 FROM ${PYTHON_REGISTRY}/python:3.12-slim-bookworm
 
-# Stockfish-Build fuer die Ziel-CPU (SCHACH-SPEC 5.2). Der VPS kann x86-64-avx512, avx2 bleibt
-# Fallback. Wird erst ab S4a gelesen; steht hier, damit S4a das Build-Argument nicht neu einfuehrt.
 ARG SF_ARCH=x86-64-avx2
+# PyTorch CPU-only vom offiziellen CPU-Index; ohne ihn zoege pip die CUDA-Wheels (mehrere GB).
+ARG TORCH_VERSION=2.15.0
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     SF_ARCH=${SF_ARCH} \
-    ENGINE_MODELS_DIR=/models
+    ENGINE_MODELS_DIR=/models \
+    STOCKFISH_PATH=/usr/local/bin/stockfish \
+    FAIRY_STOCKFISH_PATH=/usr/local/bin/fairy-stockfish
+
+# Fairy-Stockfish ist dynamisch gegen libstdc++ gelinkt.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends libstdc++6 \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY --from=binaries /opt/engines/ /usr/local/bin/
+
+# Rauchtest beim Bauen: beide Engines starten und melden `readyok`.
+RUN printf 'uci\nisready\nquit\n' | stockfish | grep -q '^readyok' \
+ && printf 'uci\nisready\nquit\n' | fairy-stockfish | grep -q '^readyok'
 
 # Eigener Benutzer. /models MUSS im Image existieren und ihm gehoeren: ein Named Volume uebernimmt
 # die Rechte nur von einem Pfad, den das Image anlegt; sonst scheitert der Modell-Download.
@@ -29,9 +55,10 @@ RUN useradd --uid 10001 --no-create-home --shell /usr/sbin/nologin engine \
  && chown engine /models
 
 WORKDIR /app
+RUN pip install --index-url https://download.pytorch.org/whl/cpu "torch==${TORCH_VERSION}"
 COPY LICENSE pyproject.toml ./
 COPY src/ src/
-RUN pip install . && rm -rf src
+RUN pip install ".[model]" && rm -rf src
 
 USER engine
 EXPOSE 8081
