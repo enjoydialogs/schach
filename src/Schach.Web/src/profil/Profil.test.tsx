@@ -1,5 +1,6 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { langDatum } from '../components/datei'
+import { setzePalette } from '../components/palette'
 import { mitFakeServer, zeigeApp } from '../components/testApp'
 
 // Profil (SCHACH-SPEC 10.9, 9.7).
@@ -35,6 +36,17 @@ describe('Profil', () => {
     expect(screen.getByRole('switch', { name: 'Vor ungedeckten Figuren warnen' })).toBeChecked()
     fireEvent.click(schalter)
     expect(JSON.parse(localStorage.getItem('einstellungen')!)).toMatchObject({ toeneUndVibration: false })
+  })
+
+  it('waehlt die Grundfarbe und speichert sie im Geraet', async () => {
+    zeigeApp('/profil')
+    const gruppe = await screen.findByRole('group', { name: 'Grundfarbe' })
+    expect(within(gruppe).getByRole('radio', { name: 'Lila' })).toBeChecked()
+    fireEvent.click(within(gruppe).getByRole('radio', { name: 'Pink' }))
+    expect(within(gruppe).getByRole('radio', { name: 'Pink' })).toBeChecked()
+    expect(localStorage.getItem('palette')).toBe('pink')
+    expect(document.documentElement.dataset.palette).toBe('pink')
+    setzePalette('lila')
   })
 
   it('exportiert die Daten als JSON-Datei', async () => {

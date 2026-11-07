@@ -7,6 +7,8 @@ export const SpeicherSchluessel = {
   einstellungen: 'einstellungen',
   /** localStorage: Id der laufenden Gast-Partie. */
   gastPartieId: 'gastPartieId',
+  /** localStorage: Id der gewaehlten Grundfarbe (10.3), z. B. `pink`. */
+  palette: 'palette',
   /** localStorage: ISO-Zeitpunkt des letzten „Später“ der Install-Karte (S3d, #37). */
   installHinweis: 'installHinweis',
   /** sessionStorage: Code-Weg der Anmeldung (9.5). */
@@ -50,6 +52,12 @@ function schreibe(speicher: Storage | null, schluessel: string, wert: string | n
 export const gastPartieId = {
   lies: () => lies(lokal(), SpeicherSchluessel.gastPartieId),
   setze: (id: string | null) => schreibe(lokal(), SpeicherSchluessel.gastPartieId, id),
+}
+
+/** Id der gewaehlten Grundfarbe (localStorage); ungepruefter Rohwert. */
+export const paletteId = {
+  lies: () => lies(lokal(), SpeicherSchluessel.palette),
+  setze: (id: string | null) => schreibe(lokal(), SpeicherSchluessel.palette, id),
 }
 
 /** `anmeldungId` fuer den Code-Weg (sessionStorage, 9.5). */

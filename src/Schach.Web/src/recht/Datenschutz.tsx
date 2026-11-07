@@ -61,6 +61,12 @@ const SPEICHER: { name: string; art: string; zweck: string; dauer: string }[] = 
     dauer: 'Bis Sie die Websitedaten löschen',
   },
   {
+    name: 'palette',
+    art: 'localStorage',
+    zweck: 'Die Grundfarbe, die Sie für das Spiel gewählt haben.',
+    dauer: 'Bis Sie die Websitedaten löschen',
+  },
+  {
     name: 'installHinweis',
     art: 'localStorage',
     zweck: 'Zeitpunkt, zu dem Sie den Hinweis zum Installieren der App auf später verschoben haben.',

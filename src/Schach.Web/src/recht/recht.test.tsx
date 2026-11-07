@@ -87,6 +87,7 @@ describe('Rechtstexte', () => {
       'schach-partien-v1',
       'gastPartieId',
       'einstellungen',
+      'palette',
       'installHinweis',
       'anmeldungId',
     ]) {

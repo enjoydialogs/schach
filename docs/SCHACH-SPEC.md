@@ -14,7 +14,7 @@ Sprache des Spiels, der Tickets und dieser Spec: Deutsch. Begriffe nach [`GLOSSA
 - Android-Handy im Browser, Referenz Pixel 7 im Hochformat (CSS-Breite 412 px).
 - PWA, installierbar (Startbildschirm, Vollbild).
 - Spielen braucht Internet. Offline geht nur Nachspielen bereits geladener Partien.
-- Wenige Farben, einfacher Stil. Im MVP nur eine helle Palette.
+- Wenige Farben, einfacher Stil. Nur helle Paletten; der Spieler wählt die Grundfarbe (Lila, Pink, Grün, Blau, Abschnitt 10.3).
 
 **Konto und Gast:**
 - Offene Registrierung für jeden, Anmeldung per Magic Link (E-Mail) mit 6-stelligem Code als zweitem Weg.
@@ -205,7 +205,7 @@ Alle Gegner tragen nur Vornamen und sprechen in Du-Form.
 ### 4.4 Avatar
 
 - Anfangsbuchstabe im Kreis.
-- Ein Akzentton (Minze, Hue 164°) in 5 Abstufungen, eine je Spielstärke (Anfänger hell bis Meister dunkel). Alle Paare erreichen mindestens 4,5:1.
+- Der Akzentton der gewählten Palette (Abschnitt 10.3) in 5 Abstufungen, eine je Spielstärke (Anfänger hell bis Meister dunkel). Alle Paare erreichen mindestens 4,5:1. Die Tabelle zeigt die Standardpalette Lila (Minze, Hue 164°); die Werte der übrigen Paletten stehen in `src/styles/palette.css`. Schrift der beiden hellen Stufen ist `--text` der Palette.
 
 | Variable | Hintergrund | Schrift |
 |---|---|---|
@@ -742,9 +742,23 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 - Offline: Statuszeile „Keine Verbindung“, Eingabe aus.
 - 429 auf `/zuege`: Statuszeile „<Name> denkt nach …“, Client wiederholt idempotent nach `Retry-After`.
 
-**Menü** (Bottom-Sheet, Zeilen 48 px): Schalter „Erlaubte Züge anzeigen“, „Vor ungedeckten Figuren warnen“, „Töne und Vibration“ (alle Standard an, localStorage), „Partie verlassen“ (Partie bleibt offen).
+**Menü** (Bottom-Sheet, Zeilen 48 px): Schalter „Erlaubte Züge anzeigen“, „Vor ungedeckten Figuren warnen“, „Töne und Vibration“ (alle Standard an, localStorage), Auswahl „Grundfarbe“, „Partie verlassen“ (Partie bleibt offen).
 
-**Farben** (Palette „Sorbet“, nur hell, CSS-Variablen in `src/styles/palette.css`): Fliedernebel als Grund, Minze für Aktionen, Fliederbrett. Pastell nur für Flächen; Text und Knöpfe nutzen die kräftigen Töne, alle Paare mindestens 4,5:1.
+**Farben** (nur hell, CSS-Variablen in `src/styles/palette.css`): Der Spieler wählt die Grundfarbe aus vier Paletten. Jede hat einen pastelligen Grund und ein passendes Brett, dazu einen kräftigen Akzent in Gegenfarbe für Aktionen. Pastell nur für Flächen; Text und Knöpfe nutzen die kräftigen Töne, alle Paare mindestens 4,5:1 (`palette.test.ts` prüft das für jede Palette).
+
+| Palette (`id`) | Grund `--bg` | Brett hell / dunkel | Akzent `--accent` |
+|---|---|---|---|
+| Lila (`lila`, Standard, „Sorbet“) | `#F4F2FB` Fliedernebel | `#EEE9FB` / `#A898D8` | `#1E7A62` Minze |
+| Pink (`pink`) | `#FCF1F6` Rosenebel | `#FBE6EF` / `#E09CBA` | `#1B6A7E` Petrol |
+| Grün (`gruen`) | `#EFF7F2` Minznebel | `#E4F3EA` / `#8EC6A7` | `#6A45B0` Violett |
+| Blau (`blau`) | `#F0F4FB` Himmelnebel | `#E6EEFA` / `#94AFDE` | `#A3336B` Beere |
+
+- Auswahl „Grundfarbe“: vier runde Farbmuster (Brett und Akzent) als Radiogruppe, im Partie-Menü und im Profil. Wirkt sofort, auch mitten in der Partie.
+- Gespeichert im Gerät (localStorage `palette`, Abschnitt 12.3). Fehlender oder unbekannter Wert gilt als `lila`.
+- Umsetzung: `data-palette` am `<html>`, gesetzt vor dem ersten Rendern. `:root` ist Lila; jede weitere Palette überschreibt nur Grund, Text, Rand, Akzent, Brett, Schatten-Grundton und Avatare. Overlays, Glas, Fokusring und Farbflecken leiten sich per `color-mix` daraus ab.
+- Gleich in allen Paletten: `--surface`, Warnung, Gefahr, `--on-accent`.
+
+Die folgende Tabelle zeigt die Standardpalette Lila.
 
 | Variable | Wert |
 |---|---|
@@ -763,9 +777,9 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 | `--board-light` | `#EEE9FB` |
 | `--board-dark` | `#A898D8` |
 
-Overlays: Auswahl `rgba(30,122,98,.5)`, letzter Zug `rgba(30,122,98,.3)`, Zielpunkt und Schlagring dunkel 30 %, Schach roter Radialverlauf, Warnung `rgba(233,162,59,.6)`, Tipp-Ring `inset 0 0 0 4px #1E7A62`, Tipp-Pfeil in Akzentfarbe, Brettkoordinaten in der Gegenfarbe des Feldes. `theme-color #F4F2FB`. Schrift Inter, selbst gehostet.
+Overlays: Auswahl Akzent 50 %, letzter Zug Akzent 30 %, Zielpunkt und Schlagring `--text` 30 %, Schach roter Radialverlauf, Warnung `rgba(233,162,59,.6)`, Tipp-Ring `inset 0 0 0 4px` Akzent, Tipp-Pfeil in Akzentfarbe, Brettkoordinaten in der Gegenfarbe des Feldes. `theme-color` folgt `--bg` der gewählten Palette (Standard `#F4F2FB`). Schrift Inter, selbst gehostet.
 
-**Glas:** Karten, Listen, Dialoge, Sheets und die Bedienelemente der Partie sind halbtransparente weiße Flächen (Deckkraft mindestens 0,72) mit Hintergrundunschärfe über `--bg` mit weichen Farbflecken in Pfirsich, Flieder und Minze. Das Brett bleibt deckend. Ohne `backdrop-filter` oder bei `prefers-reduced-transparency` deckende Flächen.
+**Glas:** Karten, Listen, Dialoge, Sheets und die Bedienelemente der Partie sind halbtransparente weiße Flächen (Deckkraft mindestens 0,72) mit Hintergrundunschärfe über `--bg` mit weichen Farbflecken in Pfirsich, im dunklen Brettton und im hellen Akzent (in Lila: Pfirsich, Flieder, Minze). Das Brett bleibt deckend. Ohne `backdrop-filter` oder bei `prefers-reduced-transparency` deckende Flächen.
 
 **Dialoge:**
 - **Aufgeben bestätigen:** Titel „Partie aufgeben?“, Knöpfe „Aufgeben“ (rot) und „Abbrechen“. Text:
@@ -856,7 +870,7 @@ Auf Start und Neu.
 
 - E-Mail, Elo groß, „Spieler seit …“.
 - Bilanz je Gegner (8 Zeilen).
-- Einstellungen: drei Schalter wie im Partie-Menü (gleiche localStorage-Schlüssel).
+- Einstellungen: drei Schalter und „Grundfarbe“ wie im Partie-Menü (gleiche localStorage-Schlüssel).
 - „Daten exportieren (JSON)“.
 - „Abmelden“.
 - „Konto löschen“ mit Dialog. Titel: „Konto endgültig löschen?“. Text: „Alle Partien, deine Elo und deine E-Mail-Adresse werden sofort und unwiderruflich gelöscht.“
@@ -886,7 +900,7 @@ Passiv an drei Stellen:
 - `vite-plugin-pwa` mit `generateSW`, `registerType: 'prompt'`, manuelle Registrierung (CSP ohne Inline-Skripte). API-Namen beim Bau gegen die aktuelle Doku prüfen.
 - Precache: App-Shell, Inter woff2, Cburnett-SVGs, Rechtstexte. `navigateFallback /index.html`. `/api/` cacht der Service Worker nie.
 - Beendete Partien verwaltet die App im Cache `schach-partien-v1` (Partienliste und Nachspielen per `put`/`match`). Gelöscht bei Abmelden und Konto löschen.
-- Manifest: `name`/`short_name` „Schach“, `lang` de, `id`/`start_url`/`scope` `/`, `display: standalone`, `orientation: portrait`, Farben `#F4F2FB`, Icons 192/512 plus 512 maskable.
+- Manifest: `name`/`short_name` „Schach“, `lang` de, `id`/`start_url`/`scope` `/`, `display: standalone`, `orientation: portrait`, Farben `#F4F2FB` (fest, unabhängig von der gewählten Palette), Icons 192/512 plus 512 maskable.
 - Offline-Banner auf jeder `Seite`: „Keine Verbindung. Spielen braucht Internet, Nachspielen geht auch offline.“
 - **Install-Karte** nur auf Start, wenn `beforeinstallprompt` gefangen ist, die App nicht standalone läuft, mindestens eine beendete Partie existiert und „Später“ nicht jünger als 14 Tage ist (Zeitpunkt in localStorage, `installHinweis`).
 - **Update:** `registration.update()` bei Sichtbarkeit, höchstens stündlich. Hinweis „Neue Version verfügbar“ plus „Neu laden“ nur in `Seite`-Layouts, nie in Partie oder Nachspielen.
@@ -1040,6 +1054,7 @@ localStorage- und sessionStorage-Schlüssel stehen ohne Präfix in der Konstante
 | `schach-partien-v1` | Cache Storage | beendete Partien für Offline-Nachspielen |
 | `gastPartieId` | localStorage | laufende Gast-Partie |
 | `einstellungen` | localStorage | JSON `{"erlaubteZuegeAnzeigen":true,"vorUngedecktenWarnen":true,"toeneUndVibration":true}`; fehlender Wert oder Parse-Fehler gilt als `true` |
+| `palette` | localStorage | gewählte Grundfarbe: `lila`, `pink`, `gruen` oder `blau`; fehlender oder unbekannter Wert gilt als `lila` |
 | `installHinweis` | localStorage | ISO-Zeitpunkt des letzten „Später“ |
 | `anmeldungId` | sessionStorage | Code-Weg der Anmeldung |
 

@@ -7,6 +7,7 @@ import '@fontsource/inter/600.css'
 import '@fontsource/inter/700.css'
 import './styles/palette.css'
 import './styles/base.css'
+import { wendePaletteAn } from './components/palette'
 import { createRouter } from './router'
 import { startePwa } from './pwa/registrieren'
 
@@ -16,6 +17,8 @@ const FAKE_FUER_ALLES =
   import.meta.env.MODE === 'prototyp' || (import.meta.env.DEV && import.meta.env.VITE_FAKE === '1')
 
 async function starte() {
+  // Grundfarbe vor dem ersten Rendern setzen, sonst blitzt kurz die Standardpalette (10.3).
+  wendePaletteAn()
   // S3d: Service Worker, Install- und Update-Hinweis (SCHACH-SPEC 10.13), vor der ersten Route.
   startePwa()
   if (FAKE_FUER_ALLES) await (await import('./fake/starten')).starteFake()

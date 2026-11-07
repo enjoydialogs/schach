@@ -1,6 +1,9 @@
-/* Palette "Sorbet" (nur hell): Fliedernebel als Grund, Minze fuer Aktionen, Fliederbrett.
+/* Paletten (nur hell, SCHACH-SPEC 10.3). Der Spieler waehlt die Grundfarbe, `data-palette` am
+   <html> (components/palette.ts). `:root` ist die Standardpalette Lila ("Sorbet"): Fliedernebel als
+   Grund, Minze fuer Aktionen, Fliederbrett. Jede weitere Palette ueberschreibt nur die Grundtoene;
+   Overlays, Glas, Schatten und Farbflecken leiten sich per color-mix daraus ab.
    Pastell nur fuer Flaechen; Text und Knoepfe nutzen die kraeftigen Toene (alle >= 4.5:1).
-   Avatar-Abstufungen nach 4.4. Komponenten lesen nur diese Variablen, nie Hex-Werte. */
+   Komponenten lesen nur diese Variablen, nie Hex-Werte. */
 :root {
   --bg: #f4f2fb;
   --surface: #ffffff;
@@ -16,54 +19,121 @@
   --danger-tint: #fde6e2;
   --board-light: #eee9fb;
   --board-dark: #a898d8;
+  /* Grundton der Schatten */
+  --schatten: #382866;
 
-  /* Brett-Overlays (10.3), Minze auf Flieder */
-  --overlay-auswahl: rgba(30, 122, 98, 0.5);
-  --overlay-letzter-zug: rgba(30, 122, 98, 0.3);
-  --overlay-ziel: rgba(38, 34, 47, 0.3);
-  --overlay-warnung: rgba(233, 162, 59, 0.6);
-  --tipp-ring: inset 0 0 0 4px #1e7a62;
-
-  /* Avatar je Spielstaerke (4.4): von zarter zu tiefer Minze */
+  /* Avatar je Spielstaerke (4.4): Akzentton von hell bis dunkel */
   --avatar-anfaenger: #c9efe0;
-  --avatar-anfaenger-text: #26222f;
   --avatar-hobbyspieler: #8fd6bc;
-  --avatar-hobbyspieler-text: #26222f;
   --avatar-vereinsspieler: #1e7a62;
-  --avatar-vereinsspieler-text: #ffffff;
   --avatar-turnierspieler: #155443;
-  --avatar-turnierspieler-text: #ffffff;
   --avatar-meister: #0e3a2f;
+  --avatar-anfaenger-text: var(--text);
+  --avatar-hobbyspieler-text: var(--text);
+  --avatar-vereinsspieler-text: #ffffff;
+  --avatar-turnierspieler-text: #ffffff;
   --avatar-meister-text: #ffffff;
+
+  /* Abgeleitet: gilt fuer jede Palette */
+
+  /* Brett-Overlays (10.3) */
+  --overlay-auswahl: color-mix(in srgb, var(--accent) 50%, transparent);
+  --overlay-letzter-zug: color-mix(in srgb, var(--accent) 30%, transparent);
+  --overlay-ziel: color-mix(in srgb, var(--text) 30%, transparent);
+  --overlay-warnung: rgba(233, 162, 59, 0.6);
+  --tipp-ring: inset 0 0 0 4px var(--accent);
 
   /* Glas-Ebene: helle, halbtransparente Flaechen ueber einem weichen Farbhintergrund.
      Deckkraft >= 0.72, damit --text-muted auf Glas 4.5:1 haelt. */
   --on-accent: #ffffff;
   --glass-surface: rgba(255, 255, 255, 0.72);
   --glass-surface-strong: rgba(255, 255, 255, 0.86);
-  --glass-tint: rgba(30, 122, 98, 0.12);
+  --glass-tint: color-mix(in srgb, var(--accent) 12%, transparent);
   --glass-border: rgba(255, 255, 255, 0.75);
-  --glass-hairline: rgba(38, 34, 47, 0.08);
+  --glass-hairline: color-mix(in srgb, var(--text) 8%, transparent);
   --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
   --glass-blur: 18px;
-  --glass-dark: rgba(38, 34, 47, 0.86);
-  --scrim: rgba(38, 34, 47, 0.3);
-  --backdrop-flieder: rgba(168, 152, 216, 0.34);
+  --glass-dark: color-mix(in srgb, var(--text) 86%, transparent);
+  --scrim: color-mix(in srgb, var(--text) 30%, transparent);
+  /* Farbflecken im Hintergrund: Pfirsich, Brettton, heller Akzent */
   --backdrop-pfirsich: rgba(255, 196, 168, 0.4);
-  --backdrop-minze: rgba(143, 214, 188, 0.36);
-  --disabled-bg: rgba(38, 34, 47, 0.07);
-  --disabled-text: #67617a;
-  --fokus-ring: 0 0 0 3px rgba(30, 122, 98, 0.3);
+  --backdrop-grund: color-mix(in srgb, var(--board-dark) 34%, transparent);
+  --backdrop-akzent: color-mix(in srgb, var(--avatar-hobbyspieler) 36%, transparent);
+  --disabled-bg: color-mix(in srgb, var(--text) 7%, transparent);
+  --disabled-text: var(--text-muted);
+  --fokus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
 
-  /* Hoehenstufen: Kontakt, Mitte, Umgebung (shadow-elevation), leicht fliederfarben */
-  --shadow-1: 0 1px 2px rgba(56, 40, 102, 0.06), 0 2px 8px rgba(56, 40, 102, 0.05);
-  --shadow-2: 0 1px 3px rgba(56, 40, 102, 0.07), 0 6px 16px rgba(56, 40, 102, 0.07), 0 18px 40px rgba(56, 40, 102, 0.07);
-  --shadow-3: 0 2px 4px rgba(56, 40, 102, 0.08), 0 12px 28px rgba(56, 40, 102, 0.12), 0 32px 64px rgba(56, 40, 102, 0.14);
-  --glow-accent: 0 6px 20px rgba(30, 122, 98, 0.28);
+  /* Hoehenstufen: Kontakt, Mitte, Umgebung (shadow-elevation), leicht in der Grundfarbe */
+  --shadow-1:
+    0 1px 2px color-mix(in srgb, var(--schatten) 6%, transparent),
+    0 2px 8px color-mix(in srgb, var(--schatten) 5%, transparent);
+  --shadow-2:
+    0 1px 3px color-mix(in srgb, var(--schatten) 7%, transparent),
+    0 6px 16px color-mix(in srgb, var(--schatten) 7%, transparent),
+    0 18px 40px color-mix(in srgb, var(--schatten) 7%, transparent);
+  --shadow-3:
+    0 2px 4px color-mix(in srgb, var(--schatten) 8%, transparent),
+    0 12px 28px color-mix(in srgb, var(--schatten) 12%, transparent),
+    0 32px 64px color-mix(in srgb, var(--schatten) 14%, transparent);
+  --glow-accent: 0 6px 20px color-mix(in srgb, var(--accent) 28%, transparent);
 
   --dauer-kurz: 150ms;
   --dauer-mittel: 240ms;
   --kurve-raus: cubic-bezier(0.22, 1, 0.36, 1);
 
   color-scheme: light;
+}
+
+/* Pink: Rosenebel als Grund, Petrol fuer Aktionen, Rosebrett */
+:root[data-palette='pink'] {
+  --bg: #fcf1f6;
+  --text: #2c2229;
+  --text-muted: #6f5f69;
+  --border: #efd7e2;
+  --accent: #1b6a7e;
+  --accent-tint: #dcf0f5;
+  --board-light: #fbe6ef;
+  --board-dark: #e09cba;
+  --schatten: #6b2848;
+  --avatar-anfaenger: #c6e8f1;
+  --avatar-hobbyspieler: #8cc9d9;
+  --avatar-vereinsspieler: #1b6a7e;
+  --avatar-turnierspieler: #134a58;
+  --avatar-meister: #0d333c;
+}
+
+/* Gruen: Minznebel als Grund, Violett fuer Aktionen, Minzbrett */
+:root[data-palette='gruen'] {
+  --bg: #eff7f2;
+  --text: #1f2a25;
+  --text-muted: #5a6a62;
+  --border: #d3e6dc;
+  --accent: #6a45b0;
+  --accent-tint: #ece5fa;
+  --board-light: #e4f3ea;
+  --board-dark: #8ec6a7;
+  --schatten: #1f5a42;
+  --avatar-anfaenger: #d6cceb;
+  --avatar-hobbyspieler: #a891d4;
+  --avatar-vereinsspieler: #6a45b0;
+  --avatar-turnierspieler: #4a307b;
+  --avatar-meister: #332154;
+}
+
+/* Blau: Himmelnebel als Grund, Beere fuer Aktionen, Himmelbrett */
+:root[data-palette='blau'] {
+  --bg: #f0f4fb;
+  --text: #212633;
+  --text-muted: #5d6579;
+  --border: #d6deee;
+  --accent: #a3336b;
+  --accent-tint: #fbe3ef;
+  --board-light: #e6eefa;
+  --board-dark: #94afde;
+  --schatten: #23407a;
+  --avatar-anfaenger: #eec9db;
+  --avatar-hobbyspieler: #d98cb3;
+  --avatar-vereinsspieler: #a3336b;
+  --avatar-turnierspieler: #72244b;
+  --avatar-meister: #4e1833;
 }
