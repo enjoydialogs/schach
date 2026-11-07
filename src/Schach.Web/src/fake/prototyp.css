@@ -1,0 +1,40 @@
+.prototyp {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 480px;
+}
+
+.prototyp label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.prototyp select {
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 400;
+}
+
+.prototyp .prototyp__haken {
+  flex-direction: row;
+  align-items: center;
+  min-height: 48px;
+  font-weight: 400;
+}
+
+.prototyp__haken input {
+  width: 24px;
+  height: 24px;
+}
+
+.prototyp__fehler {
+  color: var(--danger);
+}
