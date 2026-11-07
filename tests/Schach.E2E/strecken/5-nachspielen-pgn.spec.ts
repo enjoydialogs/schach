@@ -26,10 +26,16 @@ test('Nachspielen und PGN herunterladen', async ({ page }) => {
 
   const zuege = page.getByRole('list', { name: 'Züge' }).getByRole('button')
   await expect(zuege).toHaveCount(4)
-  await page.locator('.partie__knoepfe').getByRole('button', { name: 'Anfang' }).click()
-  await expect(page.locator('.partie__knoepfe').getByRole('button', { name: 'Anfang' })).toBeDisabled()
-  await page.locator('.partie__knoepfe').getByRole('button', { name: 'Ende' }).click()
-  await expect(page.locator('.partie__knoepfe').getByRole('button', { name: 'Ende' })).toBeDisabled()
+  // Nachspielen beginnt in der Grundstellung.
+  const knoepfe = page.locator('.partie__knoepfe')
+  await expect(knoepfe.getByRole('button', { name: 'Anfang' })).toBeDisabled()
+  await knoepfe.getByRole('button', { name: 'Vor' }).click()
+  await expect(zuege.first()).toHaveAttribute('aria-current', 'true')
+  await knoepfe.getByRole('button', { name: 'Ende' }).click()
+  await expect(knoepfe.getByRole('button', { name: 'Ende' })).toBeDisabled()
+  await expect(zuege.last()).toHaveAttribute('aria-current', 'true')
+  await knoepfe.getByRole('button', { name: 'Anfang' }).click()
+  await expect(knoepfe.getByRole('button', { name: 'Anfang' })).toBeDisabled()
 
   const pgn = (await zustand(page, id)).pgn
   expect(pgn).not.toBeNull()
