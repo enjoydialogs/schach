@@ -45,7 +45,7 @@ Kennzeichnung:
 | Stockfish 19 `UCI_Elo` | 1320 bis 3190 CCRL | nein, Zufallsfehler | GPL-3.0 | C++-Binary |
 | Fairy-Stockfish `UCI_Elo` | 500 bis 2850 CCRL | nein, Zufallsfehler | GPL-3.0 | C++-Binary |
 | Maia-1 (lc0-Netze) | 1100 bis 1900 Lichess | ja | GPL-3.0 | lc0 |
-| Maia-2 | „across Elo levels" | ja | MIT | Python/PyTorch |
+| Maia-2 | „across Elo levels" | ja | Code MIT, Gewichte ungeprüft | Python/PyTorch |
 | **Maia-3** | **600 bis 2600 Lichess** | **ja** | Code AGPL-3.0, Gewichte unklar | Python/PyTorch |
 | Eigene MultiPV-Fehlerrate auf Stockfish | frei wählbar | nur so gut wie die Fehlerregel | GPL-3.0 | C++ + Backend-Logik |
 
@@ -53,13 +53,13 @@ Kennzeichnung:
 
 - `Skill Level` -20 bis 20, `UCI_Elo` 500 bis 2850 (Standard 1350). **Verifiziert**: [`src/ucioption.cpp`](https://github.com/fairy-stockfish/Fairy-Stockfish/blob/master/src/ucioption.cpp).
 - Kalibrierung gegen CCRL-Elo (Anker goldfish 1.13 = 2000), Bedenkzeit 60+0.6. Unterhalb von etwa 1347 wird die Kurve über eine Formel fortgesetzt, nicht gemessen. **Verifiziert** (Kommentar und Formel): [`src/search.cpp`](https://github.com/fairy-stockfish/Fairy-Stockfish/blob/master/src/search.cpp). Dass der Bereich unter 1347 extrapoliert ist: **Abgeleitet** aus der Formel.
-- Lichess spielt „gegen den Computer" mit Fairy-Stockfish: Zugaufträge (keine Analyse) laufen mit `EngineFlavor::MultiVariant`, das ist Fairy-Stockfish. Stufe 1 nutzt `Skill Level -9`, Tiefe 5, 50 ms. Stufe 8 nutzt `Skill Level 20`, Tiefe 22, 1000 ms. **Verifiziert**: fishnet [`src/api.rs`](https://github.com/lichess-org/fishnet/blob/master/src/api.rs), [`src/queue.rs`](https://github.com/lichess-org/fishnet/blob/master/src/queue.rs), [`src/assets.rs`](https://github.com/lichess-org/fishnet/blob/master/src/assets.rs).
+- Lichess spielt „gegen den Computer" mit Fairy-Stockfish: Zugaufträge (keine Analyse) laufen mit `EngineFlavor::MultiVariant`, das ist Fairy-Stockfish. Stufe 1 nutzt `Skill Level -9`, Tiefe 5, 50 ms. Stufe 8 nutzt `Skill Level 20`, Tiefe 22, 1000 ms. **Verifiziert**: fishnet [`src/api.rs`](https://github.com/lichess-org/fishnet/blob/main/src/api.rs), [`src/queue.rs`](https://github.com/lichess-org/fishnet/blob/main/src/queue.rs), [`src/assets.rs`](https://github.com/lichess-org/fishnet/blob/main/src/assets.rs).
 - Folgerung: Es gibt einen produktiven Präzedenzfall für Gegner unterhalb der Stockfish-Grenze. Menschlich wirkt das Spiel aber nicht. **Abgeleitet.**
 
 ### Maia-1 und Maia-2
 
 - Maia-1: 9 Modelle für 1100 bis 1900 in 100er-Schritten, betrieben in lc0 mit `go nodes 1`. Laut README sind die Modelle „stronger than the rating they are trained on". **Verifiziert**: [CSSLab/maia-chess](https://github.com/CSSLab/maia-chess).
-- Belegt durch die öffentlichen Lichess-Wertungen der Maia-1-Konten (abgerufen 2026-11-07 über `https://lichess.org/api/user/<name>`). **Verifiziert** (Zahlen), Zuordnung der Konten zu den Modellen 1100/1500/1900: **Abgeleitet** aus den Namen und der [Maia-Website](https://www.maiachess.com).
+- Belegt durch die öffentlichen Lichess-Wertungen der Maia-1-Konten (abgerufen 2026-11-07 über `https://lichess.org/api/user/<name>`). Die Profiltexte nennen das Modell, z. B. maia1: „trained by learning from over 10 million Lichess games between 1100s". **Verifiziert.**
 
   | Konto | Ziel | Blitz | Rapid | Classical |
   |---|---|---|---|---|
@@ -68,7 +68,7 @@ Kennzeichnung:
   | maia9 | 1900 | 1627 | 1791 | 1895 |
 
   Folgerung: Die schwachen Stufen spielen deutlich stärker als ihr Ziel, und die Spanne ist gestaucht (1100 bis 1900 Ziel ergibt etwa 1400 bis 1630 Blitz). Für eine 600er-Stufe ist das ein Warnsignal. **Abgeleitet.**
-- Maia-2: ein Modell für alle Spielstärken, Eingabe `active_elo` und `opponent_elo`, läuft auf CPU, MIT-Lizenz. Das README empfiehlt für neue Projekte Maia-3. **Verifiziert**: [CSSLab/maia2](https://github.com/CSSLab/maia2).
+- Maia-2: ein Modell für alle Spielstärken, Eingabe `active_elo` und `opponent_elo`, läuft auf CPU, Code unter MIT-Lizenz. Das README empfiehlt für neue Projekte Maia-3. Nicht geprüft: die Lizenz der Maia-2-Gewichte und ob die Trainingsdaten bis 600 hinunterreichen. **Verifiziert**: [CSSLab/maia2](https://github.com/CSSLab/maia2).
 
 ### Maia-3 (Empfehlung für die Zugwahl)
 
@@ -121,7 +121,7 @@ Bekannte Größen:
 
 Schätzung (**Abgeleitet**, vor der Spec messen):
 
-- Ein Maia-3-Prozess kann alle 10 Gegner bedienen: vor jedem `go` werden `position` und `setoption name SelfElo` gesetzt. Rechenzeit vermutlich im Bereich von Millisekunden bis wenigen zehn Millisekunden je Zug beim 5M-Modell. RAM vermutlich unter 1 GB, dominiert von PyTorch.
+- Ein Maia-3-Prozess kann alle 10 Gegner bedienen: vor jedem `go` werden `position`, `setoption name SelfElo` (Elo des Gegners) und `setoption name OppoElo` (Elo des Spielers, Start 800) gesetzt. Rechenzeit vermutlich im Bereich von Millisekunden bis wenigen zehn Millisekunden je Zug beim 5M-Modell. RAM vermutlich unter 1 GB, dominiert von PyTorch.
 - Ein voll starker Stockfish für Tipp und Remis-Bewertung mit `go movetime 500` bis `1000` und 1 Thread reicht für Lernhilfen. Bei mehreren gleichzeitigen Anfragen ein kleiner Pool von 1 bis 2 Prozessen.
 - Weil Maia fast sofort antwortet, muss das Backend eine künstliche Denkzeit einbauen. Sie läuft laut Map auf der Uhr des Gegners und muss bei „90 Sekunden pro Zug" und 5+3 deutlich unter dem Zeitbudget liegen.
 
@@ -141,11 +141,13 @@ Folgeschritt: Messspike auf `srv1952305`: 10 parallele Partien, Maia-3-5M und 23
 
 - Stockfish und Fairy-Stockfish: GPL-3.0. **Verifiziert**: Header in `engine.cpp`, [GitHub-Lizenzangabe Fairy-Stockfish](https://github.com/fairy-stockfish/Fairy-Stockfish).
   - Als separater UCI-Prozess wird nichts gelinkt; der .NET-Code muss dadurch nicht GPL werden.
-  - Wer ein Docker-Image mit dem Binary weitergibt, muss Lizenztext und Quellcode-Zugang mitliefern. Bei einem öffentlichen Repo mit Dockerfile, das das offizielle Release lädt, ist das leicht erfüllt.
+  - Die Pflicht, Quellcode anzubieten, entsteht bei Weitergabe des Binarys an Dritte. Dokploy baut und betreibt das Image auf dem eigenen VPS; das ist vermutlich keine Weitergabe. Ein öffentlich veröffentlichtes Image mit Binary wäre eine.
 - Maia-3-Code: AGPL-3.0. **Verifiziert**: [GitHub-Lizenzangabe](https://github.com/CSSLab/maia3).
-  - Die Netzwerk-Klausel greift, wenn der Code verändert und über das Netz angeboten wird. Ein Fork (Abschnitt 3) muss dann öffentlich sein. Das öffentliche Repo deckt das ab.
+  - Ein Python-Wrapper oder Fork, der `maia3` importiert oder verändert und über das Netz genutzt wird, muss selbst unter AGPL-3.0 stehen. Öffentlich sichtbar reicht nicht; der Code braucht diese Lizenz.
+  - Das Repo `enjoydialogs/schach` hat derzeit keine LICENSE-Datei. Praktisch: den Maia-Dienst in ein eigenes Verzeichnis oder einen eigenen Container mit eigener AGPL-LICENSE legen und die Lizenz des übrigen Repos getrennt festlegen.
 - **Maia-3-Gewichte: keine Lizenz angegeben.** Weder im Hugging-Face-Modell (kein License-Tag) noch im README; die Modellkarte verweist nur auf das Repo. **Verifiziert** (Fehlen).
-  - Offene Frage, die den Produktivbetrieb blockiert, nicht dieses Ticket: bei CSSLab nachfragen oder ein Issue im Repo stellen. Bis dahin ist Maia-2 (MIT) die lizenzsichere Ausweichlösung.
+  - Offene Frage, die den Produktivbetrieb blockiert, nicht dieses Ticket: bei CSSLab nachfragen oder ein Issue im Repo stellen.
+  - Maia-2 ist nur bedingt eine Ausweichlösung: Code MIT, aber Gewichte-Lizenz und unteres Ende der Spanne ungeprüft.
 
 ## 7. Tipp auf Wunsch und Remis-Bewertung
 
@@ -160,6 +162,7 @@ Folgeschritt: Messspike auf `srv1952305`: 10 parallele Partien, Maia-3-5M und 23
 
 1. Messspike auf `srv1952305` (Abschnitt 4).
 2. Eichung: Spielt Maia-3 bei eingestellter Elo 600 wirklich wie ein Anfänger? Testpartien gegen Fairy-Stockfish-Stufen oder Lichess-Daten, dann Elo-Offset und `Temperature` je Spielstärke festlegen.
-3. Lizenz der Maia-3-Gewichte bei CSSLab klären; sonst Maia-2 (MIT).
-4. Merkmale und Gewichte der Persönlichkeiten festlegen (Abschnitt 3), Prototyp mit einer aggressiven und einer defensiven Persönlichkeit.
-5. Skala der Gegner-Elo festlegen (intern, Lichess-nah oder FIDE-nah).
+3. Lizenz der Maia-3-Gewichte bei CSSLab klären; Maia-2 als Ausweg vorher prüfen (Gewichte-Lizenz, Spanne).
+4. Lizenz des Repos festlegen und den Maia-Dienst als AGPL-Teil abgrenzen (Abschnitt 6).
+5. Merkmale und Gewichte der Persönlichkeiten festlegen (Abschnitt 3), Prototyp mit einer aggressiven und einer defensiven Persönlichkeit.
+6. Skala der Gegner-Elo festlegen (intern, Lichess-nah oder FIDE-nah).
