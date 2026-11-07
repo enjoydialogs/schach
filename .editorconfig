@@ -61,3 +61,7 @@ dotnet_diagnostic.CA1716.severity = none
 [tests/**.cs]
 # Testnamen lesen sich mit Unterstrichen (Methode_Situation_Erwartung).
 dotnet_diagnostic.CA1707.severity = none
+
+[src/Schach.Infrastructure/Persistence/Migrations/**.cs]
+# Von `dotnet ef migrations add` erzeugt, nie von Hand bearbeitet: Analyzer und Stilregeln aus.
+generated_code = true

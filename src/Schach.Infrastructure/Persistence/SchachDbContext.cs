@@ -5,10 +5,10 @@ using Schach.Application.Abstractions;
 namespace Schach.Infrastructure.Persistence;
 
 /// <summary>
-/// Der eine DbContext (PostgreSQL 17, EF Core 10). Phase 0a traegt nur die Data-Protection-
-/// Schluessel (SCHACH-SPEC 9.1). Session 0b ergaenzt die Entitaeten aus SCHACH-SPEC 8.12 und
-/// schreibt die einzige Startmigration <c>0001_Schema</c>, die auch die Schluesseltabelle anlegt.
-/// Bis dahin ist <c>MigrateAsync</c> beim Start ein No-op.
+/// Der eine DbContext (PostgreSQL 17, EF Core 10). Entitaeten aus SCHACH-SPEC 8.12 (Konfigurationen
+/// unter <c>Persistence/Configurations</c>) plus die Data-Protection-Schluessel (SCHACH-SPEC 9.1).
+/// Die Startmigration <c>0001_Schema</c> legt alles an; jede spaetere Aenderung ist eine eigene
+/// Vorwaerts-Migration auf aktuellem <c>main</c> (SCHACH-SPEC 15.1 Regel 6).
 /// </summary>
 public sealed class SchachDbContext(DbContextOptions<SchachDbContext> options)
     : DbContext(options), IAppDbContext, IDataProtectionKeyContext
