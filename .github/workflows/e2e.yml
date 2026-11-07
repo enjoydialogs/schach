@@ -5,6 +5,11 @@
 #
 # Testbetrieb (tests/Schach.E2E/compose.e2e.yml): Engine aus der Fixture, Ersatzsprueche statt LLM,
 # Mails als JSON-Dateien in E2E_MAIL_DIR (Bind-Mount), aus denen der Test den Code liest.
+#
+# Per Hand mit `echte_engine: true` (Ticket #38): Maia-3 statt Fixture
+# (tests/Schach.E2E/compose.echte-engine.yml), nur Strecke 1 (Gast-Partie), vorher Nachweis,
+# dass die Engine ohne Fixture laeuft und das Modell geladen hat.
+#   gh workflow run e2e.yml -f echte_engine=true
 name: e2e
 
 on:
@@ -12,6 +17,11 @@ on:
     paths:
       - "tests/Schach.E2E/**"
   workflow_dispatch:
+    inputs:
+      echte_engine:
+        description: "Maia-3 statt Fixture, nur Strecke 1 (Gast-Partie)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -27,8 +37,11 @@ jobs:
     env:
       COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       # Auf Job-Ebene, damit jeder compose-Aufruf denselben Wert interpoliert (wie ci.yml, Job images).
+      # Mit echte_engine setzt compose.echte-engine.yml den Wert fuer die Engine wieder auf leer.
       SCHACH_ENGINE_FAKE_MODEL: "1"
-      COMPOSE_FILES: "-f docker-compose.yml -f tests/Schach.E2E/compose.e2e.yml"
+      COMPOSE_FILES: ${{ inputs.echte_engine && '-f docker-compose.yml -f tests/Schach.E2E/compose.e2e.yml -f tests/Schach.E2E/compose.echte-engine.yml' || '-f docker-compose.yml -f tests/Schach.E2E/compose.e2e.yml' }}
+      # Leer: alle sieben Strecken.
+      STRECKEN: ${{ inputs.echte_engine && 'strecken/1-gast-partie.spec.ts' || '' }}
       E2E_MAIL_DIR: ${{ github.workspace }}/tests/Schach.E2E/.mail
       E2E_BASE_URL: "http://localhost:8080"
     steps:
@@ -52,6 +65,19 @@ jobs:
       - name: Stapel starten
         run: docker compose $COMPOSE_FILES --profile full up -d --wait --wait-timeout 300
 
+      # Ohne diesen Nachweis waere ein gruener Lauf wertlos: faellt Maia aus, zieht der Server still
+      # mit Fairy-Stockfish weiter (SCHACH-SPEC 5.2).
+      - name: Echte Engine nachweisen
+        if: ${{ inputs.echte_engine }}
+        run: |
+          fake="$(docker compose $COMPOSE_FILES --profile full exec -T engine printenv SCHACH_ENGINE_FAKE_MODEL || true)"
+          if [ -n "$fake" ]; then
+            echo "::error::Engine laeuft mit SCHACH_ENGINE_FAKE_MODEL=$fake"
+            exit 1
+          fi
+          docker compose $COMPOSE_FILES --profile full exec -T engine sh -c 'ls -l "$ENGINE_MODELS_DIR/maia3-5m.pt"'
+          docker compose $COMPOSE_FILES --profile full logs --no-color engine | grep "model maia3-5m.pt ready"
+
       - name: Playwright installieren
         working-directory: tests/Schach.E2E
         run: |
@@ -60,7 +86,7 @@ jobs:
 
       - name: Playwright-Strecken
         working-directory: tests/Schach.E2E
-        run: npx playwright test
+        run: npx playwright test $STRECKEN
 
       - name: Bericht hochladen
         if: always()
