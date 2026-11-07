@@ -22,6 +22,11 @@ export const de = {
   nichtGefunden: {
     titel: 'Diese Seite gibt es nicht.',
   },
+  recht: {
+    impressumTitel: 'Impressum',
+    datenschutzTitel: 'Datenschutzerklärung',
+    datenschutzStand: 'Stand: 7. November 2026',
+  },
 } as const
 
 type Pfade<T, P extends string = ''> = {

@@ -7,6 +7,20 @@
       "fen": "4k3/8/8/8/8/2N5/8/b3K3 w - - 0 1",
       "seite": "Weiss",
       "ungedeckt": ["c3"]
+    },
+    {
+      "id": "ungedeckt-springer-gedeckt",
+      "beschreibung": "Der Springer c3 wird vom Läufer e5 angegriffen, aber vom Bauern b2 gedeckt.",
+      "fen": "4k3/8/8/4b3/8/2N5/1P6/4K3 w - - 0 1",
+      "seite": "Weiss",
+      "ungedeckt": []
+    },
+    {
+      "id": "ungedeckt-dame-schwarz",
+      "beschreibung": "Die schwarze Dame d5 steht im Angriff des Turms d1 und ist ungedeckt; der Turm a8 ist nicht angegriffen.",
+      "fen": "r3k3/8/8/3q4/8/8/8/3RK3 b - - 0 1",
+      "seite": "Schwarz",
+      "ungedeckt": ["d5"]
     }
   ]
 }

@@ -77,7 +77,8 @@ app.UseExceptionHandler();
 // Als Erstes, vor allem, was Schema oder Client-Adresse liest (SCHACH-SPEC 11.4).
 app.UseForwardedHeaders();
 
-// Schema beim Start (SCHACH-SPEC 13.5): wendet 0001_Schema und spaetere Vorwaerts-Migrationen an.
+// Schema beim Start (SCHACH-SPEC 13.5). Bis Session 0b die Migration 0001_Schema schreibt, ist das
+// ein No-op.
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<SchachDbContext>();

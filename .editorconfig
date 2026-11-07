@@ -62,6 +62,9 @@ dotnet_diagnostic.CA1716.severity = none
 # Testnamen lesen sich mit Unterstrichen (Methode_Situation_Erwartung).
 dotnet_diagnostic.CA1707.severity = none
 
+# ---------------------------------------------------------------------------
+# EF-Migrationen sind generierter Code (dotnet ef migrations add): weder Analyzer noch
+# dotnet format greifen ein, sonst muesste jede Migration von Hand nachgebessert werden.
+# ---------------------------------------------------------------------------
 [src/Schach.Infrastructure/Persistence/Migrations/**.cs]
-# Von `dotnet ef migrations add` erzeugt, nie von Hand bearbeitet: Analyzer und Stilregeln aus.
 generated_code = true

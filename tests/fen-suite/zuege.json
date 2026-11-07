@@ -21,6 +21,73 @@
       "fen": "8/P7/8/8/8/8/8/k6K w - - 0 1",
       "anzahl": 7,
       "enthaelt": ["a7a8q", "a7a8r", "a7a8b", "a7a8n"]
+    },
+    {
+      "id": "zuege-grundstellung",
+      "beschreibung": "Grundstellung: 16 Bauernzüge und 4 Springerzüge.",
+      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "anzahl": 20,
+      "enthaelt": ["e2e4", "e2e3", "g1f3", "b1a3"],
+      "enthaeltNicht": ["e2e5", "e1e2", "f1c4"]
+    },
+    {
+      "id": "zuege-schwarz-nach-e4",
+      "beschreibung": "Nach 1. e4 hat Schwarz ebenfalls 20 Züge.",
+      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "zugfolge": ["e2e4"],
+      "anzahl": 20,
+      "enthaelt": ["e7e5", "c7c5", "g8f6"],
+      "enthaeltNicht": ["e2e4"]
+    },
+    {
+      "id": "zuege-fesselung",
+      "beschreibung": "Der Springer e2 ist durch den Turm e7 an den König gefesselt; nur vier Königszüge.",
+      "fen": "4k3/4r3/8/8/8/8/4N3/4K3 w - - 0 1",
+      "anzahl": 4,
+      "enthaelt": ["e1d1", "e1d2", "e1f1", "e1f2"],
+      "enthaeltNicht": ["e2c3", "e2g3", "e2d4"]
+    },
+    {
+      "id": "zuege-schach-durch-dame",
+      "beschreibung": "Die Dame d2 gibt Schach; erlaubt sind nur Kxd2 und Kf1.",
+      "fen": "4k3/8/8/8/8/8/3q4/4K3 w - - 0 1",
+      "anzahl": 2,
+      "enthaelt": ["e1d2", "e1f1"],
+      "enthaeltNicht": ["e1d1", "e1e2", "e1f2"]
+    },
+    {
+      "id": "zuege-en-passant-gefesselt",
+      "beschreibung": "En passant auf c6 würde die fünfte Reihe öffnen und den König a5 dem Turm h5 preisgeben.",
+      "fen": "8/8/8/KPp4r/8/8/8/7k w - c6 0 1",
+      "enthaelt": ["b5b6"],
+      "enthaeltNicht": ["b5c6"]
+    },
+    {
+      "id": "zuege-keine-rochade-im-schach",
+      "beschreibung": "Der Turm e2 gibt Schach: keine Rochade, aber der König darf ihn schlagen.",
+      "fen": "4k3/8/8/8/8/8/4r3/R3K2R w KQ - 0 1",
+      "enthaelt": ["e1e2"],
+      "enthaeltNicht": ["e1g1", "e1c1"]
+    },
+    {
+      "id": "zuege-lange-rochade-b1-angegriffen",
+      "beschreibung": "Lange Rochade ist erlaubt, obwohl der Turm b8 das Feld b1 angreift.",
+      "fen": "1r2k3/8/8/8/8/8/8/R3K3 w Q - 0 1",
+      "enthaelt": ["e1c1"],
+      "enthaeltNicht": ["e1a1"]
+    },
+    {
+      "id": "zuege-matt-keine-zuege",
+      "beschreibung": "Narrenmatt: Weiß ist matt und hat keinen erlaubten Zug.",
+      "fen": "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3",
+      "anzahl": 0
+    },
+    {
+      "id": "zuege-umwandlung-mit-schlag",
+      "beschreibung": "Bauer a7 wandelt auf a8 oder mit Schlag auf b8 um, dazu drei Königszüge.",
+      "fen": "1r5k/P7/8/8/8/8/8/7K w - - 0 1",
+      "anzahl": 11,
+      "enthaelt": ["a7a8q", "a7b8q", "a7b8n", "h1g1", "h1g2", "h1h2"]
     }
   ]
 }
