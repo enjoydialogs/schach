@@ -1,3 +1,27 @@
 # Lokale Notizen, nie committen (enthalten Details aus privaten Repos)
 .local/
 .claude/worktrees/
+
+# .NET
+bin/
+obj/
+TestResults/
+*.user
+
+# Web
+node_modules/
+dist/
+*.local
+
+# ci/local-ci.ps1: Laufausgabe je Rechner
+.local-ci/
+
+# SPA-Bau, den das Web-Image nach src/Schach.Api/wwwroot kopiert
+src/Schach.Api/wwwroot/
+
+# Editoren
+.vs/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store

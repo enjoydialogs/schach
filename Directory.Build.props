@@ -1,0 +1,27 @@
+<Project>
+
+  <!--
+    Gemeinsame MSBuild-Vorgaben fuer alle Schach-Projekte. Einzelne .csproj duerfen einzelne
+    Eigenschaften ueberschreiben. Paketversionen stehen zentral in Directory.Packages.props (CPM).
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Product>Schach</Product>
+    <Authors>Christian Metz</Authors>
+  </PropertyGroup>
+
+</Project>

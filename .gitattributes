@@ -1,0 +1,35 @@
+# Zeilenenden: LF im Repository, automatisch beim Auschecken.
+* text=auto eol=lf
+
+# Textarten
+*.cs      text diff=csharp
+*.csproj  text
+*.props   text
+*.targets text
+*.slnx    text
+*.json    text
+*.ts      text
+*.tsx     text
+*.css     text
+*.html    text
+*.md      text
+*.yml     text
+*.yaml    text
+*.py      text
+*.toml    text
+
+# Binaerdateien (nie normalisieren)
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
+*.pt    binary
+
+# Shell-Skripte laufen in Linux-Containern; CRLF bricht das Shebang.
+*.sh    text eol=lf
+
+# PowerShell-7-Dateien mit LF, damit pwsh auf Linux sie sauber liest.
+*.ps1   text eol=lf

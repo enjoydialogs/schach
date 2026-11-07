@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Schach.Api/Schach.Api.csproj" />
+    <Project Path="src/Schach.Application/Schach.Application.csproj" />
+    <Project Path="src/Schach.Domain/Schach.Domain.csproj" />
+    <Project Path="src/Schach.Infrastructure/Schach.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Schach.Api.Tests/Schach.Api.Tests.csproj" />
+    <Project Path="tests/Schach.Application.Tests/Schach.Application.Tests.csproj" />
+    <Project Path="tests/Schach.Domain.Tests/Schach.Domain.Tests.csproj" />
+    <Project Path="tests/Schach.Infrastructure.Tests/Schach.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>

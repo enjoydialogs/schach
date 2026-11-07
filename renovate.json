@@ -1,0 +1,108 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":prConcurrentLimit10",
+    ":rebaseStalePrs",
+    ":semanticPrefixFixDepsChoreOthers"
+  ],
+  "timezone": "Europe/Berlin",
+  "schedule": [
+    "after 20:00 every friday"
+  ],
+  "prHourlyLimit": 4,
+  "labels": [
+    "dependencies",
+    "renovate"
+  ],
+  "automerge": false,
+  "configMigration": true,
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Renovate Dashboard: enjoydialogs/schach",
+  "packageRules": [
+    {
+      "description": "Operator-Regel (SCHACH-SPEC 13.1): .NET bleibt auf 10.0.x, kein .NET 11, keine Previews.",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": [
+        "Microsoft.EntityFrameworkCore",
+        "Microsoft.EntityFrameworkCore.*",
+        "Microsoft.AspNetCore.*",
+        "Npgsql",
+        "Npgsql.*",
+        "System.Security.Cryptography.*"
+      ],
+      "allowedVersions": "<11.0.0"
+    },
+    {
+      "description": "Operator-Regel: SDK und Images bleiben auf .NET 10.",
+      "matchDepNames": ["dotnet-sdk", "mcr.microsoft.com/dotnet/sdk", "mcr.microsoft.com/dotnet/aspnet"],
+      "allowedVersions": "<11.0.0"
+    },
+    {
+      "description": "EF Core und ASP.NET Core bewegen sich gemeinsam.",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": [
+        "Microsoft.EntityFrameworkCore",
+        "Microsoft.EntityFrameworkCore.*",
+        "Microsoft.AspNetCore.*",
+        "Microsoft.Extensions.*"
+      ],
+      "groupName": "dotnet BCL"
+    },
+    {
+      "description": "OpenTelemetry-Pakete als ein Akkord.",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": ["OpenTelemetry", "OpenTelemetry.*", "Npgsql.OpenTelemetry"],
+      "groupName": "OpenTelemetry"
+    },
+    {
+      "description": "Npgsql und sein EF-Core-Provider auf derselben Major-Version.",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": ["Npgsql", "Npgsql.*"],
+      "groupName": "Npgsql"
+    },
+    {
+      "description": "Test-Harness gemeinsam.",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": ["xunit.v3", "xunit.*", "Microsoft.Testing.*", "AwesomeAssertions", "Testcontainers", "Testcontainers.*"],
+      "groupName": "test harness"
+    },
+    {
+      "description": "Spec-Vorgabe React Router 7 (SCHACH-SPEC 10.1).",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["react-router"],
+      "allowedVersions": "<8.0.0"
+    },
+    {
+      "description": "Spec-Vorgabe react-chessboard 5.x (SCHACH-SPEC 10.3).",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["react-chessboard"],
+      "allowedVersions": "<6.0.0"
+    },
+    {
+      "description": "@types/node folgt der Node-Version aus .nvmrc (22).",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["@types/node"],
+      "allowedVersions": "<23.0.0"
+    },
+    {
+      "description": "GitHub Actions: ein gemeinsamer PR je Woche.",
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions"
+    },
+    {
+      "description": "Digests fuer Docker-Basisimages pinnen.",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "pinDigests": true
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security", "dependencies"],
+    "schedule": ["at any time"]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["after 20:00 on the first day of the month"]
+  }
+}
