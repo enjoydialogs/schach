@@ -535,3 +535,85 @@
 .leer p {
   margin: 0 0 16px;
 }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.zeile--flach {
+  min-height: 0;
+  padding: 0;
+}
+
+.karte__text {
+  margin: 0 0 8px;
+}
+
+.abschnitt {
+  margin: 24px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* Partienliste (10.7): Zeilen 64 px, Ergebnis mit Punkt */
+.partiezeile {
+  min-height: 64px;
+}
+
+.partiezeile__oben {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.partiezeile__ergebnis {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.ergebnispunkt {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.ergebnispunkt--sieg {
+  background: var(--accent);
+}
+
+.ergebnispunkt--remis {
+  background: var(--text-muted);
+}
+
+.ergebnispunkt--niederlage {
+  background: var(--danger);
+}
+
+.knopf--gefahr-text {
+  color: var(--danger);
+}
+
+.anmelden__weitere {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.anmelden__weitere a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+}

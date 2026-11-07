@@ -5,7 +5,8 @@ import { Partie } from './Partie'
 
 // Route /partie/:id. Fake-Ids (`fake-…`, nur Entwicklung und Bau-Modus `prototyp`) starten zuerst
 // den MSW-Fake, damit auch ein Neuladen gegen ihn laeuft. Im Produktionsbau faellt der Zweig weg.
-const FAKE_MOEGLICH = import.meta.env.DEV || import.meta.env.MODE === 'prototyp'
+// Unter Vitest (MODE `test`) nie: dort bedient msw/node den Fake je Test (S3b).
+const FAKE_MOEGLICH = (import.meta.env.DEV || import.meta.env.MODE === 'prototyp') && import.meta.env.MODE !== 'test'
 
 export function PartieSeite() {
   const { id = '' } = useParams()
@@ -27,5 +28,5 @@ export function PartieSeite() {
 
   if (fehler) return <p className="partie partie--leer">{t('prototyp.startFehler')}</p>
   if (!bereit) return <p className="partie partie--leer text-muted">{t('partie.laedt')}</p>
-  return <Partie key={id} id={id} neuePartiePfad={fake ? '/prototyp' : '/neu'} />
+  return <Partie key={id} id={id} neuePartiePfad="/neu" />
 }
