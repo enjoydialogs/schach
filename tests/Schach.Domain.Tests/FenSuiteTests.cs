@@ -4,9 +4,10 @@ using Chess;
 namespace Schach.Domain.Tests;
 
 /// <summary>
-/// Haelt das Format der gemeinsamen FEN-Suite fest (tests/fen-suite/README.md). Die fachliche
-/// Pruefung gegen Gera.Chess (Perft, Remis, Mattmaterial) bringt S1a; hier nur: jede Datei ist
+/// Haelt das Format der gemeinsamen FEN-Suite fest (tests/fen-suite/README.md): jede Datei ist
 /// lesbar, jede Id eindeutig, jede FEN laedt in Gera.Chess, jede Kategorie traegt ihre Felder.
+/// Die fachliche Pruefung steht in <see cref="StellungTests"/> (perft, zuege) und
+/// <see cref="RemisregelnTests"/> (remis, mattmaterial). <c>ungedeckt</c> prueft der Browser (SCHACH-SPEC 7.2).
 /// </summary>
 public sealed class FenSuiteTests
 {
@@ -38,11 +39,11 @@ public sealed class FenSuiteTests
     }
 
     [Fact]
-    public void Suite_hat_mindestens_zehn_Faelle_in_allen_fuenf_Kategorien()
+    public void Suite_hat_mindestens_vierzig_Faelle_in_allen_fuenf_Kategorien()
     {
         var faelle = LadeFaelle();
 
-        faelle.Should().HaveCountGreaterThanOrEqualTo(10);
+        faelle.Should().HaveCountGreaterThanOrEqualTo(40);
         faelle.Select(f => f.Kategorie).Distinct().Should().BeEquivalentTo(PflichtfelderJeKategorie.Keys);
     }
 

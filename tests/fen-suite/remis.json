@@ -19,6 +19,91 @@
       "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
       "zugfolge": ["g1f3", "g8f6", "f3g1", "f6g8", "g1f3", "g8f6", "f3g1", "f6g8"],
       "erwartet": "Wiederholung"
+    },
+    {
+      "id": "remis-material-koenige",
+      "beschreibung": "Nur noch die beiden Könige.",
+      "fen": "8/8/4k3/8/8/3K4/8/8 w - - 0 1",
+      "erwartet": "Material"
+    },
+    {
+      "id": "remis-material-springer",
+      "beschreibung": "König und Springer gegen König.",
+      "fen": "8/8/4k3/8/8/3NK3/8/8 b - - 0 1",
+      "erwartet": "Material"
+    },
+    {
+      "id": "remis-material-laeufer-gleichfarbig",
+      "beschreibung": "Je ein Läufer, beide auf dunklen Feldern (c1 und f8).",
+      "fen": "5b2/8/4k3/8/8/3K4/8/2B5 w - - 0 1",
+      "erwartet": "Material"
+    },
+    {
+      "id": "remis-laeufer-ungleichfarbig",
+      "beschreibung": "Läufer auf c1 (dunkel) und c8 (hell): kein totes Material.",
+      "fen": "2b5/8/4k3/8/8/3K4/8/2B5 w - - 0 1",
+      "erwartet": null
+    },
+    {
+      "id": "remis-zwei-springer",
+      "beschreibung": "König und zwei Springer gegen König ist kein totes Material.",
+      "fen": "8/8/4k3/8/8/2NNK3/8/8 w - - 0 1",
+      "erwartet": null
+    },
+    {
+      "id": "remis-bauer",
+      "beschreibung": "König und Bauer gegen König: die Partie läuft weiter.",
+      "fen": "8/8/4k3/8/8/4P3/3K4/8 w - - 0 1",
+      "erwartet": null
+    },
+    {
+      "id": "remis-fuenfzig-zuege",
+      "beschreibung": "Der 100. Halbzug ohne Bauernzug und Schlag ist kein Matt: Remis.",
+      "fen": "6k1/5ppp/8/8/8/8/8/1R4K1 w - - 99 80",
+      "zugfolge": ["b1b2"],
+      "erwartet": "FuenfzigZuege"
+    },
+    {
+      "id": "remis-matt-im-hundertsten-halbzug",
+      "beschreibung": "Tb8 setzt im 100. Halbzug matt: Matt geht vor der 50-Züge-Regel, also kein Remis.",
+      "fen": "6k1/5ppp/8/8/8/8/8/1R4K1 w - - 99 80",
+      "zugfolge": ["b1b8"],
+      "erwartet": null
+    },
+    {
+      "id": "remis-fuenfzig-schlag-setzt-zurueck",
+      "beschreibung": "Ein Schlag im 100. Halbzug setzt den Zähler zurück: kein Remis.",
+      "fen": "6k1/5ppp/8/8/8/8/1p6/1R4K1 w - - 99 80",
+      "zugfolge": ["b1b2"],
+      "erwartet": null
+    },
+    {
+      "id": "remis-wiederholung-dreieck",
+      "beschreibung": "Beide Könige laufen zweimal ein Dreieck: dreifache Wiederholung ohne Hin-und-her-Muster.",
+      "fen": "4k3/8/8/8/8/8/8/R3K3 w - - 0 1",
+      "zugfolge": ["e1d1", "e8d8", "d1d2", "d8d7", "d2e1", "d7e8", "e1d1", "e8d8", "d1d2", "d8d7", "d2e1", "d7e8"],
+      "erwartet": "Wiederholung"
+    },
+    {
+      "id": "remis-wiederholung-nur-zweimal",
+      "beschreibung": "Ein Dreieck der Könige: die Stellung steht erst zum zweiten Mal.",
+      "fen": "4k3/8/8/8/8/8/8/R3K3 w - - 0 1",
+      "zugfolge": ["e1d1", "e8d8", "d1d2", "d8d7", "d2e1", "d7e8"],
+      "erwartet": null
+    },
+    {
+      "id": "remis-wiederholung-en-passant-zaehlt",
+      "beschreibung": "Nach d7-d5 ist exd6 e.p. möglich; die spätere gleiche Stellung ohne diesen Schlag ist eine andere: erst zweimal.",
+      "fen": "4k3/3p4/8/4P3/8/8/8/R3K3 b - - 0 1",
+      "zugfolge": ["d7d5", "a1a2", "e8d8", "a2a1", "d8e8", "a1a2", "e8d8", "a2a1", "d8e8"],
+      "erwartet": null
+    },
+    {
+      "id": "remis-wiederholung-nach-en-passant",
+      "beschreibung": "Wie zuvor, die Stellung ohne möglichen e.p.-Schlag entsteht ein drittes Mal.",
+      "fen": "4k3/3p4/8/4P3/8/8/8/R3K3 b - - 0 1",
+      "zugfolge": ["d7d5", "a1a2", "e8d8", "a2a1", "d8e8", "a1a2", "e8d8", "a2a1", "d8e8", "a1a2", "e8d8", "a2a1", "d8e8"],
+      "erwartet": "Wiederholung"
     }
   ]
 }
