@@ -1,14 +1,6 @@
-namespace Schach.Domain;
+using Schach.Domain.Entitaeten;
 
-/// <summary>Bedenkzeit einer Partie (Spec 3.2). Namen wie Wire-Enum <c>bedenkzeit</c> (Spec 8.4a).</summary>
-public enum Bedenkzeit
-{
-    OhneUhr,
-    Fischer15Plus10,
-    Fischer10Plus5,
-    Fischer5Plus3,
-    JeZug90s,
-}
+namespace Schach.Domain;
 
 /// <summary>Für wen die Uhr läuft. Namen wie Wire-Enum <c>uhr.laeuftFuer</c>.</summary>
 public enum UhrSeite

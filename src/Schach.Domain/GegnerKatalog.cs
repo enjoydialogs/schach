@@ -1,3 +1,5 @@
+using Schach.Domain.Entitaeten;
+
 namespace Schach.Domain;
 
 // Gegner-Katalog nach SCHACH-SPEC 4.1 bis 4.3. Die Enum-Namen entsprechen den Wire-Enums in
@@ -86,21 +88,14 @@ public sealed record Stilgewichte(
     };
 }
 
-/// <summary>Welche Engine den Gegnerzug rechnet (Spiegel von <c>EngineArt</c> in Application).</summary>
-public enum GegnerEngine
-{
-    Maia,
-    Fairy,
-}
-
 /// <summary>Engine-Einstellung je Gegner (Konfiguration <c>Engine:Eichung</c>, Spec 5.4). Die Eichung
 /// stellt nur die Engine ein, nie die Elo des Gegners.</summary>
-public sealed record Eichung(int SelfElo, double Temperatur, GegnerEngine Engine)
+public sealed record Eichung(int SelfElo, double Temperatur, ZugEngine Engine)
 {
     /// <summary>Platzhalter bis zur Eichung: <c>selfElo = elo</c>, <c>temperatur = 1.0</c>, Maia.</summary>
     public static Eichung Identitaet(Gegner gegner)
     {
         ArgumentNullException.ThrowIfNull(gegner);
-        return new(gegner.Elo, 1.0, GegnerEngine.Maia);
+        return new(gegner.Elo, 1.0, ZugEngine.Maia);
     }
 }

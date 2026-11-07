@@ -1,3 +1,5 @@
+using Schach.Domain.Entitaeten;
+
 namespace Schach.Domain.Tests;
 
 /// <summary>Gegner-Katalog nach SCHACH-SPEC 4.1 bis 4.3 und Platzhalter-Eichung nach 5.4.</summary>
@@ -58,7 +60,7 @@ public sealed class GegnerKatalogTests
             var eichung = Eichung.Identitaet(gegner);
             eichung.SelfElo.Should().Be(gegner.Elo);
             eichung.Temperatur.Should().Be(1.0);
-            eichung.Engine.Should().Be(GegnerEngine.Maia);
+            eichung.Engine.Should().Be(ZugEngine.Maia);
         }
     }
 

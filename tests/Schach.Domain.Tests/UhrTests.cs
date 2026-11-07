@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Time.Testing;
+using Schach.Domain.Entitaeten;
 
 namespace Schach.Domain.Tests;
 
