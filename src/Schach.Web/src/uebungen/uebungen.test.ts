@@ -67,7 +67,27 @@ describe('Uebungs-Katalog', () => {
     expect(brett.get('e8')).toEqual({ type: 'q', color: 'w' })
   })
 
-  it.each(['grundreihenmatt', 'treppenmatt'])('%s endet im Matt', (key) => {
+  it('Schach abwehren: der Spieler steht im Schach und gewinnt den Turm', () => {
+    const u = findeUebung('schach-abwehren')!
+    expect(new Chess(gegnerZieht(starte(u), u).fen).inCheck()).toBe(true)
+    expect(new Chess(spieleDurch(u).fen).findPiece({ type: 'r', color: 'b' })).toEqual([])
+  })
+
+  it('Patt vermeiden: beide Loesungen sind Matt, Dg6 waere Patt', () => {
+    const u = findeUebung('patt-vermeiden')!
+    for (const zug of u.schritte[0]!.zuege) {
+      expect(new Chess(spielerZieht(starte(u), u, zug).fen).isCheckmate()).toBe(true)
+    }
+    const falle = spielerZieht(starte(u), u, 'e4g6')
+    expect(falle.phase).toBe('falsch')
+    expect(new Chess(falle.fen).isStalemate()).toBe(true)
+  })
+
+  it.each(['fesselung', 'spiess'])('%s: am Ende ist die schwarze Dame weg', (key) => {
+    expect(new Chess(spieleDurch(findeUebung(key)!).fen).findPiece({ type: 'q', color: 'b' })).toEqual([])
+  })
+
+  it.each(['grundreihenmatt', 'treppenmatt', 'dame-und-koenig', 'ersticktes-matt'])('%s endet im Matt', (key) => {
     expect(new Chess(spieleDurch(findeUebung(key)!).fen).isCheckmate()).toBe(true)
   })
 

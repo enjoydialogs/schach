@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ChevronRight } from 'lucide-react'
+import { GraduationCap, History, UserRound, type LucideIcon } from 'lucide-react'
 import { Link, useNavigate } from 'react-router'
 import type { ZustandDto } from '../api/types'
 import { Avatar } from '../components/Avatar'
@@ -12,10 +12,11 @@ import { Seite } from '../components/Seite'
 import { ladeSitzung, useSitzung } from '../components/sitzung'
 import { de, t } from '../i18n/de'
 import { fuelle } from '../partie/text'
+import './start.css'
 
 /**
  * Start (`/`), der Hub (SCHACH-SPEC 10.1, 10.4): Wortmarke, Elo-Chip oder „Anmelden“, Hauptkarte
- * mit offener Partie, Zeilen „Partien“, „Profil“ und „Übungen“ (Spieler) oder „Übungen“ und
+ * mit offener Partie, Kacheln „Partien“, „Übungen“, „Profil“ (Spieler) oder Kachel „Übungen“ und
  * Gast-Hinweis (10.11, 10.16).
  */
 export function Start() {
@@ -58,14 +59,13 @@ export function Start() {
     }
   }
 
-  const uebungenZeile = (
-    <li>
-      <Link className="zeile" to="/uebungen">
-        <span className="zeile__mitte zeile__titel">{t('uebungen.hubZeile')}</span>
-        <ChevronRight className="zeile__pfeil" aria-hidden="true" />
-      </Link>
-    </li>
-  )
+  // Kacheln in fester Reihenfolge; Partien und Profil nur fuer Spieler (offline: `unbekannt`).
+  const mitKonto = spieler !== null || sitzung.status === 'unbekannt'
+  const kacheln: { pfad: string; text: string; Icon: LucideIcon }[] = [
+    ...(mitKonto ? [{ pfad: '/partien', text: t('hub.partien'), Icon: History }] : []),
+    { pfad: '/uebungen', text: t('uebungen.hubZeile'), Icon: GraduationCap },
+    ...(mitKonto ? [{ pfad: '/profil', text: t('hub.profil'), Icon: UserRound }] : []),
+  ]
 
   return (
     <Seite>
@@ -127,31 +127,23 @@ export function Start() {
             {!online && <p className="text-muted">{t('offline.spielenBrauchtInternet')}</p>}
           </section>
 
-          {spieler !== null || sitzung.status === 'unbekannt' ? (
-            <ul className="liste">
-              <li>
-                <Link className="zeile" to="/partien">
-                  <span className="zeile__mitte zeile__titel">{t('hub.partien')}</span>
-                  <ChevronRight className="zeile__pfeil" aria-hidden="true" />
-                </Link>
-              </li>
-              <li>
-                <Link className="zeile" to="/profil">
-                  <span className="zeile__mitte zeile__titel">{t('hub.profil')}</span>
-                  <ChevronRight className="zeile__pfeil" aria-hidden="true" />
-                </Link>
-              </li>
-              {uebungenZeile}
-            </ul>
-          ) : (
-            <>
-              {/* Uebungen sind ungewertet und darum auch fuer Gaeste da (10.16). */}
-              <ul className="liste">{uebungenZeile}</ul>
-              <section className="karte karte--gast">
-                <p className="karte__text">{t('hub.gastText')}</p>
-                <Link to="/anmelden">{t('hub.gastLink')}</Link>
-              </section>
-            </>
+          {/* Uebungen sind ungewertet und darum auch fuer Gaeste da (10.16). */}
+          <nav className="kacheln" aria-label={t('app.name')}>
+            {kacheln.map(({ pfad, text, Icon }) => (
+              <Link key={pfad} className="kachel" to={pfad}>
+                <span className="kachel__symbol" aria-hidden="true">
+                  <Icon size={28} />
+                </span>
+                <span>{text}</span>
+              </Link>
+            ))}
+          </nav>
+
+          {!mitKonto && (
+            <section className="karte karte--gast">
+              <p className="karte__text">{t('hub.gastText')}</p>
+              <Link to="/anmelden">{t('hub.gastLink')}</Link>
+            </section>
           )}
 
           <InstallHinweis />

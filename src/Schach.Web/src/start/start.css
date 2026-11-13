@@ -1,0 +1,61 @@
+/* Hub-Kacheln (SCHACH-SPEC 10.4): Partien, Uebungen, Profil als gleich grosse Knoepfe mit Symbol.
+   Gaeste sehen nur Uebungen; die eine Kachel nimmt dann die ganze Breite. */
+.kacheln {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.kachel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 112px;
+  padding: 16px 8px;
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  background: var(--glass-surface);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  box-shadow: var(--glass-highlight), var(--shadow-2);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: transform var(--dauer-kurz) var(--kurve-raus);
+}
+
+.kachel:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  .kachel:hover {
+    box-shadow: var(--glass-highlight), var(--shadow-3);
+  }
+}
+
+.kachel:focus-visible {
+  outline: 2px solid var(--fokus-ring);
+  outline-offset: 2px;
+}
+
+.kachel__symbol {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kachel {
+    transition: none;
+  }
+}

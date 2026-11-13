@@ -903,8 +903,8 @@ Eine Kombination ohne Eintrag zeigt nur das Grund-Label, nie einen Fehler.
 
 - Wortmarke „Schach“. Rechts der Elo-Chip (Spieler, führt zum Profil) oder „Anmelden“ (Gast).
 - Hauptkarte mit offener Partie: Avatar, „Offene Partie gegen Oscar“, Bedenkzeit, „Fortsetzen“ (primär) und „Neue Partie“ (Outline). Ohne offene Partie nur „Neue Partie“.
-- Spieler: Zeilen „Partien“, „Profil“ und „Übungen“.
-- Gast: Zeile „Übungen“ und Gast-Hinweis-Karte (10.11).
+- Spieler: drei Kacheln nebeneinander, je mit Symbol in Akzentfarbe: „Partien“ (Verlauf), „Übungen“ (Doktorhut), „Profil“ (Person). Reihenfolge fest.
+- Gast: nur die Kachel „Übungen“ über die ganze Breite, darunter die Gast-Hinweis-Karte (10.11).
 - Install-Karte nach Regel (10.13).
 - Daten parallel laden, Skelett bis beide fertig.
 - Offline: Banner, Spielknöpfe aus mit „Spielen braucht Internet“.
@@ -1022,7 +1022,12 @@ Nachgetragen nach dem MVP, Entscheidung in ADR 0003.
 - **Ablauf** (`uebungen/ablauf.ts`): Jede Übung hat Start-FEN, optional einen Vorzug des Gegners und Schritte. Ein Schritt hat Aufgabe (Statuszeile), erlaubte Lösungen (UCI), Hinweis, Erklärung und optional die Antwort des Gegners. Richtiger Zug: Erklärung, nach 900 ms die Antwort. Anderer erlaubter Zug: er bleibt 1,4 s stehen, der Gegner gibt den Hinweis, dann wird er zurückgenommen. Nach dem letzten Schritt ein Bottom-Sheet „Übung geschafft!“ mit dem Abschluss-Satz, „Andere Übung“ (primär), „Noch einmal“ und „Zur Startseite“.
 - **Tipp:** erstes Tippen markiert die Figur („Zieh mit dem Turm“), zweites zeigt den Pfeil. Kein Serveraufruf, unbegrenzt.
 - **Ohne Server-Partie:** Eine Übung ist keine Partie. Kein `POST /partien`, keine Elo, keine Bilanz, keine Uhr, kein Engine- oder Mistral-Aufruf. Regeln prüft chess.js im Browser. Die offene Partie bleibt unberührt.
-- **Katalog** (`uebungen/katalog.ts`): Schlagen en passant, Rochade, Bauernumwandlung, Grundreihenmatt, Treppenmatt mit zwei Türmen, Springergabel, Italienische Partie, Schäfermatt abwehren (als Schwarz). `uebungen.test.ts` spielt jede Übung in jedem Zweig mit chess.js durch.
+- **Katalog** (`uebungen/katalog.ts`), 16 Übungen:
+  - Regeln: Schlagen en passant, Rochade, Bauernumwandlung, Schach abwehren, Patt vermeiden.
+  - Matt setzen: Grundreihenmatt, Treppenmatt mit zwei Türmen, Matt mit Dame und König, Ersticktes Matt.
+  - Taktik: Springergabel, Fesselung, Spieß.
+  - Eröffnungen: Italienische Partie, Schäfermatt abwehren (als Schwarz), Damengambit, Sizilianische Verteidigung (als Schwarz).
+- **Prüfung:** `uebungen.test.ts` spielt jede Übung in jedem Zweig mit chess.js durch.
 
 Quelle: [Wie sieht der Partie-Bildschirm auf dem Pixel 7 aus?](https://github.com/enjoydialogs/schach/issues/6), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), [Welche Lernhilfen gibt es genau?](https://github.com/enjoydialogs/schach/issues/8), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Wie funktioniert die Anmeldung per Magic Link?](https://github.com/enjoydialogs/schach/issues/17), [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 

@@ -13,8 +13,10 @@ function feld(name: string): HTMLElement {
 }
 
 describe('Uebungen', () => {
-  it('Spieler sehen die Zeile Übungen neben Partien und Profil', async () => {
+  it('Spieler sehen die Kacheln Partien, Übungen, Profil in dieser Reihenfolge', async () => {
     const router = zeigeApp('/')
+    const kacheln = await screen.findByRole('navigation', { name: 'Schach' })
+    expect(within(kacheln).getAllByRole('link').map((l) => l.textContent)).toEqual(['Partien', 'Übungen', 'Profil'])
     fireEvent.click(await screen.findByRole('link', { name: 'Übungen' }))
     await waitFor(() => expect(router.state.location.pathname).toBe('/uebungen'))
   })
@@ -22,7 +24,8 @@ describe('Uebungen', () => {
   it('Gaeste sehen die Zeile Übungen auch', async () => {
     t.fake.gast = true
     zeigeApp('/')
-    expect(await screen.findByRole('link', { name: 'Übungen' })).toHaveAttribute('href', '/uebungen')
+    const kacheln = await screen.findByRole('navigation', { name: 'Schach' })
+    expect(within(kacheln).getAllByRole('link').map((l) => l.getAttribute('href'))).toEqual(['/uebungen'])
     expect(screen.queryByRole('link', { name: /Profil/ })).toBeNull()
   })
 

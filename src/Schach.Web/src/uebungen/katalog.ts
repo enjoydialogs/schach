@@ -106,6 +106,48 @@ export const UEBUNGEN: readonly Uebung[] = [
       'Du kannst zwischen Dame, Turm, Läufer und Springer wählen. Meistens nimmst du die Dame, nur selten ist ein Springer besser.',
   },
   {
+    key: 'schach-abwehren',
+    bereich: 'regeln',
+    titel: 'Schach abwehren',
+    kurz: 'Wegziehen, dazwischenstellen oder schlagen.',
+    fen: '4r1k1/5ppp/8/8/8/3N3P/5PP1/6K1 b - - 0 1',
+    farbe: 'Weiss',
+    vorzug: 'e8e1',
+    einleitung:
+      'Schach! Mein Turm greift deinen König an. Im Schach musst du sofort etwas tun: König wegziehen, eine Figur dazwischenstellen oder den Angreifer schlagen.',
+    schritte: [
+      {
+        aufgabe: 'Wehr das Schach ab. Am besten schlägst du meinen Turm auf e1.',
+        zuege: ['d3e1'],
+        hinweis: 'Das rettet deinen König, aber es geht besser: Dein Springer auf d3 kann meinen Turm schlagen.',
+        erklaerung: 'Stark! Du hast das Schach abgewehrt und dabei noch meinen Turm gewonnen. Schlagen ist oft die beste Abwehr.',
+      },
+    ],
+    abschluss:
+      'Steht dein König im Schach, sind nur Züge erlaubt, die das Schach beenden. Prüf immer zuerst, ob du den Angreifer schlagen kannst.',
+  },
+  {
+    key: 'patt-vermeiden',
+    bereich: 'regeln',
+    titel: 'Patt vermeiden',
+    kurz: 'Gewonnen ist erst, wenn der König im Schach steht.',
+    fen: '7k/5K2/8/8/4Q3/8/8/8 w - - 0 1',
+    farbe: 'Weiss',
+    einleitung:
+      'Ich habe nur noch meinen König. Aber Vorsicht: Kann ich nicht mehr ziehen und stehe nicht im Schach, ist es Patt. Dann endet die Partie Remis.',
+    schritte: [
+      {
+        aufgabe: 'Setz mich matt, ohne Patt. Gib Schach mit der Dame auf der h-Linie.',
+        zuege: ['e4h4', 'e4h1'],
+        hinweis:
+          'Prüf nach deinem Zug: Kann mein König noch ziehen? Steht er nicht im Schach und hat kein freies Feld, ist es Patt. Such einen Zug mit Schach auf der h-Linie.',
+        erklaerung: 'Matt! Mein König steht im Schach, und alle Felder um ihn decken deine Dame und dein König.',
+      },
+    ],
+    abschluss:
+      'Hätte deine Dame auf g6 gestanden, wäre es Patt gewesen: kein Schach, aber auch kein Zug für mich. Mit viel Material lohnt es sich, vor jedem Zug kurz nachzuzählen.',
+  },
+  {
     key: 'grundreihenmatt',
     bereich: 'matt',
     titel: 'Grundreihenmatt',
@@ -160,6 +202,53 @@ export const UEBUNGEN: readonly Uebung[] = [
       'Achte darauf, dass deine Türme weit genug vom König weg stehen. Sonst schlägt er einen. Dann ziehst du den Turm einfach ans andere Ende der Reihe.',
   },
   {
+    key: 'dame-und-koenig',
+    bereich: 'matt',
+    titel: 'Matt mit Dame und König',
+    kurz: 'Die Dame sperrt, der König hilft beim Matt.',
+    fen: '4k3/8/4K3/8/8/8/8/Q7 w - - 0 1',
+    farbe: 'Weiss',
+    einleitung:
+      'Mit Dame und König setzt du einen König allein matt. Die Dame kann das nicht allein, sie braucht die Hilfe deines Königs.',
+    schritte: [
+      {
+        aufgabe: 'Sperr meinem König die siebte Reihe: Dame a1 nach a7.',
+        zuege: ['a1a7'],
+        hinweis: 'Die Dame soll zuerst die siebte Reihe sperren. Zieh sie nach a7.',
+        erklaerung: 'Gut. Mein König kann nur noch auf der letzten Reihe hin und her. Pass auf, dass er noch ein Feld hat, sonst wäre es Patt.',
+        antwort: 'e8f8',
+      },
+      {
+        aufgabe: 'Setz mich matt: Dame nach f7, direkt vor meinen König.',
+        zuege: ['a7f7'],
+        hinweis: 'Deine Dame darf direkt neben meinen König, wenn dein König sie deckt. Probier f7.',
+        erklaerung: 'Matt! Ich kann deine Dame nicht schlagen, weil dein König sie deckt.',
+      },
+    ],
+    abschluss:
+      'Treib den König mit der Dame an den Rand, hol deinen König heran und setz dann matt. Die Dame steht dabei oft direkt vor dem gegnerischen König, gedeckt vom eigenen.',
+  },
+  {
+    key: 'ersticktes-matt',
+    bereich: 'matt',
+    titel: 'Ersticktes Matt',
+    kurz: 'Ein Springer setzt einen König matt, der sich selbst eingemauert hat.',
+    fen: '6rk/6pp/8/6N1/8/8/8/6K1 w - - 0 1',
+    farbe: 'Weiss',
+    einleitung:
+      'Mein König steht in der Ecke, umringt von seinem Turm und seinen Bauern. Er hat sich selbst eingemauert. Das kann ein Springer ausnutzen.',
+    schritte: [
+      {
+        aufgabe: 'Setz mich mit dem Springer matt.',
+        zuege: ['g5f7'],
+        hinweis: 'Von welchem Feld greift dein Springer h8 an? Schau auf f7.',
+        erklaerung: 'Matt! Mein König kann nicht weg, weil seine eigenen Figuren alle Felder besetzen. Das nennt man ersticktes Matt.',
+      },
+    ],
+    abschluss:
+      'Springer springen über Figuren. Darum ist ein König, der von eigenen Figuren eingeklemmt ist, gegen einen Springer besonders gefährdet.',
+  },
+  {
     key: 'springergabel',
     bereich: 'taktik',
     titel: 'Springergabel',
@@ -185,6 +274,60 @@ export const UEBUNGEN: readonly Uebung[] = [
     ],
     abschluss:
       'Schau bei jedem Zug, ob dein Springer zwei Figuren gleichzeitig angreifen kann. Und pass auf, dass dir nicht dasselbe passiert.',
+  },
+  {
+    key: 'fesselung',
+    bereich: 'taktik',
+    titel: 'Fesselung',
+    kurz: 'Eine Figur darf nicht weg, weil dahinter der König steht.',
+    fen: '4k3/8/8/4q3/8/8/5K2/R7 w - - 0 1',
+    farbe: 'Weiss',
+    einleitung:
+      'Meine Dame und mein König stehen auf derselben Linie. Greifst du die Dame auf dieser Linie an, darf sie nicht weg, sonst stünde mein König im Schach. Das nennt man Fesselung.',
+    schritte: [
+      {
+        aufgabe: 'Fessle meine Dame: Turm a1 nach e1.',
+        zuege: ['a1e1'],
+        hinweis: 'Stell deinen Turm auf die e-Linie, auf der meine Dame und mein König stehen.',
+        erklaerung: 'Gefesselt! Meine Dame kann nicht zur Seite, sonst stünde mein König im Schach. Ich schlage deinen Turm, bevor ich sie ganz verliere.',
+        antwort: 'e5e1',
+      },
+      {
+        aufgabe: 'Schlag meine Dame mit dem König.',
+        zuege: ['f2e1'],
+        hinweis: 'Meine Dame steht direkt neben deinem König. Schlag sie.',
+        erklaerung: 'Ein Turm gegen eine Dame, ein sehr gutes Geschäft für dich.',
+      },
+    ],
+    abschluss:
+      'Achte auf Figuren, die mit dem König auf einer Linie stehen. Ein Läufer, Turm oder eine Dame kann sie fesseln. Gefesselte Figuren sind leichte Beute.',
+  },
+  {
+    key: 'spiess',
+    bereich: 'taktik',
+    titel: 'Spieß',
+    kurz: 'Schach dem König, und die Figur dahinter fällt.',
+    fen: '4q3/8/8/4k3/8/8/8/R5K1 w - - 0 1',
+    farbe: 'Weiss',
+    einleitung:
+      'Beim Spieß greifst du eine wertvolle Figur an, hinter der eine andere steht. Weicht die vordere aus, schlägst du die hintere. Mein König steht vor meiner Dame.',
+    schritte: [
+      {
+        aufgabe: 'Gib Schach auf der e-Linie: Turm a1 nach e1.',
+        zuege: ['a1e1'],
+        hinweis: 'Mein König und meine Dame stehen beide auf der e-Linie. Gib dort Schach.',
+        erklaerung: 'Schach! Mein König muss die Linie verlassen, und dann ist meine Dame frei für deinen Turm.',
+        antwort: 'e5d6',
+      },
+      {
+        aufgabe: 'Schlag meine Dame auf e8.',
+        zuege: ['e1e8'],
+        hinweis: 'Dein Turm sieht jetzt meine Dame auf e8. Schlag sie.',
+        erklaerung: 'Die Dame gehört dir. Das war ein Spieß.',
+      },
+    ],
+    abschluss:
+      'Der Spieß ist die umgekehrte Fesselung: Vorne steht die wertvollere Figur. Mit einem Schach klappt er fast immer, weil der König ausweichen muss.',
   },
   {
     key: 'italienisch',
@@ -269,6 +412,91 @@ export const UEBUNGEN: readonly Uebung[] = [
     ],
     abschluss:
       'Kommt die Dame früh heraus, schau immer auf f7 (als Weiß auf f2). Deck das Feld oder versperr den Weg, und entwickle dabei deine Figuren.',
+  },
+  {
+    key: 'damengambit',
+    bereich: 'eroeffnung',
+    titel: 'Damengambit',
+    kurz: 'Ein Bauer wird angeboten, um die Mitte zu bekommen.',
+    fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+    farbe: 'Weiss',
+    einleitung:
+      'Das Damengambit beginnt mit dem Damenbauern. Ein Gambit heißt: Du bietest einen Bauern an, damit du dafür die Mitte bekommst.',
+    schritte: [
+      {
+        aufgabe: 'Besetz die Mitte mit dem Damenbauern: d2 nach d4.',
+        zuege: ['d2d4'],
+        hinweis: 'Diesmal fängst du mit dem Bauern vor der Dame an. Zieh ihn von d2 nach d4.',
+        erklaerung: 'Gut, auch so kontrollierst du die Mitte. Ich antworte genauso.',
+        antwort: 'd7d5',
+      },
+      {
+        aufgabe: 'Biete mir einen Bauern an: c2 nach c4.',
+        zuege: ['c2c4'],
+        hinweis: 'Jetzt kommt das Gambit. Zieh den Bauern von c2 nach c4, er greift meinen Bauern auf d5 an.',
+        erklaerung: 'Das ist das Damengambit. Ich nehme den Bauern nicht, sondern stütze meinen Bauern auf d5 mit e6.',
+        antwort: 'e7e6',
+      },
+      {
+        aufgabe: 'Entwickle einen Springer, am besten nach c3 oder f3.',
+        zuege: ['b1c3', 'g1f3'],
+        hinweis: 'Springer kommen früh ins Spiel. Zieh einen nach c3 oder f3.',
+        erklaerung: 'Prima, dein Springer erhöht den Druck auf d5. Ich bringe auch meinen Springer.',
+        antwort: 'g8f6',
+      },
+      {
+        aufgabe: 'Bring deinen Läufer nach g5. Dort greift er meinen Springer an.',
+        zuege: ['c1g5'],
+        hinweis: 'Der Läufer auf c1 will raus. Zieh ihn nach g5.',
+        erklaerung: 'Sehr gut! Dein Läufer greift meinen Springer an, der d5 schützt. Ich stelle meinen Läufer dazwischen.',
+        antwort: 'f8e7',
+      },
+    ],
+    abschluss:
+      'Im Damengambit kämpfst du mit c4 um die Mitte. Nimmt Schwarz den Bauern, holst du ihn meistens später zurück. Danach: Figuren raus und rochieren.',
+  },
+  {
+    key: 'sizilianisch',
+    bereich: 'eroeffnung',
+    titel: 'Sizilianische Verteidigung',
+    kurz: 'Als Schwarz gegen e4 kämpfen, ohne den Zug nachzumachen.',
+    fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+    farbe: 'Schwarz',
+    vorzug: 'e2e4',
+    einleitung:
+      'Du spielst Schwarz. Ich beginne mit e4. Die Sizilianische Verteidigung ist eine sehr beliebte Antwort darauf: Du kämpfst von der Seite um die Mitte.',
+    schritte: [
+      {
+        aufgabe: 'Antworte mit dem c-Bauern: c7 nach c5.',
+        zuege: ['c7c5'],
+        hinweis: 'Diesmal nicht e5. Zieh den Bauern von c7 nach c5, er kontrolliert d4.',
+        erklaerung: 'Das ist Sizilianisch. Dein Bauer auf c5 hält das Feld d4 im Blick. Ich bringe meinen Springer.',
+        antwort: 'g1f3',
+      },
+      {
+        aufgabe: 'Mach Platz für deinen Läufer: d7 nach d6.',
+        zuege: ['d7d6'],
+        hinweis: 'Ein kleiner Bauernzug: d7 nach d6. Er öffnet den Weg für deinen Läufer auf c8.',
+        erklaerung: 'Gut. Jetzt öffne ich die Mitte mit d4.',
+        antwort: 'd2d4',
+      },
+      {
+        aufgabe: 'Schlag meinen Bauern auf d4.',
+        zuege: ['c5d4'],
+        hinweis: 'Mein Bauer auf d4 steht in Reichweite deines c-Bauern. Schlag ihn.',
+        erklaerung: 'Genau. Du tauschst deinen Randbauern gegen meinen Mittelbauern. Ich schlage mit dem Springer zurück.',
+        antwort: 'f3d4',
+      },
+      {
+        aufgabe: 'Entwickle deinen Springer nach f6 und greif meinen Bauern auf e4 an.',
+        zuege: ['g8f6'],
+        hinweis: 'Dein Springer auf g8 will ins Spiel. Zieh ihn nach f6.',
+        erklaerung: 'Sehr gut! Dein Springer greift e4 an, und ich muss ihn decken. Du hast eine gesunde Stellung.',
+        antwort: 'b1c3',
+      },
+    ],
+    abschluss:
+      'Bei Sizilianisch hast du am Ende einen Mittelbauern mehr als Weiß. Dafür ist Weiß schneller entwickelt. Bring deine Figuren zügig heraus und rochiere.',
   },
 ]
 
