@@ -244,7 +244,7 @@
   box-shadow: inset 0 0 0 1px var(--glass-hairline);
   appearance: none;
   cursor: pointer;
-  transition: background-color var(--dauer-kurz) var(--kurve-raus);
+  transition: background-color var(--dauer-mittel) var(--kurve-raus);
 }
 
 .schalter input::before {
@@ -257,9 +257,10 @@
   border-radius: 50%;
   background: var(--knauf);
   box-shadow: var(--shadow-1);
+  /* Umschalten etwa 250 ms ease-out (toggle-anatomy) */
   transition:
-    transform var(--dauer-kurz) var(--kurve-raus),
-    background-color var(--dauer-kurz) var(--kurve-raus);
+    transform var(--dauer-mittel) var(--kurve-raus),
+    background-color var(--dauer-mittel) var(--kurve-raus);
 }
 
 .schalter input:checked {
@@ -300,6 +301,13 @@
   background: transparent;
   appearance: none;
   cursor: pointer;
+}
+
+/* Touch: die ganze Zeilenhoehe ist Trefferflaeche, nicht nur die 6-px-Schiene (range-sliders) */
+@media (pointer: coarse) {
+  .regler input {
+    height: 44px;
+  }
 }
 
 .regler input::-webkit-slider-runnable-track {
