@@ -9,6 +9,8 @@ import { PaletteWahl } from '../components/PaletteWahl'
 import { Dialog } from '../components/Dialog'
 import { useEinstellungen } from './einstellungen'
 import { Endeblatt } from './Endeblatt'
+import { sichtAuf } from './erklaerung'
+import { Feuerwerk } from './Feuerwerk'
 import { knoepfe as knoepfeFuer, type Knopf } from './knoepfe'
 import { EigeneZeile, Knopfleiste, Kopfzeile, Spruchblase, Statuszeile, Uhr, type StatusArt } from './teile'
 import { fuelle } from './text'
@@ -80,6 +82,8 @@ export function Partie({
   const tipp = spielerAmZug ? aktuellerTipp(p.tippStand, z.halbzug) : null
   const markierung = tippMarkierung(tipp)
   const endeSichtbar = z.status === 'Beendet' && !anzeige.gegnerDenkt
+  // Feuerwerk nur beim Sieg, der gerade hier fiel (nicht beim Wieder-Oeffnen), 10.3.
+  const feuerwerk = endeSichtbar && p.frischBeendet && z.ergebnis !== null && sichtAuf(z.ergebnis, z.spielerFarbe) === 'sieg'
 
   // Statuszeile, Vorrang: Keine Verbindung > Hinweis (auch Grund eines gesperrten Knopfs) > Tipp > Warnung > Schach! > denkt nach.
   let status: { art: StatusArt; text: string } = { art: 'leer', text: '' }
@@ -182,6 +186,7 @@ export function Partie({
             p.ziehe(uci)
           }}
         />
+        {feuerwerk && <Feuerwerk />}
       </div>
       <Statuszeile art={status.art} text={status.text} />
       <EigeneZeile

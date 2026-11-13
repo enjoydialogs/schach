@@ -250,6 +250,8 @@ body:has(.partie) {
 /* Brett: min(100vw - Rand, 480px, 100dvh - 300px). Helle Paletten: 12 px Rand je Seite und
    Schatten; Nacht: volle Breite, flach. */
 .partie__brett {
+  /* Bezugsrahmen fuer das Sieg-Feuerwerk (Feuerwerk.tsx) */
+  position: relative;
   flex: none;
   width: min(100vw - var(--brett-rand), 480px, calc(100dvh - 300px));
   margin: 0 auto;
