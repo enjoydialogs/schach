@@ -140,13 +140,15 @@ export function EigeneZeile({
   )
 }
 
-const KNOPF: Record<KnopfArt, { text: string; Icon: LucideIcon; gefahr?: boolean }> = {
+// Gewichtung (10.3): Im Spiel ist das Brett der Blickfang, alle Knoepfe sind leise. Nach dem Ende
+// ist „Neue Partie“ der eine gefuellte Hauptknopf. Tipp wird nie primaer: er nimmt die Elo-Wertung.
+const KNOPF: Record<KnopfArt, { text: string; Icon: LucideIcon; gefahr?: boolean; primaer?: boolean }> = {
   zuruecknehmen: { text: de.partie.knopfZuruecknehmen, Icon: Undo2 },
   tipp: { text: de.partie.knopfTipp, Icon: Lightbulb },
   remis: { text: de.partie.knopfRemis, Icon: Handshake },
   aufgeben: { text: de.partie.knopfAufgeben, Icon: Flag, gefahr: true },
   nachspielen: { text: de.partie.knopfNachspielen, Icon: Rewind },
-  neuePartie: { text: de.partie.knopfNeuePartie, Icon: Plus },
+  neuePartie: { text: de.partie.knopfNeuePartie, Icon: Plus, primaer: true },
 }
 
 /** Gesperrte Knoepfe bleiben tippbar (`aria-disabled`) und melden `onKnopf`; der Aufrufer zeigt den Grund. */
@@ -155,12 +157,12 @@ export function Knopfleiste({ knoepfe, onKnopf }: { knoepfe: Knopf[]; onKnopf: (
     <nav className="partie__knoepfe">
       {knoepfe.map((knopf) => {
         const { art, aktiv } = knopf
-        const { text, Icon, gefahr } = KNOPF[art]
+        const { text, Icon, gefahr, primaer } = KNOPF[art]
         return (
           <button
             key={art}
             type="button"
-            className={`leistenknopf${gefahr ? ' leistenknopf--gefahr' : ''}`}
+            className={`leistenknopf ${primaer ? 'leistenknopf--primaer' : 'leistenknopf--leise'}${gefahr ? ' leistenknopf--gefahr' : ''}`}
             aria-disabled={aktiv ? undefined : true}
             onClick={() => onKnopf(knopf)}
           >

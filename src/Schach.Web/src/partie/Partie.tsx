@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
+import { X } from 'lucide-react'
 import { Brett } from '../brett/Brett'
 import { de, t } from '../i18n/de'
 import { schachFeld, sichtbarerSpruch } from './anzeige'
@@ -192,7 +193,16 @@ export function Partie({
       <Knopfleiste knoepfe={leiste} onKnopf={aufKnopf} />
 
       {offen === 'menue' && (
-        <BottomSheet titel={t('menue.titel')} onSchliessen={() => setOffen('keins')}>
+        <BottomSheet
+          titel={t('menue.titel')}
+          onSchliessen={() => setOffen('keins')}
+          kopf={
+            // Sichtbarer Ausgang fuer Screenreader und Tastatur; Tippen daneben und Escape bleiben.
+            <button type="button" className="symbolknopf" aria-label={t('menue.schliessen')} onClick={() => setOffen('keins')}>
+              <X aria-hidden="true" />
+            </button>
+          }
+        >
           <Schalter
             text={t('menue.erlaubteZuegeAnzeigen')}
             an={einstellungen.erlaubteZuegeAnzeigen}

@@ -57,6 +57,9 @@ describe('Partie-Bildschirm', () => {
     expect(knopf('Tipp')).not.toHaveAttribute('aria-disabled')
     expect(knopf('Remis anbieten')).not.toHaveAttribute('aria-disabled')
     expect(knopf('Aufgeben')).not.toHaveAttribute('aria-disabled')
+    // Im Spiel ist das Brett der Blickfang: alle Knoepfe leise, keiner primaer (10.3).
+    expect(document.querySelectorAll('.leistenknopf--leise')).toHaveLength(4)
+    expect(document.querySelector('.leistenknopf--primaer')).toBeNull()
     expect(screen.queryAllByRole('timer')).toHaveLength(0)
 
     fireEvent.click(feld('e2'))
@@ -132,7 +135,9 @@ describe('Partie-Bildschirm', () => {
     fireEvent.click(within(blatt).getByRole('button', { name: 'Schließen' }))
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(document.querySelectorAll('[data-square]')).toHaveLength(64)
-    expect(knopf('Nachspielen')).toBeInTheDocument()
+    expect(knopf('Nachspielen')).toHaveClass('leistenknopf--leise')
+    // Nach dem Ende ist „Neue Partie“ der eine Hauptknopf (10.3).
+    expect(knopf('Neue Partie')).toHaveClass('leistenknopf--primaer')
   })
 
   it('zeigt Gaesten die Pille, den Gast-Text und kein Nachspielen', async () => {

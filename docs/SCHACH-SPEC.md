@@ -811,13 +811,13 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 | Brett | `min(100vw - Rand, 480px, calc(100dvh - 312px))` (Nachspielen: `- 300px`), Rand 24 px (Nacht: 0, randlos über die volle Breite) | ca. 388 px, Felder 48,5 px |
 | Statuszeile | 48 px reserviert | Vorrang: „Keine Verbindung“ > Hinweis (3 s, z. B. „Zug nicht möglich“ oder Grund eines gesperrten Knopfs) > Tipp > Warnung > „Schach!“ > „Ilse denkt nach …“ |
 | Eigene Zeile | 48 px | „Du“ + Farbpunkt + Pille „Zählt nicht für die Elo“ oder „Gast“, eigene Uhr |
-| Knopfleiste | 64 px + safe-area | 4 Knöpfe je ca. 89×56, Icon (lucide) über Text: Zurücknehmen, Tipp, Remis anbieten, Aufgeben (rot) |
+| Knopfleiste | 64 px + safe-area | 4 Knöpfe je ca. 89×56, Icon (lucide) über Text: Zurücknehmen, Tipp, Remis anbieten, Aufgeben (roter Text, keine rote Fläche). Alle leise: Glasfläche mit Haarlinie, ohne Glanzkante und Schatten, kein Knopf im Akzent. Das Brett bleibt der einzige Blickfang; Tipp wird nie hervorgehoben, weil er die Elo-Wertung nimmt |
 
 - Kein Scrollen: `overflow: hidden`, `overscroll-behavior: none`, `touch-action: manipulation`.
 - Am-Zug-Punkt 8 px neben dem Namen.
 - Uhr `mm:ss` mit tabellarischen Ziffern. Aktive Uhr in Akzentfarbe, unter 20 s rot. Ohne Bedenkzeit keine Uhren.
 - Mit Bedenkzeit entfallen Zurücknehmen und Tipp: 2 Knöpfe à 182 px.
-- Nach Partieende: „Nachspielen“ | „Neue Partie“ (Gast nur „Neue Partie“).
+- Nach Partieende: „Nachspielen“ | „Neue Partie“ (Gast nur „Neue Partie“). „Neue Partie“ ist der einzige Hauptknopf: im Akzent gefüllt, doppelt so breit (2:1), Icon neben Text, 16 px. „Nachspielen“ bleibt leise wie die Knöpfe im Spiel.
 - Knopfzustände: Zurücknehmen erst nach eigenem Zug. Tipp nur am Zug. Remis anbieten ab Zug 1, nach Ablehnung 5 eigene Züge gesperrt. Alle aus, solange der Gegner sichtbar nachdenkt, eine Anfrage läuft oder keine Verbindung besteht.
 - Gesperrte Knöpfe: gedämpft, Text bleibt lesbar (4,5:1), aber fokussier- und tippbar (`aria-disabled="true"` statt `disabled`). Tippen löst keine Aktion aus und zeigt den Grund als Hinweis in der Statuszeile (`knoepfe.ts`, Texte unter `knopfGrund` in `de.ts`). Eine Sperre geht vor dem Grund des Knopfs: „Warte, bis Ilse gezogen hat.“, „Einen Moment, das läuft noch.“, offline steht schon „Keine Verbindung“ da. Sonst: „Zurücknehmen geht nach deinem ersten Zug.“, „Tipp gibt es, wenn du am Zug bist.“, „Mehr Tipp gibt es für diesen Zug nicht.“, „Remis kannst du in 3 Zügen wieder anbieten.“ (bei 1: „in einem Zug“).
 - Offline: Statuszeile „Keine Verbindung“, Eingabe aus.
