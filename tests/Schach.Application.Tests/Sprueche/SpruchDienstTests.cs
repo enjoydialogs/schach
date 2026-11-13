@@ -141,6 +141,20 @@ public sealed class SpruchDienstTests
         _speicher.Buchungen.Should().ContainSingle().Which.Buchung.Should().Be(new LlmBuchung(400, 20, 1, 0, 0));
     }
 
+    [Theory]
+    [InlineData("Attacke, mein Springer!")]
+    [InlineData("attacke mein springer")]
+    public async Task Mistral_Antwort_gleich_einem_frueheren_Spruch_fuehrt_zum_Ersatzspruch(string frueher)
+    {
+        _provider.Antwort = "Attacke, mein Springer!";
+        var anfrage = Anfrage(Partie()) with { BisherigeTexte = [frueher] };
+
+        var spruch = await Dienst().ErzeugeAsync(anfrage, Ct);
+
+        spruch.Quelle.Should().Be(SpruchQuelle.Ersatz);
+        SpruchVergleich.Gleich(spruch.Text, frueher).Should().BeFalse();
+    }
+
     [Fact]
     public async Task Zeitlimit_2500_ms_fuehrt_zum_Ersatzspruch_und_bucht_die_Schaetzung()
     {

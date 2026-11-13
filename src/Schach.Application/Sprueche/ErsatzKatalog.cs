@@ -214,11 +214,35 @@ public sealed class ErsatzKatalog(IReadOnlyDictionary<string, IReadOnlyDictionar
         }
 
         var texte = vorlagen.Select(werte.Einsetzen).ToList();
-        var frei = texte.Where(t => !bereitsGesagt.Contains(t)).ToList();
-        var auswahl = frei.Count > 0 ? frei : texte;
+        var frei = texte.Where(t => !SpruchVergleich.Enthalten(bereitsGesagt, t)).ToList();
+        var auswahl = frei.Count > 0 ? frei : NichtZuletzt(texte, bereitsGesagt, datei, werte);
 
         var index = (int)(Mische(seed, halbzug, (int)ereignis) % (ulong)auswahl.Count);
         return auswahl[index];
+    }
+
+    /// <summary>Alle Varianten verbraucht: Wiederholung erlaubt, nur nie der zuletzt gesagte Spruch.
+    /// Bleibt keine Variante, hilft <see cref="SpruchEreignis.Zug"/> aus.</summary>
+    private static List<string> NichtZuletzt(
+        List<string> texte,
+        IReadOnlyCollection<string> bereitsGesagt,
+        IReadOnlyDictionary<SpruchEreignis, IReadOnlyList<string>> datei,
+        ErsatzWerte werte)
+    {
+        if (bereitsGesagt.Count == 0)
+        {
+            return texte;
+        }
+
+        var zuletzt = bereitsGesagt.Last();
+        var andere = texte.Where(t => !SpruchVergleich.Gleich(t, zuletzt)).ToList();
+        if (andere.Count > 0)
+        {
+            return andere;
+        }
+
+        var zug = datei[SpruchEreignis.Zug].Select(werte.Einsetzen).Where(t => !SpruchVergleich.Gleich(t, zuletzt)).ToList();
+        return zug.Count > 0 ? zug : texte;
     }
 
     /// <summary>SplitMix64: fest definiert, unabhaengig von <see cref="Random"/> und der .NET-Version.</summary>

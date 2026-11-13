@@ -206,6 +206,33 @@ public class ErsatzKatalogTests
             .Should().BeOneOf(alle);
     }
 
+    [Fact]
+    public void Waehle_sagt_nach_verbrauchten_Varianten_nie_den_letzten_Spruch_nochmal()
+    {
+        var katalog = Katalog();
+        string[] alle = ["Weiter geht's.", "Mein Plan läuft.", "Hm, spannend.", "Ich hab da was vor."];
+
+        foreach (var zuletzt in alle)
+        {
+            string[] gesagt = [.. alle.Where(t => t != zuletzt), zuletzt];
+            for (var halbzug = 0; halbzug < 40; halbzug++)
+            {
+                katalog.Waehle("finn", SpruchEreignis.Zug, 5, halbzug, gesagt, new ErsatzWerte(null, 1))
+                    .Should().NotBe(zuletzt);
+            }
+        }
+    }
+
+    [Fact]
+    public void Waehle_erkennt_Wiederholung_auch_mit_anderen_Satzzeichen()
+    {
+        var katalog = Katalog();
+        string[] gesagt = ["weiter gehts", "mein plan läuft!", "Hm spannend", "Ich hab da was vor"];
+
+        katalog.Waehle("finn", SpruchEreignis.Zug, 5, 3, gesagt, new ErsatzWerte(null, 1))
+            .Should().NotBe("Ich hab da was vor.");
+    }
+
     [Theory]
     [InlineData(SpruchEreignis.Tausch)]
     [InlineData(SpruchEreignis.StellungBesser)]

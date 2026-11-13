@@ -68,7 +68,7 @@ public interface IPersonaQuelle
 /// <param name="NachHalbzug">Halbzug, nach dem der Spruch erscheint.</param>
 /// <param name="Daten">Daten fuer den Prompt (6.3, Abschnitt 4).</param>
 /// <param name="Werte">Platzhalter fuer den Ersatzspruch.</param>
-/// <param name="BisherigeTexte">Alle Spruchtexte dieser Partie, gegen Wiederholung.</param>
+/// <param name="BisherigeTexte">Alle Spruchtexte dieser Partie in zeitlicher Reihenfolge, gegen Wiederholung.</param>
 /// <param name="NurErsatz">Ohne Mistral, z. B. Partieende durch den Sweep (SCHACH-SPEC 6.1).</param>
 public sealed record SpruchAnfrage(
     Partie Partie,
@@ -190,6 +190,13 @@ public sealed partial class SpruchDienst(
             if (!pruefung.Ok)
             {
                 Log.Abgelehnt(logger, key, pruefung.Grund!.Value);
+                return null;
+            }
+
+            // Nie denselben Spruch zweimal in der Partie, auch nicht in aehnlicher Lage.
+            if (SpruchVergleich.Enthalten(anfrage.BisherigeTexte, pruefung.Text))
+            {
+                Log.Abgelehnt(logger, key, SpruchAblehnung.Wiederholung);
                 return null;
             }
 

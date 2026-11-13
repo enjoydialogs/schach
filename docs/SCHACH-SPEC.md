@@ -416,6 +416,7 @@ Abschnitte:
    - Kein Gedankenstrich, keine Sternchen, ein kurzer Satz. (Spruch-Probe 2026-11-07: das Modell reihte Satzteile mit Gedankenstrichen und lief über 100 Zeichen.)
    - Keine Anführungszeichen, kein Name davor, keine Emojis.
    - Lehrerhaft nur rückblickend.
+   - Wiederhole nie einen Spruch aus `letzteSprueche`, auch nicht umgestellt.
 3. **Persönlichkeit:** `{{persona}}` = Inhalt von `prompts/gegner/{key}.de.md`.
 4. **Daten** als JSON in dritter Person: `ereignis, zugnummer, phase, spielerFarbe, bedenkzeit, spielerZug, gegnerZug, spielerSchlag, gegnerSchlag, schach, materialAenderung, materialBilanz, stellung, gegnerZugMerkmale, grund, laune, letzteSprueche (≤ 3)`. Züge in SAN mit englischen Buchstaben; `spielerSchlag` und `gegnerSchlag` nennen einen Schlag in Worten, als einzige Felder schon aus Sicht des Gegners in Ich/Du-Form („mein Läufer schlägt deine Dame“), sonst `null`; im Spruch kommen „Gegner“ und „Spieler“ nie vor, `laune` aus Abschnitt 4.2. Nie FEN, nie Spieler-Identität (kein Name, keine E-Mail, keine Elo, keine Konto-ID).
 5. „Antworte nur mit dem Spruch.“
@@ -438,6 +439,7 @@ Reine Klasse mit Unit-Tests. Schritte:
 3. Ablehnen bei leer, Markdown, URL oder `{{`.
 4. Sperrliste (Wortgrenze, ohne Groß/Klein): solltest, könntest, musst, müsstest, zieh, ziehe (nicht vor „ich“: „zieh ich“ meint den eigenen Zug), nimm, pass auf, achtung, vorsicht, aufpassen, hängt, ungedeckt, droht, besser wäre, hättest, empfehle, tipp, rate dir, „Sie“/„Ihnen“ als Anrede.
 5. Sperrliste Beleidigungen (Wortgrenze, ohne Groß/Klein, mit gebeugten Formen wie „dummer“ oder „Idioten“): dumm, doof, blöd, Idiot, Trottel, Versager, Loser, Depp. Gilt für jede Frechheit.
+6. Ablehnen, wenn der Text einem Spruch dieser Partie gleicht (ohne Groß/Klein, Satzzeichen und Leerraum): ein Gegner sagt nie denselben Spruch zweimal.
 
 Jeder Fehler, Timeout, HTTP 429/401/5xx oder erschöpftes Budget führt zum Ersatzspruch (`Quelle = Ersatz`). Der Spieler sieht nie eine Fehlermeldung.
 
@@ -449,7 +451,7 @@ Jeder Fehler, Timeout, HTTP 429/401/5xx oder erschöpftes Budget führt zum Ersa
 - Gegner mit Frechheit 1 oder 2: je Ereignis mindestens eine neckende Variante, vor allem `FigurGewonnen`, `SchachGegeben`, `Sieg`, `Zuruecknahme`. Die Tonregel der Stufe gilt auch hier.
 - Platzhalter: `{{figur}}`, `{{figur_akk}}`, `{{zugnr}}`.
 - Ladeprüfung beim Start und ein Unit-Test über alle 8 Dateien.
-- Auswahl ohne Wiederholung in der Partie, per PRNG(Seed, Halbzug).
+- Auswahl ohne Wiederholung in der Partie, per PRNG(Seed, Halbzug). Sind alle Varianten verbraucht, nie der zuletzt gesagte Spruch; bleibt keine, hilft `Zug` aus.
 
 ### 6.6 Gäste und Budget
 
