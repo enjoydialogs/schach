@@ -59,6 +59,8 @@ body:has(.partie) {
   grid-template-rows: 48px 64px;
   gap: 0 12px;
   height: 112px;
+  /* Luft zwischen Gegner und Brett */
+  margin-bottom: 12px;
 }
 
 .partie__gesicht {
@@ -239,6 +241,11 @@ body:has(.partie) {
   box-shadow: var(--brett-schatten);
 }
 
+/* Unter dem Kopf mit Blase fehlen dem Brett die 12 px Abstand in der Hoehe. */
+.partie__kopf--blase + .partie__brett {
+  width: min(100vw - var(--brett-rand), 480px, calc(100dvh - 312px));
+}
+
 /* Statuszeile 48 px reserviert */
 .partie__status {
   flex: none;
@@ -325,13 +332,13 @@ body:has(.partie) {
     background-color var(--dauer-kurz) var(--kurve-raus);
 }
 
-.leistenknopf:active:not(:disabled) {
+.leistenknopf:active:not(:disabled, [aria-disabled='true']) {
   transform: scale(0.96);
   background: var(--glass-surface-strong);
 }
 
 @media (hover: hover) {
-  .leistenknopf:hover:not(:disabled) {
+  .leistenknopf:hover:not(:disabled, [aria-disabled='true']) {
     background: var(--glass-surface-strong);
   }
 }
@@ -375,8 +382,10 @@ body:has(.partie) {
   }
 }
 
-/* Gesperrt: gedaempfte Flaeche, Text bleibt lesbar (kein reines opacity). */
-.leistenknopf:disabled {
+/* Gesperrt: gedaempfte Flaeche, Text bleibt lesbar (kein reines opacity). Partie nutzt aria-disabled
+   (tippbar, zeigt den Grund), Nachspielen das disabled-Attribut. */
+.leistenknopf:disabled,
+.leistenknopf[aria-disabled='true'] {
   background: var(--disabled-bg);
   border-color: transparent;
   box-shadow: none;
