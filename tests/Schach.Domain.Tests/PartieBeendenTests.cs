@@ -27,27 +27,27 @@ public sealed class PartieBeendenTests
     [Fact]
     public void Zaehlende_Partie_bucht_die_Elo()
     {
-        // 800 gegen Oscar (1000): E = 1/(1+10^0,5) = 0,2403; Sieg: 32*0,7597 = 24,3 -> +24.
-        var partie = SpielerPartie("oscar", Farbe.Schwarz);
+        // 800 gegen Konrad (1200): E = 1/(1+10^1) = 0,0909; Sieg: 32*0,9091 = 29,1 -> +29.
+        var partie = SpielerPartie("konrad", Farbe.Schwarz);
         var spieler = Spieler(800);
 
-        partie.Beenden(Ergebnis.SchwarzGewinnt, Grund.Aufgabe, _zeit, spieler, LeereBilanz("oscar"));
+        partie.Beenden(Ergebnis.SchwarzGewinnt, Grund.Aufgabe, _zeit, spieler, LeereBilanz("konrad"));
 
         partie.EloVorher.Should().Be(800);
-        partie.EloNachher.Should().Be(824);
-        spieler.Elo.Should().Be(824);
+        partie.EloNachher.Should().Be(829);
+        spieler.Elo.Should().Be(829);
     }
 
     [Fact]
     public void Remis_gegen_schwaecheren_Gegner_kostet_Elo()
     {
-        // 1200 gegen Finn (800): E = 0,9091; Remis: 32*(-0,4091) = -13,1 -> -13.
+        // 1100 gegen Finn (700): E = 0,9091; Remis: 32*(-0,4091) = -13,1 -> -13.
         var partie = SpielerPartie("finn", Farbe.Weiss);
-        var spieler = Spieler(1200);
+        var spieler = Spieler(1100);
 
         partie.Beenden(Ergebnis.Remis, Grund.Wiederholung, _zeit, spieler, LeereBilanz("finn"));
 
-        spieler.Elo.Should().Be(1187);
+        spieler.Elo.Should().Be(1087);
     }
 
     [Fact]

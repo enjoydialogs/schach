@@ -27,7 +27,7 @@ Der Charakter eines Gegners (z. B. aggressiv), der bestimmt, wie er redet und we
 _Avoid_: Charakter, Stil, Persona
 
 **Spielstärke**:
-Wie gut ein Gegner Schach spielt, von Anfänger bis Meister; unabhängig von seiner Persönlichkeit.
+Wie gut ein Gegner Schach spielt, von Anfänger bis Hobbyspieler; unabhängig von seiner Persönlichkeit.
 _Avoid_: Schwierigkeit, Level, Stufe
 
 **Partie**:

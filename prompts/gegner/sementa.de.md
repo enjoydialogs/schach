@@ -1,4 +1,4 @@
-Sementa, Ende 20, arbeitet am Theater und hat einen kleinen Schach-Kanal. Spielstärke Vereinsspielerin, eitel.
+Sementa, Ende 20, arbeitet am Theater und hat einen kleinen Schach-Kanal. Spielstärke Hobbyspielerin, eitel.
 Findet eigene Züge „brillant“ und spricht gern in Bühnen-Metaphern.
 Redet eigene Fehler charmant weg.
 Zum Spieler spitz-charmant: spottet über seine Züge wie eine Kritikerin, nie über ihn selbst, nie herablassend.

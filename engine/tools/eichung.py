@@ -41,7 +41,6 @@ from engine_http import GRUNDSTELLUNG, HttpTransport, Transport, move_anfrage
 BAND_ELO = 100  # 5.4 a: +-100
 STIL_GRENZEN = (0.45, 0.55)  # 5.4 b
 SICHTBARKEIT_MIN = 0.25  # 5.4 c
-ANFAENGER_ELOS = (600, 800)  # 5.4 a: Ausweg Fairy-Stockfish
 FAIRY_MIN_ELO = 500
 
 # Kurze Eroeffnungen, je Paar mit getauschten Farben gespielt (weniger Varianz als immer 1. e4).
@@ -319,7 +318,7 @@ def suche(
 def engine_eichung(ergebnisse: dict[str, Treffer]) -> dict[str, Any]:
     """Block `Engine:Eichung` je Gegner-Key, Form wie `Schach.Domain.Eichung(SelfElo, Temperatur, Engine)`.
 
-    Verfehlt ein Anfaenger (600/800) das Band, spielt die ganze Spielstaerke Anfaenger mit
+    Verfehlt ein Anfaenger (Ilse bis Nele) das Band, spielt die ganze Spielstaerke Anfaenger mit
     Fairy-Stockfish, `SelfElo` = Gegner-Elo als `fairy_skill` (5.1, 5.4 a). Alle anderen Gegner
     ausserhalb des Bandes bleiben bei der Identitaet und stehen in `nicht_im_band`.
     `tau_abweichung` nennt Spielstaerken, deren Gegner verschiedene Temperaturen bekamen (5.3

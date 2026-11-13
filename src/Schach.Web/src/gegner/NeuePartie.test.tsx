@@ -31,7 +31,7 @@ describe('Neue Partie', () => {
       'Konrad',
       'Maren',
     ])
-    expect(zeilen[2]).toHaveTextContent('Hobbyspieler · 1000')
+    expect(zeilen[2]).toHaveTextContent('Anfänger · 800')
     expect(zeilen[2]).toHaveTextContent('Ich erklär dir hinterher gern, warum ich so gezogen hab.')
     expect(within(zeilen[1]!).getByLabelText('0 Siege, 0 Remis, 1 Niederlagen')).toHaveTextContent('S 0 · R 0 · N 1')
   })

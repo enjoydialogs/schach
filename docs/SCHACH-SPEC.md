@@ -139,8 +139,9 @@ Quelle: [Map: Schach-Lernspiel fürs Handy](https://github.com/enjoydialogs/scha
 
 ### 4.1 Leiter
 
-- 8 Gegner mit fester Elo: 600, 800, 1000, 1200, 1400, 1600, 1900, 2200. Zwei Plätze (bis 10) bleiben für später frei.
-- 5 Spielstärken: Anfänger (600, 800), Hobbyspieler (1000, 1200), Vereinsspieler (1400, 1600), Turnierspieler (1900), Meister (2200). Im Code heißt das Feld `stufe`.
+- 8 Gegner mit fester Elo: 600, 700, 800, 900, 1000, 1100, 1200, 1300. Zwei Plätze (bis 10) bleiben für später frei.
+- Zielgruppe sind Anfänger bis Hobbyspieler. Die Leiter beginnt bei 600, der Untergrenze der Maia-3-Trainingsdaten (Abschnitt 5.1); 100 Elo Abstand heißt rund 64 % Erwartung für den Stärkeren, jede Sprosse ist also erreichbar. Schwächer als 600 spielen die Anfänger nur über die Eichung (Abschnitt 5.4), nicht über eine kleinere Elo.
+- 2 Spielstärken mit Gegnern: Anfänger (600 bis 900), Hobbyspieler (1000 bis 1300). Im Code heißt das Feld `stufe`. Die Werte Vereinsspieler, Turnierspieler und Meister bleiben im Enum und im Wire-Format, haben aber keinen Gegner.
 - Die Elo-Werte sind Produktkonstanten. Die Eichung stellt nur die Engine je Elo ein (Abschnitt 5.4), nie die Elo.
 - Reihenfolge in der Gegnerwahl: Elo aufsteigend.
 - Der Gegner-Katalog liegt in `Schach.Domain`.
@@ -206,13 +207,13 @@ Eine Persönlichkeit besteht aus:
 | Key | Name | Elo | Spielstärke | Persönlichkeit | Vorstellung |
 |---|---|---|---|---|---|
 | `ilse` | Ilse | 600 | Anfänger | Gemütlich | „Keine Eile. Wir spielen in aller Ruhe, ja?“ |
-| `finn` | Finn | 800 | Anfänger | Aggressiv | „Ich greif einfach immer an!“ |
-| `oscar` | Oscar | 1000 | Hobbyspieler | Lehrerhaft | „Ich erklär dir hinterher gern, warum ich so gezogen hab.“ |
-| `nele` | Nele | 1200 | Hobbyspieler | Verspielt | „Mal gucken, was passiert, wenn ich das probiere.“ |
-| `theo` | Theo | 1400 | Vereinsspieler | Vorsichtig | „Sicher ist sicher. Ich decke erst mal alles ab.“ |
-| `sementa` | Sementa | 1600 | Vereinsspieler | Eitel | „Elegant, oder? So sind meine Züge immer.“ |
-| `konrad` | Konrad | 1900 | Turnierspieler | Lehrerhaft | „Erst die Grundsätze, dann der Angriff.“ |
-| `maren` | Maren | 2200 | Meister | Aggressiv | „Ich opfere gern eine Figur für den Angriff.“ |
+| `finn` | Finn | 700 | Anfänger | Aggressiv | „Ich greif einfach immer an!“ |
+| `oscar` | Oscar | 800 | Anfänger | Lehrerhaft | „Ich erklär dir hinterher gern, warum ich so gezogen hab.“ |
+| `nele` | Nele | 900 | Anfänger | Verspielt | „Mal gucken, was passiert, wenn ich das probiere.“ |
+| `theo` | Theo | 1000 | Hobbyspieler | Vorsichtig | „Sicher ist sicher. Ich decke erst mal alles ab.“ |
+| `sementa` | Sementa | 1100 | Hobbyspieler | Eitel | „Elegant, oder? So sind meine Züge immer.“ |
+| `konrad` | Konrad | 1200 | Hobbyspieler | Lehrerhaft | „Erst die Grundsätze, dann der Angriff.“ |
+| `maren` | Maren | 1300 | Hobbyspieler | Aggressiv | „Ich opfere gern eine Figur für den Angriff.“ |
 
 **Ton je Gegner** (Frechheit aus 4.2; Launen-Gewichte trocken/lustig/vorlaut/genervt; Abstände B/C aus 6.2, leer = Konfiguration):
 
@@ -271,7 +272,7 @@ Alle Gegner tragen nur Vornamen und sprechen in Du-Form.
 
 ### 4.5 Gegnerwahl-Zeile
 
-Avatar (4.4), Name, „Stufe · Elo“ (z. B. „Hobbyspieler · 1000“), Vorstellungssatz, eigene S/R/N, Besiegt-Häkchen. Gäste sehen keine S/R/N.
+Avatar (4.4), Name, „Stufe · Elo“ (z. B. „Hobbyspieler · 1000“ für Theo), Vorstellungssatz, eigene S/R/N, Besiegt-Häkchen. Gäste sehen keine S/R/N.
 
 Quelle: [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), [Wann und wie spricht ein Gegner?](https://github.com/enjoydialogs/schach/issues/9), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 
@@ -280,8 +281,9 @@ Quelle: [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7),
 ### 5.1 Aufgabenteilung
 
 - **Maia-3** (CSSLab, 5M-Modell, ca. 21 MB, `maia3-5m.pt`) liefert für alle Gegner die menschlichen Kandidatenzüge. Trainiert auf Lichess-Partien von 600 bis 2600.
+  - Der Code kennt keine harte Grenze: `self_elo` wird auf 0 bis 5000 gekappt und linear zwischen zwei gelernten Einbettungen gemischt (`interpolate_elo`). Werte unter 600 liegen außerhalb der Trainingsdaten und sind ungeprüft. Darum beginnt die Leiter bei 600 (4.1).
 - **Stockfish 19** in voller Stärke liefert Tipp und Remis-Bewertung. Nie derselbe Prozess wie der Gegner.
-- **Fairy-Stockfish** (`UCI_Elo` ab 500) ist Ausweg: für die Spielstärke Anfänger, falls die Eichung bei 600/800 scheitert, und als Ersatz bei Maia-Ausfall. Hinter einem Adapter.
+- **Fairy-Stockfish** (`UCI_Elo` ab 500) ist Ausweg: für die Spielstärke Anfänger, falls die Eichung bei einem Anfänger (600 bis 900) scheitert, und als Ersatz bei Maia-Ausfall. Der Dienst lehnt `fairy_skill` unter 500 ab; der .NET-Ersatzweg setzt `max(500, selfElo)`. Hinter einem Adapter.
 - Stockfish allein reicht nicht, weil `UCI_Elo` erst bei 1320 (CCRL-Engine-Elo) beginnt.
 - Keine Engine hat eine Stiloption. Der Stil entsteht im Backend (Abschnitt 5.3).
 
@@ -349,7 +351,7 @@ Stil wirkt dezent und nur auf Züge, die Maia für plausibel hält. Persönlichk
 
 ### 5.4 Eichung
 
-- **(a) Stärke:** nur mit neutralen Gewichten. Je Elo-Stufe werden Maia-3 `SelfElo`, Temperatur oder Ausweich-Engine eingestellt, bis die gemessene Stärke die Gegner-Elo auf ±100 trifft. Gelingt das bei 600/800 nicht, spielt die Spielstärke Anfänger mit Fairy-Stockfish.
+- **(a) Stärke:** nur mit neutralen Gewichten. Je Elo-Stufe werden Maia-3 `SelfElo`, Temperatur oder Ausweich-Engine eingestellt, bis die gemessene Stärke die Gegner-Elo auf ±100 trifft. Gelingt das bei einem Anfänger (600 bis 900) nicht, spielt die ganze Spielstärke Anfänger mit Fairy-Stockfish.
 - **(b) Stil-Unabhängigkeit:** je Gegner 400 Partien gestylt gegen neutral. Bestanden bei 45 bis 55 %. Sonst Gewichtsgrenze auf 1,5 senken oder `r` auf 0,5 setzen. Die Elo wird nie verschoben.
 - **(c) Sichtbarkeit:** Aggressiv mindestens 25 % mehr Schlag- plus Schachzüge, Vorsichtig mindestens 25 % weniger riskante Züge als neutral.
 - Die Eichung läuft auf dem Entwicklungsrechner, nicht auf dem geteilten VPS. Werkzeuge `engine/…/messung.py` und `eichung.py` (Phase 2, S4b).
@@ -1374,7 +1376,7 @@ Alle Punkte sind Pflicht. Beleg in `docs/abnahme/mvp.md`.
 3. Rauchtest grün.
 4. Pixel-7-Abnahme als installierte PWA protokolliert.
 5. VPS-Messung: bei 10 parallelen Partien p95 Gegnerzug (Engine-Anteil) ≤ 1 s, Tipp p95 ≤ 1,5 s, RSS unter Limit, Limits und `SF_ARCH` gesetzt.
-6. Eichung: alle acht Elo-Stufen ±100 (oder 600/800 auf Fairy-Stockfish), Stil-A/B 45 bis 55 %, Sichtbarkeit erfüllt.
+6. Eichung: alle acht Elo-Stufen ±100 (oder Anfänger 600 bis 900 auf Fairy-Stockfish), Stil-A/B 45 bis 55 %, Sichtbarkeit erfüllt.
 7. Spruch-Probe bestanden. In der Beta Ersatzquote < 20 %.
 8. Backup an mindestens 3 Nächten, Restore-Probe, Mistral-Limit 10 €, Mail-Tageslimit zum Lettermint-Tarif, Budget-Warnmail einmal empfangen.
 9. Rechtstexte live, Konto löschen (0 Zeilen) und Export, null Fremd-Hosts.

@@ -70,14 +70,14 @@ def test_suche_ohne_treffer_meldet_besten_versuch():
 def test_eichung_konfig_mit_fairy_ausweg_fuer_anfaenger():
     ergebnisse = {
         "ilse": e.Treffer(self_elo=600, temperatur=1.0, schaetzung=e.Schaetzung(1100, 1000, 1200, 50), im_band=False),
-        "oscar": e.Treffer(self_elo=900, temperatur=0.9, schaetzung=e.Schaetzung(1010, 950, 1070, 50), im_band=True),
-        "konrad": e.Treffer(self_elo=1900, temperatur=1.0, schaetzung=e.Schaetzung(1500, 1400, 1600, 50), im_band=False),
+        "theo": e.Treffer(self_elo=900, temperatur=0.9, schaetzung=e.Schaetzung(1010, 950, 1070, 50), im_band=True),
+        "konrad": e.Treffer(self_elo=1200, temperatur=1.0, schaetzung=e.Schaetzung(1500, 1400, 1600, 50), im_band=False),
     }
     konfig = e.engine_eichung(ergebnisse)
     block = konfig["Engine"]["Eichung"]
-    assert block["oscar"] == {"SelfElo": 900, "Temperatur": 0.9, "Engine": "Maia"}
+    assert block["theo"] == {"SelfElo": 900, "Temperatur": 0.9, "Engine": "Maia"}
     assert block["ilse"] == {"SelfElo": 600, "Temperatur": 1.0, "Engine": "Fairy"}  # 5.4 a: Ausweg
-    assert block["konrad"] == {"SelfElo": 1900, "Temperatur": 1.0, "Engine": "Maia"}  # nicht im Band, Identitaet
+    assert block["konrad"] == {"SelfElo": 1200, "Temperatur": 1.0, "Engine": "Maia"}  # nicht im Band, Identitaet
     assert set(konfig["nicht_im_band"]) == {"ilse", "konrad"}
 
 
@@ -163,7 +163,7 @@ def test_cli_staerke_schreibt_ergebnis(engine_url, tmp_path):
     assert code == 0
     daten = json.loads(aus.read_text(encoding="utf-8"))
     assert "oscar" in daten["Engine"]["Eichung"]
-    assert daten["stufen"]["oscar"]["versuche"][0]["self_elo"] == 1000
+    assert daten["stufen"]["oscar"]["versuche"][0]["self_elo"] == 800
 
 
 def test_uci_anker_setzt_limit_strength_und_elo(engine_url, tmp_path):
@@ -185,18 +185,18 @@ def test_uci_anker_setzt_limit_strength_und_elo(engine_url, tmp_path):
 
 
 def test_fairy_ausweg_gilt_fuer_die_ganze_spielstaerke_anfaenger():
-    im_band = e.Treffer(800, 1.0, e.Schaetzung(820, 760, 880, 50), True)
+    im_band = e.Treffer(700, 1.0, e.Schaetzung(720, 660, 780, 50), True)
     daneben = e.Treffer(600, 1.0, e.Schaetzung(900, 800, 1000, 50), False)
     block = e.engine_eichung({"ilse": daneben, "finn": im_band})["Engine"]["Eichung"]
     assert block["ilse"]["Engine"] == "Fairy"
-    assert block["finn"] == {"SelfElo": 800, "Temperatur": 1.0, "Engine": "Fairy"}
+    assert block["finn"] == {"SelfElo": 700, "Temperatur": 1.0, "Engine": "Fairy"}
 
 
 def test_temperatur_abweichung_je_spielstaerke_wird_gemeldet():
-    a = e.Treffer(1000, 1.0, e.Schaetzung(1000, 950, 1050, 50), True)
-    b = e.Treffer(1200, 0.8, e.Schaetzung(1200, 1150, 1250, 50), True)
-    c = e.Treffer(1400, 1.0, e.Schaetzung(1400, 1350, 1450, 50), True)
-    konfig = e.engine_eichung({"oscar": a, "nele": b, "theo": c})
+    a = e.Treffer(800, 1.0, e.Schaetzung(800, 750, 850, 50), True)
+    b = e.Treffer(1000, 1.0, e.Schaetzung(1000, 950, 1050, 50), True)
+    c = e.Treffer(1100, 0.8, e.Schaetzung(1100, 1050, 1150, 50), True)
+    konfig = e.engine_eichung({"oscar": a, "theo": b, "sementa": c})
     assert konfig["tau_abweichung"] == ["hobbyspieler"]
 
 

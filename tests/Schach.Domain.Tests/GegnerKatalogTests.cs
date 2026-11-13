@@ -10,13 +10,13 @@ public sealed class GegnerKatalogTests
     {
         GegnerKatalog.Alle.Select(g => (g.Key, g.Name, g.Elo, g.Stufe, g.Persoenlichkeit)).Should().Equal(
             ("ilse", "Ilse", 600, Stufe.Anfaenger, Persoenlichkeit.Gemuetlich),
-            ("finn", "Finn", 800, Stufe.Anfaenger, Persoenlichkeit.Aggressiv),
-            ("oscar", "Oscar", 1000, Stufe.Hobbyspieler, Persoenlichkeit.Lehrerhaft),
-            ("nele", "Nele", 1200, Stufe.Hobbyspieler, Persoenlichkeit.Verspielt),
-            ("theo", "Theo", 1400, Stufe.Vereinsspieler, Persoenlichkeit.Vorsichtig),
-            ("sementa", "Sementa", 1600, Stufe.Vereinsspieler, Persoenlichkeit.Eitel),
-            ("konrad", "Konrad", 1900, Stufe.Turnierspieler, Persoenlichkeit.Lehrerhaft),
-            ("maren", "Maren", 2200, Stufe.Meister, Persoenlichkeit.Aggressiv));
+            ("finn", "Finn", 700, Stufe.Anfaenger, Persoenlichkeit.Aggressiv),
+            ("oscar", "Oscar", 800, Stufe.Anfaenger, Persoenlichkeit.Lehrerhaft),
+            ("nele", "Nele", 900, Stufe.Anfaenger, Persoenlichkeit.Verspielt),
+            ("theo", "Theo", 1000, Stufe.Hobbyspieler, Persoenlichkeit.Vorsichtig),
+            ("sementa", "Sementa", 1100, Stufe.Hobbyspieler, Persoenlichkeit.Eitel),
+            ("konrad", "Konrad", 1200, Stufe.Hobbyspieler, Persoenlichkeit.Lehrerhaft),
+            ("maren", "Maren", 1300, Stufe.Hobbyspieler, Persoenlichkeit.Aggressiv));
     }
 
     [Fact]
