@@ -15,6 +15,7 @@ import { fuelle } from '../partie/text'
 import { spieleTon } from '../partie/toene'
 import { erlaubteZuege, gegnerZieht, loesung, naechsterTipp, nimmZurueck, spielerZieht, starte, type Stand } from './ablauf'
 import { findeUebung, type Uebung } from './katalog'
+import { mitStimme } from './stimmen'
 import '../partie/partie.css'
 import './uebung.css'
 
@@ -73,8 +74,10 @@ export function UebungSeite() {
 
 type Offen = 'keins' | 'menue'
 
-/** Uebung im Layout `Fest`: Kopf mit Gegner und Spruchblase, Brett, Statuszeile, Knopfleiste. */
-export function UebungSpiel({ uebung, gegner }: { uebung: Uebung; gegner: GegnerDto }) {
+/** Uebung im Layout `Fest`: Kopf mit Gegner und Spruchblase, Brett, Statuszeile, Knopfleiste. Die Texte sprechen im Ton des Gegners (`stimmen.ts`). */
+export function UebungSpiel({ uebung: neutral, gegner }: { uebung: Uebung; gegner: GegnerDto }) {
+  // Alle Texte im Ton der Persoenlichkeit des Gegners; ab hier nur noch diese Fassung verwenden.
+  const uebung = useMemo(() => mitStimme(neutral, gegner.persoenlichkeit), [neutral, gegner.persoenlichkeit])
   const navigate = useNavigate()
   const [einstellungen, setzeEinstellung] = useEinstellungen()
   const [stand, setStand] = useState<Stand>(() => starte(uebung))
