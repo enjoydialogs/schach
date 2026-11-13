@@ -36,6 +36,13 @@
   --avatar-turnierspieler-text: #ffffff;
   --avatar-meister-text: #ffffff;
 
+  /* Feuerwerk beim Sieg (10.3): kraeftige Toene, rein dekorativ, gelten fuer jede Palette */
+  --feuerwerk-1: #ff5d8f;
+  --feuerwerk-2: #ffc531;
+  --feuerwerk-3: #2fd48f;
+  --feuerwerk-4: #4cc9f0;
+  --feuerwerk-5: #b28dff;
+
   /* Abgeleitet: gilt fuer jede Palette */
 
   /* Brett-Overlays (10.3) */
