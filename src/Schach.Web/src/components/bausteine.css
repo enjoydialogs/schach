@@ -435,6 +435,28 @@
   font-size: 20px;
 }
 
+/* 96 px: Kopf mit Sprechblase ueber dem Brett */
+.avatar--96 {
+  width: 96px;
+  height: 96px;
+  font-size: 40px;
+}
+
+/* Comic-Gesicht (4.4): Das SVG bringt seine eigene Hintergrundfarbe mit und traegt so auf hellen
+   und dunklen Seiten. Der Zuschnitt sitzt auf dem inneren Span, damit das Besiegt-Haekchen
+   ueber den Kreis hinausragen darf. */
+.avatar__gesicht {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.avatar__gesicht > svg {
+  display: block;
+}
+
 /* Besiegt (4.4): Haekchen unten rechts am Kreis */
 .avatar__besiegt {
   position: absolute;
@@ -449,6 +471,14 @@
   border: 2px solid var(--surface);
   background: var(--accent);
   color: var(--on-accent);
+}
+
+.avatar--96 .avatar__besiegt {
+  right: 0;
+  bottom: 0;
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
 }
 
 .dialog__knoepfe--senkrecht {

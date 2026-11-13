@@ -51,13 +51,13 @@ body:has(.partie) {
   padding: 0 4px 0 16px;
 }
 
-/* Partie-Kopf 112 px: links der Avatar ueber beide Zeilen, rechts oben Name, Elo, Gegner-Uhr 80x36
+/* Partie-Kopf 112 px: links der Avatar (96 px) ueber beide Zeilen, rechts oben Name, Elo, Gegner-Uhr 80x36
    und Menue 48x48 (48 px), darunter die Spruchblase (64 px), deren Spitze auf den Avatar zeigt. */
 .partie__kopf--blase {
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr);
+  grid-template-columns: 96px minmax(0, 1fr);
   grid-template-rows: 48px 64px;
-  gap: 0 14px;
+  gap: 0 12px;
   height: 112px;
 }
 

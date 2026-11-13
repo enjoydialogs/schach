@@ -63,8 +63,7 @@ export function Kopfzeile({
   return (
     <header className="partie__kopf partie__kopf--blase">
       <div className="partie__gesicht">
-        {/* TODO(Avatar): groessere Stufe (ca. 72 px) fuer den Kopf, sobald Avatar.tsx sie anbietet. */}
-        <Avatar gegner={gegner} groesse={48} />
+        <Avatar gegner={gegner} groesse={96} />
       </div>
       <div className="partie__kopfzeile">
         <div className="partie__gegner">

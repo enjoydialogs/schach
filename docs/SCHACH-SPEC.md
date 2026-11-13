@@ -241,8 +241,22 @@ Alle Gegner tragen nur Vornamen und sprechen in Du-Form.
 
 ### 4.4 Avatar
 
-- Anfangsbuchstabe im Kreis.
-- Der Akzentton der gewählten Palette (Abschnitt 10.3) in 5 Abstufungen, eine je Spielstärke (Anfänger hell bis Meister dunkel). Alle Paare erreichen mindestens 4,5:1. Die Tabelle zeigt die Standardpalette Lila (Minze, Hue 164°); die Werte der übrigen Paletten stehen in `src/styles/palette.css`. Schrift der beiden hellen Stufen ist `--text` der Palette.
+- Comic-Gesicht im Kreis, eins je Gegner, nachgeschlagen über den Gegner-Key (`src/components/gesichter/`). Flacher Stil ohne Konturen: großer Kopf, wenige kräftige Formen, kleiner Oberkörper mit bunter Kleidung. Das Gesicht zeigt die Persönlichkeit aus `prompts/gegner/*.de.md`.
+- Jedes Gesicht bringt seine eigene, helle Hintergrundfarbe mit. Es trägt damit auf den hellen Paletten und auf dunklen Flächen gleich gut und hängt nicht von der Palette ab.
+- Die Silhouette unterscheidet die Gegner auch bei 40 px:
+
+| Gegner | Hintergrund | Merkmale |
+|---|---|---|
+| Ilse | Gelb | grauer Dutt, geschlossene lächelnde Augen, rote Wangen, Perlenohrringe, Trachtenbluse |
+| Finn | Himmelblau | orange Stachelhaare, angriffslustige Brauen, Sommersprossen, breites Grinsen, roter Hoodie |
+| Oscar | Minze | Seitenscheitel, Vollbart, offenes Lachen, Strickjacke mit Stift |
+| Nele | Rosa | lila Doppeldutt, Zwinkern, Zunge raus, Stern auf dem Pulli |
+| Theo | Sand | Glatze mit Haarkranz, besorgte Brauen, Seitenblick, Wellenmund, Pullunder mit Krawatte |
+| Sementa | Violett | große Lockenwolke, Schlafzimmerblick mit Wimpern, roter Mund, Schönheitsfleck, Federboa |
+| Konrad | Limette | eckige Brille, hochgezogene Braue, schiefes Lächeln, Fliege, Sakko |
+| Maren | Koralle | schräger Bob, entschlossene Brauen, enger Blick, Seitengrinsen, weinroter Rollkragen |
+
+- Rückfall für einen unbekannten Key: Anfangsbuchstabe im Kreis. Farbe ist der Akzentton der gewählten Palette (Abschnitt 10.3) in 5 Abstufungen, eine je Spielstärke (Anfänger hell bis Meister dunkel). Alle Paare erreichen mindestens 4,5:1. Die Tabelle zeigt die Standardpalette Lila (Minze, Hue 164°); die Werte der übrigen Paletten stehen in `src/styles/palette.css`. Schrift der beiden hellen Stufen ist `--text` der Palette.
 
 | Variable | Hintergrund | Schrift |
 |---|---|---|
@@ -252,12 +266,12 @@ Alle Gegner tragen nur Vornamen und sprechen in Du-Form.
 | `--avatar-turnierspieler` | `#155443` | `#FFFFFF` |
 | `--avatar-meister` | `#0E3A2F` | `#FFFFFF` |
 
-- 48 px in der Gegnerwahl und im Partie-Kopf (dort neben der Spruchblase).
-- Besiegt: Häkchen unten rechts am Kreis.
+- 48 px in der Gegnerwahl, 40 px in Listen, 96 px im Partie-Kopf links neben der Spruchblase.
+- Besiegt: Häkchen unten rechts am Kreis (bei 96 px größer).
 
 ### 4.5 Gegnerwahl-Zeile
 
-Kreis, Name, „Stufe · Elo“ (z. B. „Hobbyspieler · 1000“), Vorstellungssatz, eigene S/R/N, Besiegt-Häkchen. Gäste sehen keine S/R/N.
+Avatar (4.4), Name, „Stufe · Elo“ (z. B. „Hobbyspieler · 1000“), Vorstellungssatz, eigene S/R/N, Besiegt-Häkchen. Gäste sehen keine S/R/N.
 
 Quelle: [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), [Wann und wie spricht ein Gegner?](https://github.com/enjoydialogs/schach/issues/9), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 
@@ -791,7 +805,7 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 
 | Bereich | Höhe | Inhalt |
 |---|---|---|
-| Kopf | 112 px | Links Avatar 48 px über beide Zeilen. Rechts oben (48 px): Name, „Elo 1200“, Gegner-Uhr 80×36, Menü „⋯“ 48×48. Rechts darunter (64 px fest reserviert): Spruchblase, 2 Zeilen, `line-clamp: 2`, runde Blase mit Spitze zum Avatar |
+| Kopf | 112 px | Links Avatar 96 px über beide Zeilen. Rechts oben (48 px): Name, „Elo 1200“, Gegner-Uhr 80×36, Menü „⋯“ 48×48. Rechts darunter (64 px fest reserviert): Spruchblase, 2 Zeilen, `line-clamp: 2`, runde Blase mit Spitze zum Avatar |
 | Brett | `min(100vw - Rand, 480px, calc(100dvh - 300px))`, Rand 24 px (Nacht: 0, randlos über die volle Breite) | ca. 388 px, Felder 48,5 px |
 | Statuszeile | 48 px reserviert | Vorrang: „Keine Verbindung“ > Tipp > Warnung > „Schach!“ > „Ilse denkt nach …“ |
 | Eigene Zeile | 48 px | „Du“ + Farbpunkt + Pille „Zählt nicht für die Elo“ oder „Gast“, eigene Uhr |
