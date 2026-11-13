@@ -811,13 +811,13 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 | Brett | `min(100vw - Rand, 480px, calc(100dvh - 300px))`, Rand 24 px (Nacht: 0, randlos über die volle Breite) | ca. 388 px, Felder 48,5 px |
 | Statuszeile | 48 px reserviert | Vorrang: „Keine Verbindung“ > Tipp > Warnung > „Schach!“ > „Ilse denkt nach …“ |
 | Eigene Zeile | 48 px | „Du“ + Farbpunkt + Pille „Zählt nicht für die Elo“ oder „Gast“, eigene Uhr |
-| Knopfleiste | 64 px + safe-area | 4 Knöpfe je ca. 89×56, Icon (lucide) über Text: Zurücknehmen, Tipp, Remis anbieten, Aufgeben (rot) |
+| Knopfleiste | 64 px + safe-area | 4 Knöpfe je ca. 89×56, Icon (lucide) über Text: Zurücknehmen, Tipp, Remis anbieten, Aufgeben (roter Text, keine rote Fläche). Alle leise: Glasfläche mit Haarlinie, ohne Glanzkante und Schatten, kein Knopf im Akzent. Das Brett bleibt der einzige Blickfang; Tipp wird nie hervorgehoben, weil er die Elo-Wertung nimmt |
 
 - Kein Scrollen: `overflow: hidden`, `overscroll-behavior: none`, `touch-action: manipulation`.
 - Am-Zug-Punkt 8 px neben dem Namen.
 - Uhr `mm:ss` mit tabellarischen Ziffern. Aktive Uhr in Akzentfarbe, unter 20 s rot. Ohne Bedenkzeit keine Uhren.
 - Mit Bedenkzeit entfallen Zurücknehmen und Tipp: 2 Knöpfe à 182 px.
-- Nach Partieende: „Nachspielen“ | „Neue Partie“ (Gast nur „Neue Partie“).
+- Nach Partieende: „Nachspielen“ | „Neue Partie“ (Gast nur „Neue Partie“). „Neue Partie“ ist der einzige Hauptknopf: im Akzent gefüllt, doppelt so breit (2:1), Icon neben Text, 16 px. „Nachspielen“ bleibt leise wie die Knöpfe im Spiel.
 - Knopfzustände: Zurücknehmen erst nach eigenem Zug. Tipp nur am Zug. Remis anbieten ab Zug 1, nach Ablehnung 5 eigene Züge gesperrt.
 - Offline: Statuszeile „Keine Verbindung“, Eingabe aus.
 - 429 auf `/zuege`: Statuszeile „<Name> denkt nach …“, Client wiederholt idempotent nach `Retry-After`.
