@@ -1,0 +1,106 @@
+/* Sieg-Moment im Partieende-Blatt (SCHACH-SPEC 10.3, Peak-End-Regel). Nur CSS, nur Paletten-Tokens.
+   Grundzustand = Endbild: ohne Animation (reduzierte Bewegung) bleibt ein ruhiger Akzent-Streifen
+   mit Pokal. Das Konfetti bleibt im Streifen (overflow hidden), weil das Sheet selbst scrollt. */
+
+.sieg {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  margin: 4px 0 8px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+.sieg__pokal {
+  position: relative;
+  z-index: 1;
+  width: 36px;
+  height: 36px;
+  stroke-width: 2.25;
+}
+
+/* Erst nach dem Hochgleiten des Sheets (--dauer-mittel) federt der Pokal auf: 600 ms mit leichtem
+   Ueberschwingen (Aufmerksamkeit, motion: 500 bis 800 ms). */
+.sieg--feiern .sieg__pokal {
+  animation: sieg-pokal 600ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--dauer-mittel) both;
+}
+
+.sieg__konfetti {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: sieg-konfetti 800ms var(--kurve-raus) calc(var(--dauer-mittel) + var(--v)) both;
+}
+
+.sieg__konfetti--0 {
+  background: var(--accent);
+}
+
+.sieg__konfetti--1 {
+  background: var(--warning);
+  border-radius: 50%;
+}
+
+.sieg__konfetti--2 {
+  background: color-mix(in srgb, var(--accent) 45%, var(--warning));
+  width: 5px;
+  height: 10px;
+}
+
+/* Elo-Gewinn beim Sieg als Abzeichen im Akzent. */
+.sieg__plus {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes sieg-pokal {
+  0% {
+    transform: scale(0.4) rotate(-12deg);
+  }
+  60% {
+    transform: scale(1.15) rotate(4deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes sieg-konfetti {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0) scale(0.6);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(1);
+  }
+}
+
+/* base.css kuerzt Animationen nur auf 0.01 ms; hier faellt die Bewegung ganz weg. */
+@media (prefers-reduced-motion: reduce) {
+  .sieg--feiern .sieg__pokal {
+    animation: none;
+  }
+
+  .sieg__konfetti {
+    display: none;
+  }
+}

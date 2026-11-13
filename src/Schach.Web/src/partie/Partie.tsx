@@ -301,6 +301,7 @@ export function Partie({
           zustand={z}
           gast={gast}
           spruch={spruch}
+          feiern={p.frischBeendet}
           onSchliessen={() => setEndeGeschlossen(true)}
           onNeuePartie={() => navigate(neuePartiePfad)}
           onNachspielen={() => navigate(`/nachspielen/${z.id}`)}

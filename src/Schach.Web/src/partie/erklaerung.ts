@@ -48,3 +48,18 @@ export function eloZeile(z: {
   if (!z.zaehltFuerElo || z.eloVorher === null || z.eloNachher === null) return de.partieende.eloZaehltNicht
   return fuelle(de.partieende.eloZeile, { elo: z.eloNachher, aenderung: eloAenderung(z.eloVorher, z.eloNachher) })
 }
+
+/**
+ * Elo-Gewinn fuer das Sieg-Abzeichen (10.3): neue Elo und „+12“, nur wenn die Partie gezaehlt hat
+ * und die Elo gestiegen ist; sonst `null` (dann die normale Elo-Zeile).
+ */
+export function eloGewinn(z: {
+  zaehltFuerElo: boolean
+  eloVorher: number | null
+  eloNachher: number | null
+  gast: boolean
+}): { elo: number; plus: string } | null {
+  if (z.gast || !z.zaehltFuerElo || z.eloVorher === null || z.eloNachher === null) return null
+  if (z.eloNachher <= z.eloVorher) return null
+  return { elo: z.eloNachher, plus: eloAenderung(z.eloVorher, z.eloNachher) }
+}
