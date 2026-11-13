@@ -53,16 +53,27 @@ describe('Partie-Bildschirm', () => {
   it('zeigt ohne Bedenkzeit vier Knoepfe; Zuruecknehmen erst nach dem eigenen Zug', async () => {
     await zeige(starte())
 
-    expect(knopf('Zurücknehmen')).toBeDisabled()
-    expect(knopf('Tipp')).toBeEnabled()
-    expect(knopf('Remis anbieten')).toBeEnabled()
-    expect(knopf('Aufgeben')).toBeEnabled()
+    expect(knopf('Zurücknehmen')).toHaveAttribute('aria-disabled', 'true')
+    expect(knopf('Tipp')).not.toHaveAttribute('aria-disabled')
+    expect(knopf('Remis anbieten')).not.toHaveAttribute('aria-disabled')
+    expect(knopf('Aufgeben')).not.toHaveAttribute('aria-disabled')
     expect(screen.queryAllByRole('timer')).toHaveLength(0)
 
     fireEvent.click(feld('e2'))
     fireEvent.click(feld('e4'))
 
-    await waitFor(() => expect(knopf('Zurücknehmen')).toBeEnabled())
+    await waitFor(() => expect(knopf('Zurücknehmen')).not.toHaveAttribute('aria-disabled'))
+  })
+
+  it('erklaert einen gesperrten Knopf in der Statuszeile, statt zu handeln', async () => {
+    await zeige(starte())
+
+    fireEvent.click(knopf('Zurücknehmen'))
+
+    const status = screen.getByTestId('statuszeile')
+    expect(status).toHaveTextContent('Zurücknehmen geht nach deinem ersten Zug.')
+    expect(status).toHaveClass('status--hinweis')
+    expect(screen.queryByRole('dialog')).toBeNull()
   })
 
   it('zeigt mit 5+3 nur Remis anbieten und Aufgeben und zwei Uhren', async () => {
@@ -70,8 +81,8 @@ describe('Partie-Bildschirm', () => {
 
     expect(screen.queryByRole('button', { name: 'Zurücknehmen' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Tipp' })).toBeNull()
-    expect(knopf('Remis anbieten')).toBeEnabled()
-    expect(knopf('Aufgeben')).toBeEnabled()
+    expect(knopf('Remis anbieten')).not.toHaveAttribute('aria-disabled')
+    expect(knopf('Aufgeben')).not.toHaveAttribute('aria-disabled')
     const uhren = screen.getAllByRole('timer')
     expect(uhren).toHaveLength(2)
     expect(screen.getByRole('timer', { name: 'Deine Uhr' })).toHaveClass('uhr--aktiv')
@@ -90,12 +101,12 @@ describe('Partie-Bildschirm', () => {
 
     fireEvent.click(knopf('Tipp'))
     expect(await screen.findByText(/^\S+ [a-h][1-8] nach [a-h][1-8]$/)).toBeInTheDocument()
-    expect(knopf('Tipp')).toBeDisabled()
+    expect(knopf('Tipp')).toHaveAttribute('aria-disabled', 'true')
 
     // Nach dem Zug kein Tipp mehr und keine zweite Frage.
     fireEvent.click(feld('e2'))
     fireEvent.click(feld('e4'))
-    await waitFor(() => expect(knopf('Tipp')).toBeEnabled())
+    await waitFor(() => expect(knopf('Tipp')).not.toHaveAttribute('aria-disabled'))
     fireEvent.click(knopf('Tipp'))
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(await screen.findByText(/^Zieh mit/)).toBeInTheDocument()

@@ -8,7 +8,7 @@ import { PaletteWahl } from '../components/PaletteWahl'
 import { Dialog } from '../components/Dialog'
 import { useEinstellungen } from './einstellungen'
 import { Endeblatt } from './Endeblatt'
-import { knoepfe as knoepfeFuer, type KnopfArt } from './knoepfe'
+import { knoepfe as knoepfeFuer, type Knopf } from './knoepfe'
 import { EigeneZeile, Knopfleiste, Kopfzeile, Spruchblase, Statuszeile, Uhr, type StatusArt } from './teile'
 import { fuelle } from './text'
 import { aktuellerTipp, naechsterTippSchritt, tippMarkierung, tippText, zeigePfeil } from './tipp'
@@ -80,7 +80,7 @@ export function Partie({
   const markierung = tippMarkierung(tipp)
   const endeSichtbar = z.status === 'Beendet' && !anzeige.gegnerDenkt
 
-  // Statuszeile, Vorrang: Keine Verbindung > Hinweis > Tipp > Warnung > Schach! > denkt nach.
+  // Statuszeile, Vorrang: Keine Verbindung > Hinweis (auch Grund eines gesperrten Knopfs) > Tipp > Warnung > Schach! > denkt nach.
   let status: { art: StatusArt; text: string } = { art: 'leer', text: '' }
   if (p.offline) status = { art: 'offline', text: de.status.keineVerbindung }
   else if (p.hinweis !== null) status = { art: 'hinweis', text: p.hinweis }
@@ -93,14 +93,19 @@ export function Partie({
 
   const leiste = knoepfeFuer(z, {
     gast,
-    gesperrt: p.beschaeftigt || p.offline || anzeige.gegnerDenkt,
+    sperre: p.offline ? 'offline' : anzeige.gegnerDenkt ? 'gegnerDenkt' : p.beschaeftigt ? 'beschaeftigt' : null,
     tippFertig: tipp?.stufe === 2,
   })
 
   // Einmalige Elo-Frage: nur Spieler, nur solange die Partie zaehlt (10.3). Danach zaehlt sie nicht.
   const mussFragen = !gast && z.zaehltFuerElo
 
-  const aufKnopf = (art: KnopfArt) => {
+  const aufKnopf = ({ art, aktiv, grund }: Knopf) => {
+    // Gesperrt: nur der Grund in der Statuszeile, keine Aktion und keine Elo-Frage.
+    if (!aktiv) {
+      if (grund !== null) p.zeigeHinweis(grund)
+      return
+    }
     if (art === 'aufgeben') setOffen('aufgeben')
     else if (art === 'remis') p.bieteRemis()
     else if (art === 'zuruecknehmen') {

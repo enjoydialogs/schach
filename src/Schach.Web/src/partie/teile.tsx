@@ -149,18 +149,20 @@ const KNOPF: Record<KnopfArt, { text: string; Icon: LucideIcon; gefahr?: boolean
   neuePartie: { text: de.partie.knopfNeuePartie, Icon: Plus },
 }
 
-export function Knopfleiste({ knoepfe, onKnopf }: { knoepfe: Knopf[]; onKnopf: (art: KnopfArt) => void }) {
+/** Gesperrte Knoepfe bleiben tippbar (`aria-disabled`) und melden `onKnopf`; der Aufrufer zeigt den Grund. */
+export function Knopfleiste({ knoepfe, onKnopf }: { knoepfe: Knopf[]; onKnopf: (knopf: Knopf) => void }) {
   return (
     <nav className="partie__knoepfe">
-      {knoepfe.map(({ art, aktiv }) => {
+      {knoepfe.map((knopf) => {
+        const { art, aktiv } = knopf
         const { text, Icon, gefahr } = KNOPF[art]
         return (
           <button
             key={art}
             type="button"
             className={`leistenknopf${gefahr ? ' leistenknopf--gefahr' : ''}`}
-            disabled={!aktiv}
-            onClick={() => onKnopf(art)}
+            aria-disabled={aktiv ? undefined : true}
+            onClick={() => onKnopf(knopf)}
           >
             <Icon aria-hidden="true" size={22} />
             <span>{text}</span>

@@ -809,7 +809,7 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 |---|---|---|
 | Kopf | 112 px | Links Avatar 96 px über beide Zeilen. Rechts oben (48 px): Name, „Elo 1200“, Gegner-Uhr 80×36, Menü „⋯“ 48×48. Rechts darunter (64 px fest reserviert): Spruchblase, 2 Zeilen, `line-clamp: 2`, runde Blase mit Spitze zum Avatar |
 | Brett | `min(100vw - Rand, 480px, calc(100dvh - 300px))`, Rand 24 px (Nacht: 0, randlos über die volle Breite) | ca. 388 px, Felder 48,5 px |
-| Statuszeile | 48 px reserviert | Vorrang: „Keine Verbindung“ > Tipp > Warnung > „Schach!“ > „Ilse denkt nach …“ |
+| Statuszeile | 48 px reserviert | Vorrang: „Keine Verbindung“ > Hinweis (3 s, z. B. „Zug nicht möglich“ oder Grund eines gesperrten Knopfs) > Tipp > Warnung > „Schach!“ > „Ilse denkt nach …“ |
 | Eigene Zeile | 48 px | „Du“ + Farbpunkt + Pille „Zählt nicht für die Elo“ oder „Gast“, eigene Uhr |
 | Knopfleiste | 64 px + safe-area | 4 Knöpfe je ca. 89×56, Icon (lucide) über Text: Zurücknehmen, Tipp, Remis anbieten, Aufgeben (rot) |
 
@@ -818,7 +818,8 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 - Uhr `mm:ss` mit tabellarischen Ziffern. Aktive Uhr in Akzentfarbe, unter 20 s rot. Ohne Bedenkzeit keine Uhren.
 - Mit Bedenkzeit entfallen Zurücknehmen und Tipp: 2 Knöpfe à 182 px.
 - Nach Partieende: „Nachspielen“ | „Neue Partie“ (Gast nur „Neue Partie“).
-- Knopfzustände: Zurücknehmen erst nach eigenem Zug. Tipp nur am Zug. Remis anbieten ab Zug 1, nach Ablehnung 5 eigene Züge gesperrt.
+- Knopfzustände: Zurücknehmen erst nach eigenem Zug. Tipp nur am Zug. Remis anbieten ab Zug 1, nach Ablehnung 5 eigene Züge gesperrt. Alle aus, solange der Gegner sichtbar nachdenkt, eine Anfrage läuft oder keine Verbindung besteht.
+- Gesperrte Knöpfe: gedämpft, Text bleibt lesbar (4,5:1), aber fokussier- und tippbar (`aria-disabled="true"` statt `disabled`). Tippen löst keine Aktion aus und zeigt den Grund als Hinweis in der Statuszeile (`knoepfe.ts`, Texte unter `knopfGrund` in `de.ts`). Eine Sperre geht vor dem Grund des Knopfs: „Warte, bis Ilse gezogen hat.“, „Einen Moment, das läuft noch.“, offline steht schon „Keine Verbindung“ da. Sonst: „Zurücknehmen geht nach deinem ersten Zug.“, „Tipp gibt es, wenn du am Zug bist.“, „Mehr Tipp gibt es für diesen Zug nicht.“, „Remis kannst du in 3 Zügen wieder anbieten.“ (bei 1: „in einem Zug“).
 - Offline: Statuszeile „Keine Verbindung“, Eingabe aus.
 - 429 auf `/zuege`: Statuszeile „<Name> denkt nach …“, Client wiederholt idempotent nach `Retry-After`.
 

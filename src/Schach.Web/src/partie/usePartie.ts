@@ -37,6 +37,8 @@ export interface PartieSteuerung {
   gast: boolean | null
   offline: boolean
   hinweis: string | null
+  /** Zeigt einen Hinweis fuer kurze Zeit in der Statuszeile. */
+  zeigeHinweis: (text: string) => void
   beschaeftigt: boolean
   /** 429 auf `/zuege`: der Client wiederholt nach `Retry-After`. */
   limitWartet: boolean
@@ -364,6 +366,7 @@ export function usePartie(id: string, toeneAn: boolean, toeneLautstaerke = 1): P
     gast,
     offline,
     hinweis,
+    zeigeHinweis,
     beschaeftigt,
     limitWartet,
     tippStand,

@@ -325,13 +325,13 @@ body:has(.partie) {
     background-color var(--dauer-kurz) var(--kurve-raus);
 }
 
-.leistenknopf:active:not(:disabled) {
+.leistenknopf:active:not(:disabled, [aria-disabled='true']) {
   transform: scale(0.96);
   background: var(--glass-surface-strong);
 }
 
 @media (hover: hover) {
-  .leistenknopf:hover:not(:disabled) {
+  .leistenknopf:hover:not(:disabled, [aria-disabled='true']) {
     background: var(--glass-surface-strong);
   }
 }
@@ -340,8 +340,10 @@ body:has(.partie) {
   color: var(--danger);
 }
 
-/* Gesperrt: gedaempfte Flaeche, Text bleibt lesbar (kein reines opacity). */
-.leistenknopf:disabled {
+/* Gesperrt: gedaempfte Flaeche, Text bleibt lesbar (kein reines opacity). Partie nutzt aria-disabled
+   (tippbar, zeigt den Grund), Nachspielen das disabled-Attribut. */
+.leistenknopf:disabled,
+.leistenknopf[aria-disabled='true'] {
   background: var(--disabled-bg);
   border-color: transparent;
   box-shadow: none;

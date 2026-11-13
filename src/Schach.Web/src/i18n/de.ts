@@ -56,6 +56,16 @@ export const de = {
     knopfNeuePartie: 'Neue Partie',
     spruchVorlesen: 'Nochmal vorlesen: {text}',
   },
+  // Gruende fuer gesperrte Knoepfe, erscheinen beim Tippen in der Statuszeile (10.3).
+  knopfGrund: {
+    warteAufGegner: 'Warte, bis {name} gezogen hat.',
+    beschaeftigt: 'Einen Moment, das läuft noch.',
+    zuruecknehmenErst: 'Zurücknehmen geht nach deinem ersten Zug.',
+    tippNurAmZug: 'Tipp gibt es, wenn du am Zug bist.',
+    tippFertig: 'Mehr Tipp gibt es für diesen Zug nicht.',
+    remisInEinemZug: 'Remis kannst du in einem Zug wieder anbieten.',
+    remisInZuegen: 'Remis kannst du in {n} Zügen wieder anbieten.',
+  },
   status: {
     keineVerbindung: 'Keine Verbindung',
     schach: 'Schach!',
