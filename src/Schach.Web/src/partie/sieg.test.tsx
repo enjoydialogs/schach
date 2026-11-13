@@ -9,7 +9,7 @@ import { fakeHandlers } from '../fake/handlers'
 import { Partie } from './Partie'
 import { VIBRATION_ENDE, VIBRATION_SIEG } from './toene'
 
-// Sieg-Moment im Partieende-Blatt (SCHACH-SPEC 10.3): Pokal-Band, Konfetti nur beim frischen Sieg,
+// Sieg-Moment im Partieende-Blatt (SCHACH-SPEC 10.3): Pokal-Band, Konfetti und Feuerwerk nur beim frischen Sieg,
 // Elo-Abzeichen, eigene Sieg-Vibration. Niederlage bleibt ruhig.
 
 // Weiss setzt mit Ta1-a8 matt (dieselbe Stellung wie der Prototyp „Matt in 1“).
@@ -55,7 +55,11 @@ const feld = (name: string) => document.querySelector<HTMLElement>(`[data-square
 const konfetti = (blatt: HTMLElement) => blatt.querySelectorAll('.sieg__konfetti')
 
 describe('Sieg-Moment', () => {
-  it('feiert einen frischen Sieg mit Pokal, Konfetti, Elo-Abzeichen und Sieg-Vibration', async () => {
+  it('pulst die Sieg-Vibration auf jedem Feuerwerks-Knall (SCHACH-SPEC 10.3)', () => {
+    expect(VIBRATION_SIEG).toEqual([40, 550, 30, 250, 30, 250, 60])
+  })
+
+  it('feiert einen frischen Sieg mit Pokal, Konfetti, Feuerwerk, Elo-Abzeichen und Sieg-Vibration', async () => {
     const start = starte(MATT_IN_EINS)
     await zeige(start)
 
@@ -66,6 +70,10 @@ describe('Sieg-Moment', () => {
     expect(blatt).toHaveTextContent('Matt')
     expect(within(blatt).getByTestId('sieg-band')).toHaveClass('sieg--feiern')
     expect(konfetti(blatt).length).toBeGreaterThan(0)
+    // Feuerwerk ueber dem Brett, nicht im Blatt
+    const feuerwerk = screen.getByTestId('feuerwerk')
+    expect(feuerwerk.closest('.partie__brett')).not.toBeNull()
+    expect(feuerwerk.querySelectorAll('.feuerwerk__funke').length).toBeGreaterThan(0)
 
     const z = fake.lies(start.id)
     const plus = `+${z.eloNachher! - z.eloVorher!}`
@@ -74,7 +82,7 @@ describe('Sieg-Moment', () => {
     expect(vibrate).toHaveBeenLastCalledWith(VIBRATION_SIEG)
   })
 
-  it('zeigt beim Oeffnen eines schon gewonnenen Spiels den Pokal, aber kein Konfetti und keine Vibration', async () => {
+  it('zeigt beim Oeffnen eines schon gewonnenen Spiels den Pokal, aber kein Konfetti, kein Feuerwerk und keine Vibration', async () => {
     const z = starte(MATT_IN_EINS)
     fake.ziehe(z.id, { halbzug: z.halbzug, zug: 'a1a8' })
     await zeige(z)
@@ -83,6 +91,7 @@ describe('Sieg-Moment', () => {
     const band = within(blatt).getByTestId('sieg-band')
     expect(band).not.toHaveClass('sieg--feiern')
     expect(konfetti(blatt)).toHaveLength(0)
+    expect(screen.queryByTestId('feuerwerk')).toBeNull()
     expect(blatt.querySelector('.sieg__plus')).not.toBeNull()
     expect(vibrate).not.toHaveBeenCalled()
   })
@@ -96,6 +105,7 @@ describe('Sieg-Moment', () => {
 
     const blatt = await screen.findByRole('dialog', { name: 'Du hast verloren' })
     expect(within(blatt).queryByTestId('sieg-band')).toBeNull()
+    expect(screen.queryByTestId('feuerwerk')).toBeNull()
     expect(blatt.querySelector('.sieg__plus')).toBeNull()
     expect(blatt).toHaveTextContent('Elo 776 (−24)')
     expect(vibrate).toHaveBeenLastCalledWith(VIBRATION_ENDE)

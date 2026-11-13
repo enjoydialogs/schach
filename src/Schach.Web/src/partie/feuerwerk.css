@@ -1,0 +1,108 @@
+/* Feuerwerk ueber dem Brett beim frischen Sieg (SCHACH-SPEC 10.3). Nur CSS, Farben aus den
+   Paletten-Tokens `--feuerwerk-1` bis `-5`. Zeiten kommen als Variablen aus feuerwerkZeit.ts. Grund-
+   zustand ist unsichtbar (fill-mode both), am Ende bleibt nichts stehen. */
+
+.feuerwerk {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.feuerwerk__rakete {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 0;
+  height: 0;
+}
+
+/* Leuchtspur: steigt von unten zum Explosionspunkt auf. */
+.feuerwerk__spur {
+  position: absolute;
+  left: -2px;
+  top: -6px;
+  width: 4px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--farbe);
+  box-shadow: 0 0 8px var(--farbe);
+  opacity: 0;
+  animation: feuerwerk-spur var(--aufstieg) cubic-bezier(0.33, 0, 0.2, 1) var(--start) both;
+}
+
+.feuerwerk__blitz {
+  position: absolute;
+  left: -24px;
+  top: -24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--farbe) 0%, transparent 70%);
+  opacity: 0;
+  animation: feuerwerk-blitz 320ms ease-out var(--knall) both;
+}
+
+.feuerwerk__funke {
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--farbe);
+  box-shadow: 0 0 6px var(--farbe);
+  opacity: 0;
+  animation: feuerwerk-funke var(--funken) var(--kurve-raus) var(--knall) both;
+}
+
+@keyframes feuerwerk-spur {
+  0% {
+    opacity: 0;
+    transform: translateY(160px) scaleY(1.6);
+  }
+  15% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes feuerwerk-blitz {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
+/* Funken: schnell nach aussen, dann etwas Schwerkraft und verglimmen. */
+@keyframes feuerwerk-funke {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(var(--dx), var(--dy)) scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), calc(var(--dy) + 18px)) scale(0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feuerwerk {
+    display: none;
+  }
+}
