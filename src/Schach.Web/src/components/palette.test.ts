@@ -149,4 +149,12 @@ describe('Palette', () => {
       expect({ name, kontrast: kontrast(vorne, hinten) >= 4.5 }).toEqual({ name, kontrast: true })
     }
   })
+
+  it.each(PALETTEN.map((p) => p.id))('%s: Tastatur-Cursor hebt sich mit 3:1 von beiden Feldfarben ab', (id) => {
+    // --overlay-cursor: aussen --text, innen --bg (WCAG 1.4.11, Bedienelement).
+    const w = palette(id)
+    for (const feld of ['--board-light', '--board-dark']) {
+      expect({ feld, kontrast: kontrast(w('--text'), w(feld)) >= 3 }).toEqual({ feld, kontrast: true })
+    }
+  })
 })
