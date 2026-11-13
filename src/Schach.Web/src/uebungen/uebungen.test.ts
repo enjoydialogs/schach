@@ -2,6 +2,9 @@ import { Chess } from 'chess.js'
 import { describe, expect, it } from 'vitest'
 import { erlaubteZuege, gegnerZieht, loesung, naechsterTipp, nimmZurueck, spielerZieht, starte, type Stand } from './ablauf'
 import { BEREICHE, findeUebung, UEBUNGEN, type Uebung } from './katalog'
+import { mitStimme, PERSOENLICHKEITEN, STIMMEN } from './stimmen'
+import { de } from '../i18n/de'
+import { fuelle } from '../partie/text'
 
 /** Spielt eine Uebung mit dem ersten Loesungszug je Schritt bis zum Ende. */
 function spieleDurch(uebung: Uebung, wahl: (zuege: readonly string[]) => string = (z) => z[0]!): Stand {
@@ -160,5 +163,86 @@ describe('Uebungs-Ablauf', () => {
   it('Umwandlung in eine andere Figur zaehlt als anderer Zug', () => {
     const um = findeUebung('umwandlung')!
     expect(spielerZieht(starte(um), um, 'e7e8n').phase).toBe('falsch')
+  })
+})
+
+/** Alle Texte einer Uebung, die der Gegner spricht, mit Namen fuer Fehlermeldungen. */
+function gesprocheneTexte(u: Uebung): [string, string][] {
+  return [
+    ['einleitung', u.einleitung],
+    ...u.schritte.flatMap((s, i): [string, string][] => [
+      [`schritt ${i + 1} hinweis`, s.hinweis ?? ''],
+      [`schritt ${i + 1} erklaerung`, s.erklaerung],
+    ]),
+    ['abschluss', u.abschluss],
+  ]
+}
+
+/** Felder wie `e4`, sortiert und ohne Doppelte. */
+const felder = (text: string) => [...new Set(text.match(/\b[a-h][1-8]\b/g) ?? [])].sort()
+
+/**
+ * Laenge eines Texts an seinem Platz: Einleitung, Hinweis und Erklaerung teilen sich die Spruchblase
+ * (die Einleitung mit „Hallo, ich bin …“ davor), der Abschluss steht im Bottom-Sheet. Keine Stimme darf
+ * laenger sein als der laengste neutrale Text am selben Platz, damit das Layout `Fest` passt.
+ */
+const platz = (name: string) => (name === 'abschluss' ? 'sheet' : 'blase')
+const laenge = (name: string, text: string) =>
+  name === 'einleitung' ? fuelle(de.uebungen.begruessung, { name: 'Sementa', text }).length : text.length
+const hoechstlaenge = new Map<string, number>()
+for (const u of UEBUNGEN) {
+  for (const [name, text] of gesprocheneTexte(u)) {
+    hoechstlaenge.set(platz(name), Math.max(hoechstlaenge.get(platz(name)) ?? 0, laenge(name, text)))
+  }
+}
+
+describe('Uebungs-Stimmen', () => {
+  it('jede Stimme gehoert zu einer Uebung im Katalog', () => {
+    for (const key of Object.keys(STIMMEN)) expect(findeUebung(key), key).toBeDefined()
+  })
+
+  describe.each(UEBUNGEN.map((u) => [u.key, u] as const))('%s', (key, uebung) => {
+    it.each(PERSOENLICHKEITEN)('%s hat fuer jeden Schritt eigene Texte', (p) => {
+      const stimme = STIMMEN[key]?.[p]
+      expect(stimme, `${key} ohne Stimme ${p}`).toBeDefined()
+      expect(stimme!.schritte).toHaveLength(uebung.schritte.length)
+      const fassung = mitStimme(uebung, p)
+      const neutralTexte = gesprocheneTexte(uebung)
+      for (const [i, [name, text]] of gesprocheneTexte(fassung).entries()) {
+        expect(text.trim(), `${p} ${name} leer`).not.toBe('')
+        expect(text, `${p} ${name} gleicht dem neutralen Text`).not.toBe(neutralTexte[i]![1])
+      }
+    })
+
+    it.each(PERSOENLICHKEITEN)('%s laesst Schachinhalt und Zuege unveraendert', (p) => {
+      const fassung = mitStimme(uebung, p)
+      const { schritte: s1, einleitung: _e1, abschluss: _a1, ...rest1 } = fassung
+      const { schritte: s2, einleitung: _e2, abschluss: _a2, ...rest2 } = uebung
+      expect(rest1).toEqual(rest2)
+      expect(s1.map(({ aufgabe, zuege, antwort }) => ({ aufgabe, zuege, antwort }))).toEqual(
+        s2.map(({ aufgabe, zuege, antwort }) => ({ aufgabe, zuege, antwort })),
+      )
+      // Dieselben Felder wie im neutralen Text, damit keine Stimme einen anderen Zug ankuendigt.
+      const neutralTexte = gesprocheneTexte(uebung)
+      for (const [i, [name, text]] of gesprocheneTexte(fassung).entries()) {
+        expect(felder(text), `${p} ${name}`).toEqual(felder(neutralTexte[i]![1]))
+      }
+    })
+
+    it.each(PERSOENLICHKEITEN)('%s haelt Laenge und harte Grenzen ein', (p) => {
+      for (const [name, text] of gesprocheneTexte(mitStimme(uebung, p))) {
+        expect(laenge(name, text), `${p} ${name} zu lang`).toBeLessThanOrEqual(hoechstlaenge.get(platz(name))!)
+        // 4.2 und 6.4: keine Beleidigung, Du-Form, kein Gedankenstrich.
+        expect(text, `${p} ${name}`).not.toMatch(/\b(dumm|doof|blöd|idiot|trottel|versager|loser|depp)/i)
+        expect(text, `${p} ${name}`).not.toMatch(/\b(Sie|Ihnen|Ihr|Ihre)\b/)
+        expect(text, `${p} ${name}`).not.toMatch(/[–—]/)
+      }
+    })
+  })
+
+  it('ohne passende Stimme bleibt der neutrale Text', () => {
+    const u = findeUebung('en-passant')!
+    expect(mitStimme({ ...u, key: 'unbekannt' }, 'Eitel')).toEqual({ ...u, key: 'unbekannt' })
+    expect(mitStimme({ ...u, schritte: [...u.schritte, u.schritte[0]!] }, 'Eitel').einleitung).toBe(u.einleitung)
   })
 })
