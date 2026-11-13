@@ -59,6 +59,8 @@ body:has(.partie) {
   grid-template-rows: 48px 64px;
   gap: 0 12px;
   height: 112px;
+  /* Luft zwischen Gegner und Brett */
+  margin-bottom: 12px;
 }
 
 .partie__gesicht {
@@ -185,7 +187,7 @@ body:has(.partie) {
   margin: 0;
   padding: 8px 14px;
   border: 2px solid var(--blase-rand);
-  border-radius: 18px;
+  border-radius: 16px;
   background: var(--blase-flaeche);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
   backdrop-filter: blur(var(--glass-blur)) saturate(160%);
@@ -237,6 +239,11 @@ body:has(.partie) {
   width: min(100vw - var(--brett-rand), 480px, calc(100dvh - 300px));
   margin: 0 auto;
   box-shadow: var(--brett-schatten);
+}
+
+/* Unter dem Kopf mit Blase fehlen dem Brett die 12 px Abstand in der Hoehe. */
+.partie__kopf--blase + .partie__brett {
+  width: min(100vw - var(--brett-rand), 480px, calc(100dvh - 312px));
 }
 
 /* Statuszeile 48 px reserviert */
@@ -325,13 +332,13 @@ body:has(.partie) {
     background-color var(--dauer-kurz) var(--kurve-raus);
 }
 
-.leistenknopf:active:not(:disabled) {
+.leistenknopf:active:not(:disabled, [aria-disabled='true']) {
   transform: scale(0.96);
   background: var(--glass-surface-strong);
 }
 
 @media (hover: hover) {
-  .leistenknopf:hover:not(:disabled) {
+  .leistenknopf:hover:not(:disabled, [aria-disabled='true']) {
     background: var(--glass-surface-strong);
   }
 }
@@ -340,8 +347,45 @@ body:has(.partie) {
   color: var(--danger);
 }
 
-/* Gesperrt: gedaempfte Flaeche, Text bleibt lesbar (kein reines opacity). */
-.leistenknopf:disabled {
+/* Gewichtung der Partie-Knopfleiste (10.3). Leise: Glasflaeche bleibt (traegt den Kontrast ueber
+   den Farbflecken), aber ohne Glanzkante und Schatten, Rand nur als Haarlinie. So bleibt das Brett
+   der einzige Blickfang. Nachspielen nutzt die Grundform ohne Modifikator. */
+.leistenknopf--leise {
+  border-color: var(--glass-hairline);
+  box-shadow: none;
+}
+
+/* Primaer: „Neue Partie“ nach dem Ende. Gefuellt mit dem Akzent, doppelt so breit, Icon neben Text. */
+.leistenknopf--primaer {
+  flex-grow: 2;
+  flex-direction: row;
+  gap: 8px;
+  padding: 0 12px;
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--on-accent);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: var(--glow-accent);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Grundform-Hover und -Druck setzen Glas; der Hauptknopf behaelt seinen Akzent. */
+.leistenknopf--primaer:active:not(:disabled) {
+  background: var(--accent);
+}
+
+@media (hover: hover) {
+  .leistenknopf--primaer:hover:not(:disabled) {
+    background: var(--accent);
+  }
+}
+
+/* Gesperrt: gedaempfte Flaeche, Text bleibt lesbar (kein reines opacity). Partie nutzt aria-disabled
+   (tippbar, zeigt den Grund), Nachspielen das disabled-Attribut. */
+.leistenknopf:disabled,
+.leistenknopf[aria-disabled='true'] {
   background: var(--disabled-bg);
   border-color: transparent;
   box-shadow: none;
