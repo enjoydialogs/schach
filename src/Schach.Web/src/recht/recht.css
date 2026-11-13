@@ -51,12 +51,23 @@
   width: 100%;
 }
 
+/* Lange Woerter (z. B. „Service-Worker-Precache“) duerfen trennen, damit die Tabelle bei 412 px ohne
+   seitliches Scrollen passt; der Rahmen scrollt nur noch als Rueckfall. */
 .recht th,
 .recht td {
   text-align: left;
   vertical-align: top;
-  padding: 6px 8px;
+  padding: 6px;
   border-bottom: 1px solid var(--text-muted);
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+/* Allein stehende Mail-Adressen: 48 px hoch tippbar, ohne die Zeilenhoehe zu aendern. */
+.recht a[href^='mailto:'] {
+  display: inline-block;
+  padding: 14px 0;
+  margin: -14px 0;
 }
 
 .recht__widerspruch {

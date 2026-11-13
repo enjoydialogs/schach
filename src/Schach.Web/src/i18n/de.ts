@@ -248,8 +248,8 @@ export const de = {
   },
   gegnerzeile: {
     stufeElo: '{stufe} · {elo}',
-    bilanz: 'S {siege} · R {remis} · N {niederlagen}',
-    bilanzLang: '{siege} Siege, {remis} Remis, {niederlagen} Niederlagen',
+    bilanz: 'Siege {siege} · Remis {remis} · Niederlagen {niederlagen}',
+    bilanzLang: 'Siege: {siege}, Remis: {remis}, Niederlagen: {niederlagen}',
     besiegt: 'besiegt',
   },
   hub: {

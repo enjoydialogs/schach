@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { t } from '../i18n/de'
 import { kurzSha, quellcodeUrl } from './quellcode'
 
-/** Fusszeile 12 px (SCHACH-SPEC 10.1): Impressum · Datenschutz · Quellcode mit Commit-SHA. */
+/** Fusszeile 13 px, Links 48 px hoch tippbar (SCHACH-SPEC 10.1): Impressum · Datenschutz · Quellcode mit Commit-SHA. */
 export function Fusszeile({ commitSha = import.meta.env.VITE_COMMIT_SHA }: { commitSha?: string }) {
   const sha = kurzSha(commitSha)
   return (

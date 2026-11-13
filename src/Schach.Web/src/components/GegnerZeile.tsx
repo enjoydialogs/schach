@@ -4,7 +4,7 @@ import { fuelle } from '../partie/text'
 import { Avatar } from './Avatar'
 import './bausteine.css'
 
-/** „S 3 · R 1 · N 2“ mit ausgeschriebenem Namen fuer Screenreader. */
+/** „Siege 3 · Remis 1 · Niederlagen 2“; Screenreader hoeren „Siege: 3, …“ ohne Pluralfehler. */
 export function Bilanz({ bilanz }: { bilanz: BilanzDto }) {
   return (
     <span className="bilanz" aria-label={fuelle(de.gegnerzeile.bilanzLang, { siege: bilanz.siege, remis: bilanz.remis, niederlagen: bilanz.niederlagen })}>
@@ -15,7 +15,7 @@ export function Bilanz({ bilanz }: { bilanz: BilanzDto }) {
 
 /**
  * Gegnerwahl-Zeile (SCHACH-SPEC 4.5): Kreis 48 px, Name, „Stufe · Elo“, Vorstellungssatz, eigene
- * S/R/N und Besiegt-Haekchen. Gaeste sehen keine S/R/N.
+ * Bilanz (Siege, Remis, Niederlagen) und Besiegt-Haekchen. Gaeste sehen keine Bilanz.
  */
 export function GegnerZeile({ gegner, gast, onWaehlen }: { gegner: GegnerDto; gast: boolean; onWaehlen: () => void }) {
   const bilanz = gast ? null : gegner.bilanz
