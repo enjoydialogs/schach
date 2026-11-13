@@ -378,6 +378,36 @@ export const de = {
   profilSeit: {
     spielerSeit: 'Spieler seit {datum}',
   },
+  // Uebungen (10.16): feste Stellungen mit Erklaerungen, ohne Uhr und ohne Elo.
+  uebungen: {
+    hubZeile: 'Übungen',
+    titel: 'Übungen',
+    untertitel: 'Typische Situationen zum Üben, Schritt für Schritt erklärt. Ohne Uhr, zählt nicht für die Elo.',
+    bereich: {
+      regeln: 'Regeln',
+      matt: 'Matt setzen',
+      taktik: 'Taktik',
+      eroeffnung: 'Eröffnungen',
+    },
+    begruessung: 'Hallo, ich bin {name}. {text}',
+    falsch: 'Das ist erlaubt, aber hier geht es um etwas anderes. Schau noch einmal hin.',
+    statusFalsch: 'Nicht ganz. Der Zug wird zurückgenommen.',
+    gegnerZieht: '{name} zieht …',
+    knopfTipp: 'Tipp',
+    knopfNeu: 'Neu starten',
+    knopfListe: 'Übungen',
+    fertigTitel: 'Übung geschafft!',
+    nochmal: 'Noch einmal',
+    andereUebung: 'Andere Übung',
+    verlassen: 'Übung verlassen',
+    laedt: 'Übung wird geladen …',
+    nichtGefunden: 'Diese Übung gibt es nicht.',
+    schritt: 'Schritt {nr} von {von}',
+  },
+  // Startkarte ohne offene Partie (10.4)
+  startKarte: {
+    titel: 'Bereit für deine nächste Partie?',
+  },
 } as const
 
 type Pfade<T, P extends string = ''> = {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ChevronRight } from 'lucide-react'
+import { GraduationCap, History, UserRound, type LucideIcon } from 'lucide-react'
 import { Link, useNavigate } from 'react-router'
 import type { ZustandDto } from '../api/types'
 import { Avatar } from '../components/Avatar'
@@ -11,11 +11,19 @@ import { InstallHinweis } from '../components/pwa'
 import { Seite } from '../components/Seite'
 import { ladeSitzung, useSitzung } from '../components/sitzung'
 import { de, t } from '../i18n/de'
+import { GESICHTER } from '../components/gesichter/katalog'
 import { fuelle } from '../partie/text'
+import { Logo } from './Logo'
+import './start.css'
+
+// Gesichter-Reihe auf der Startkarte: die ersten vier Gegner (Elo aufsteigend), der Rest als Zahl.
+const GESICHTER_VORSCHAU = Object.keys(GESICHTER).slice(0, 4)
+const WEITERE_GEGNER = Object.keys(GESICHTER).length - GESICHTER_VORSCHAU.length
 
 /**
  * Start (`/`), der Hub (SCHACH-SPEC 10.1, 10.4): Wortmarke, Elo-Chip oder „Anmelden“, Hauptkarte
- * mit offener Partie, Zeilen „Partien“ und „Profil“ (Spieler) oder Gast-Hinweis (10.11).
+ * mit offener Partie, Kacheln „Partien“, „Übungen“, „Profil“ (Spieler) oder Kachel „Übungen“ und
+ * Gast-Hinweis (10.11, 10.16).
  */
 export function Start() {
   const navigate = useNavigate()
@@ -57,10 +65,21 @@ export function Start() {
     }
   }
 
+  // Kacheln in fester Reihenfolge; Partien und Profil nur fuer Spieler (offline: `unbekannt`).
+  const mitKonto = spieler !== null || sitzung.status === 'unbekannt'
+  const kacheln: { pfad: string; text: string; Icon: LucideIcon }[] = [
+    ...(mitKonto ? [{ pfad: '/partien', text: t('hub.partien'), Icon: History }] : []),
+    { pfad: '/uebungen', text: t('uebungen.hubZeile'), Icon: GraduationCap },
+    ...(mitKonto ? [{ pfad: '/profil', text: t('hub.profil'), Icon: UserRound }] : []),
+  ]
+
   return (
     <Seite>
       <header className="startkopf">
-        <h1 className="wortmarke">{t('app.name')}</h1>
+        <div className="marke">
+          <Logo />
+          <h1 className="wortmarke marke__name">{t('app.name')}</h1>
+        </div>
         {spieler !== null && (
           <Link className="chip" to="/profil">
             {fuelle(de.hub.eloChip, { elo: spieler.elo })}
@@ -77,7 +96,18 @@ export function Start() {
         <Ladeanzeige skelette={2} gross />
       ) : (
         <>
-          <section className="karte">
+          <section className="karte startkarte">
+            {partie === null && (
+              <>
+                <div className="startkarte__gegner" aria-hidden="true">
+                  {GESICHTER_VORSCHAU.map((key) => (
+                    <Avatar key={key} gegner={{ key, name: key, stufe: 'Anfaenger' }} groesse={48} />
+                  ))}
+                  {WEITERE_GEGNER > 0 && <span className="startkarte__mehr">+{WEITERE_GEGNER}</span>}
+                </div>
+                <h2 className="startkarte__titel">{t('startKarte.titel')}</h2>
+              </>
+            )}
             {partie !== null && (
               <div className="zeile zeile--flach">
                 <Avatar gegner={partie.gegner} />
@@ -117,22 +147,19 @@ export function Start() {
             {!online && <p className="text-muted">{t('offline.spielenBrauchtInternet')}</p>}
           </section>
 
-          {spieler !== null || sitzung.status === 'unbekannt' ? (
-            <ul className="liste">
-              <li>
-                <Link className="zeile" to="/partien">
-                  <span className="zeile__mitte zeile__titel">{t('hub.partien')}</span>
-                  <ChevronRight className="zeile__pfeil" aria-hidden="true" />
-                </Link>
-              </li>
-              <li>
-                <Link className="zeile" to="/profil">
-                  <span className="zeile__mitte zeile__titel">{t('hub.profil')}</span>
-                  <ChevronRight className="zeile__pfeil" aria-hidden="true" />
-                </Link>
-              </li>
-            </ul>
-          ) : (
+          {/* Uebungen sind ungewertet und darum auch fuer Gaeste da (10.16). */}
+          <nav className="kacheln" aria-label={t('app.name')}>
+            {kacheln.map(({ pfad, text, Icon }) => (
+              <Link key={pfad} className="kachel" to={pfad}>
+                <span className="kachel__symbol" aria-hidden="true">
+                  <Icon size={28} />
+                </span>
+                <span>{text}</span>
+              </Link>
+            ))}
+          </nav>
+
+          {!mitKonto && (
             <section className="karte karte--gast">
               <p className="karte__text">{t('hub.gastText')}</p>
               <Link to="/anmelden">{t('hub.gastLink')}</Link>

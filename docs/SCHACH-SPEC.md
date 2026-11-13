@@ -8,7 +8,7 @@ Sprache des Spiels, der Tickets und dieser Spec: Deutsch. Begriffe nach [`GLOSSA
 
 ## 1. Ziel und Umfang
 
-**Ziel:** Ein Handy-Browserspiel, das Schach durch Partien gegen Gegner mit eigener Persönlichkeit beibringt. Lernen läuft über Partien und Lernhilfen (erlaubte Züge anzeigen, Warnung vor ungedeckter Figur, Tipp auf Wunsch). Kein Lektionen-Kurs.
+**Ziel:** Ein Handy-Browserspiel, das Schach durch Partien gegen Gegner mit eigener Persönlichkeit beibringt. Lernen läuft über Partien und Lernhilfen (erlaubte Züge anzeigen, Warnung vor ungedeckter Figur, Tipp auf Wunsch), dazu über geführte Übungen zu typischen Situationen (10.16, ADR 0003). Kein Lektionen-Kurs mit Fortschritt oder Reihenfolge.
 
 **Zielgerät:**
 - Android-Handy im Browser, Referenz Pixel 7 im Hochformat (CSS-Breite 412 px).
@@ -24,7 +24,7 @@ Sprache des Spiels, der Tickets und dieser Spec: Deutsch. Begriffe nach [`GLOSSA
 **Betrieb:** eigener Dokploy-Dienst auf dem VPS (Hostinger), Domain `schach.enjoy-dialogs.de`, Deploy aus diesem Repo.
 
 **Außerhalb des Umfangs:**
-- Lektionen-Kurs (Zugregeln, Mattbilder, Rätsel).
+- Lektionen-Kurs mit Reihenfolge, Fortschritt oder Wertung. Einzelne Übungen ohne Wertung sind seit ADR 0003 im Umfang (10.16).
 - Google-Login. Nur Magic Link.
 - Offline-Notgegner im Browser.
 - Engine-Analyse beim Nachspielen. Frühestens nach dem MVP, wenn die VPS-Messung freie Rechenzeit zeigt. Kein Vorbau nötig.
@@ -791,6 +791,8 @@ Quelle: [Wie funktioniert die Anmeldung per Magic Link?](https://github.com/enjo
 | `/nachspielen/:id` | Nachspielen, nur Beendet; Offen → `/partie/:id` | Spieler |
 | `/profil` | Profil | Spieler |
 | `/anmelden` | Anmelden, mit Fragment `#t=` als Link-Landung | alle |
+| `/uebungen` | Übungen, nach Bereich gruppiert (10.16) | alle |
+| `/uebungen/:key` | Eine Übung (10.16) | alle |
 | `/impressum`, `/datenschutz` | Rechtstexte | alle |
 | `*` | Nicht gefunden (Seite, nie Umleitung) | alle |
 
@@ -901,10 +903,10 @@ Eine Kombination ohne Eintrag zeigt nur das Grund-Label, nie einen Fehler.
 
 ### 10.4 Start (`/`)
 
-- Wortmarke „Schach“. Rechts der Elo-Chip (Spieler, führt zum Profil) oder „Anmelden“ (Gast).
-- Hauptkarte mit offener Partie: Avatar, „Offene Partie gegen Oscar“, Bedenkzeit, „Fortsetzen“ (primär) und „Neue Partie“ (Outline). Ohne offene Partie nur „Neue Partie“.
-- Spieler: Zeilen „Partien“ und „Profil“.
-- Gast: Gast-Hinweis-Karte (10.11).
+- Bildmarke plus Wortmarke „Schach“: der Cburnett-Springer (wie das App-Icon) auf einer leicht gedrehten 2×2-Brett-Kachel in den Brettfarben der Palette, Akzentrand; die Wortmarke 34 px mit Verlauf von Text- zu Akzentfarbe. Rechts der Elo-Chip (Spieler, führt zum Profil) oder „Anmelden“ (Gast).
+- Hauptkarte mit offener Partie: Avatar, „Offene Partie gegen Oscar“, Bedenkzeit, „Fortsetzen“ (primär) und „Neue Partie“ (Outline). Ohne offene Partie: Gesichter der ersten vier Gegner überlappend plus „+4“, Überschrift „Bereit für deine nächste Partie?“, Untertitel und „Neue Partie“. Ein ausgeblendetes Brettmuster oben rechts schmückt die Karte in beiden Fällen.
+- Spieler: drei Kacheln nebeneinander, je mit Symbol in Akzentfarbe: „Partien“ (Verlauf), „Übungen“ (Doktorhut), „Profil“ (Person). Reihenfolge fest.
+- Gast: nur die Kachel „Übungen“ über die ganze Breite, darunter die Gast-Hinweis-Karte (10.11).
 - Install-Karte nach Regel (10.13).
 - Daten parallel laden, Skelett bis beide fertig.
 - Offline: Banner, Spielknöpfe aus mit „Spielen braucht Internet“.
@@ -1011,6 +1013,24 @@ Passiv an drei Stellen:
 8. Konto löschen → Gast, Cache leer, `/partien` → `/anmelden`.
 
 Die Prototyp-Abnahme des Partie-Bildschirms steht in Abschnitt 15 (Phase 1, S3a).
+
+### 10.16 Übungen (`/uebungen`)
+
+Nachgetragen nach dem MVP, Entscheidung in ADR 0003.
+
+- **Liste** (`Seite`): Untertitel, darunter Abschnitte je Bereich (Regeln, Matt setzen, Taktik, Eröffnungen), je Übung eine Zeile mit Titel und einer Zeile Beschreibung. Für Gast und Spieler.
+- **Übung** (Layout `Fest`, wie der Partie-Bildschirm): Kopf mit Gegner und Spruchblase, Brett, Statuszeile, eigene Zeile mit Pille „Schritt 1 von 3“, Knopfleiste „Tipp“, „Neu starten“, „Übungen“. Menü: „Erlaubte Züge anzeigen“, „Töne und Vibration“, Grundfarbe, „Übung verlassen“.
+- **Gegner:** zufällig aus `GET /gegner`, einmal je Aufruf der Seite. Er stellt sich vor („Hallo, ich bin Ilse. …“) und spricht alle Erklärungen in der Spruchblase. Die Texte stehen fest im Katalog, kein LLM, keine Sprachausgabe.
+- **Farbe** legt die Übung fest; das Brett steht von der Seite des Spielers.
+- **Ablauf** (`uebungen/ablauf.ts`): Jede Übung hat Start-FEN, optional einen Vorzug des Gegners und Schritte. Ein Schritt hat Aufgabe (Statuszeile), erlaubte Lösungen (UCI), Hinweis, Erklärung und optional die Antwort des Gegners. Richtiger Zug: Erklärung, nach 900 ms die Antwort. Anderer erlaubter Zug: er bleibt 1,4 s stehen, der Gegner gibt den Hinweis, dann wird er zurückgenommen. Nach dem letzten Schritt ein Bottom-Sheet „Übung geschafft!“ mit dem Abschluss-Satz, „Andere Übung“ (primär), „Noch einmal“ und „Zur Startseite“.
+- **Tipp:** erstes Tippen markiert die Figur („Zieh mit dem Turm“), zweites zeigt den Pfeil. Kein Serveraufruf, unbegrenzt.
+- **Ohne Server-Partie:** Eine Übung ist keine Partie. Kein `POST /partien`, keine Elo, keine Bilanz, keine Uhr, kein Engine- oder Mistral-Aufruf. Regeln prüft chess.js im Browser. Die offene Partie bleibt unberührt.
+- **Katalog** (`uebungen/katalog.ts`), 16 Übungen:
+  - Regeln: Schlagen en passant, Rochade, Bauernumwandlung, Schach abwehren, Patt vermeiden.
+  - Matt setzen: Grundreihenmatt, Treppenmatt mit zwei Türmen, Matt mit Dame und König, Ersticktes Matt.
+  - Taktik: Springergabel, Fesselung, Spieß.
+  - Eröffnungen: Italienische Partie, Schäfermatt abwehren (als Schwarz), Damengambit, Sizilianische Verteidigung (als Schwarz).
+- **Prüfung:** `uebungen.test.ts` spielt jede Übung in jedem Zweig mit chess.js durch.
 
 Quelle: [Wie sieht der Partie-Bildschirm auf dem Pixel 7 aus?](https://github.com/enjoydialogs/schach/issues/6), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), [Welche Lernhilfen gibt es genau?](https://github.com/enjoydialogs/schach/issues/8), [Wie schützen wir Mistral- und Engine-Kosten?](https://github.com/enjoydialogs/schach/issues/11), [Wie funktioniert die Anmeldung per Magic Link?](https://github.com/enjoydialogs/schach/issues/17), [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 

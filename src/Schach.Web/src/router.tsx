@@ -11,6 +11,9 @@ import { Nachspielen } from './nachspielen/Nachspielen'
 import { Partienliste } from './partien/Partienliste'
 import { Profil } from './profil/Profil'
 import { Start } from './start/Start'
+// Uebungen (SCHACH-SPEC 10.16)
+import { UebungSeite } from './uebungen/UebungSeite'
+import { Uebungsliste } from './uebungen/Uebungsliste'
 
 // Routen nach SCHACH-SPEC 10.2. Append-Register (15.1 Regel 5): neue Routen vor `*` anhaengen.
 // Offen: /neu, /partie/:id, /partien, /nachspielen/:id, /profil, /anmelden (S3a, S3b, S2a),
@@ -30,6 +33,9 @@ export const routes: RouteObject[] = [
   { path: '/nachspielen/:id', element: <RequireSpieler><Nachspielen /></RequireSpieler> },
   { path: '/profil', element: <RequireSpieler><Profil /></RequireSpieler> },
   { path: '/anmelden', element: <Anmelden /> },
+  // Uebungen: fuer alle, ohne Server-Partie
+  { path: '/uebungen', element: <Uebungsliste /> },
+  { path: '/uebungen/:key', element: <UebungSeite /> },
   { path: '*', element: <NichtGefunden /> },
 ]
 
