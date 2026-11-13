@@ -121,6 +121,8 @@ export const de = {
     schliessen: 'Schließen',
     eloZeile: 'Elo {elo} ({aenderung})',
     eloZaehltNicht: 'Elo: zählt nicht',
+    // Sieg mit Elo-Gewinn: Zahl, daneben das Abzeichen „+12“ (10.3)
+    eloNeu: 'Elo {elo}',
     gastHinweis: 'Konto anlegen, dann zählen Partien und du kannst sie nachspielen.',
     zurStartseite: 'Zur Startseite',
     grund: {

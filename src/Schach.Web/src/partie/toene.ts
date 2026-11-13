@@ -1,10 +1,12 @@
 // Toene und Haptik (SCHACH-SPEC 10.3): WebAudio-Synthese ohne Dateien fuer Zug, Schlag und
-// Partieende; `navigator.vibrate(15)` beim eigenen Zug, `[30, 40, 30]` am Ende. Ein Schalter.
+// Partieende; `navigator.vibrate(15)` beim eigenen Zug, `[30, 40, 30]` am Ende, beim Sieg ein
+// eigener heller Lauf und `[40, 60, 40, 60, 120]`. Ein Schalter.
 
-export type TonArt = 'zug' | 'schlag' | 'ende'
+export type TonArt = 'zug' | 'schlag' | 'ende' | 'sieg'
 
 export const VIBRATION_ZUG = 15
 export const VIBRATION_ENDE = [30, 40, 30]
+export const VIBRATION_SIEG = [40, 60, 40, 60, 120]
 
 let kontext: AudioContext | null = null
 
@@ -52,6 +54,13 @@ export function spieleTon(art: TonArt, lautstaerke = 1): void {
     } else if (art === 'schlag') {
       klang(ctx, regler, 300, 0, 0.1, 0.35, 'square')
       klang(ctx, regler, 180, 0.03, 0.12, 0.25, 'triangle')
+    } else if (art === 'sieg') {
+      // Aufsteigender Dur-Lauf bis zur Oktave, der Schlusston mit Terz darueber: knapp 0,8 s.
+      klang(ctx, regler, 523, 0, 0.14, 0.22, 'triangle')
+      klang(ctx, regler, 659, 0.11, 0.14, 0.22, 'triangle')
+      klang(ctx, regler, 784, 0.22, 0.14, 0.22, 'triangle')
+      klang(ctx, regler, 1047, 0.33, 0.45, 0.24, 'sine')
+      klang(ctx, regler, 1319, 0.33, 0.45, 0.12, 'sine')
     } else {
       klang(ctx, regler, 523, 0, 0.18, 0.25, 'sine')
       klang(ctx, regler, 659, 0.16, 0.18, 0.25, 'sine')

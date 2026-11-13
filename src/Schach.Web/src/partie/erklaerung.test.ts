@@ -1,4 +1,4 @@
-import { eloAenderung, eloZeile, erklaerung, grundLabel, sichtAuf, titel } from './erklaerung'
+import { eloAenderung, eloGewinn, eloZeile, erklaerung, grundLabel, sichtAuf, titel } from './erklaerung'
 import { de } from '../i18n/de'
 
 describe('sichtAuf', () => {
@@ -49,5 +49,12 @@ describe('Elo', () => {
     expect(eloZeile({ zaehltFuerElo: true, eloVorher: 800, eloNachher: 812, gast: false })).toBe('Elo 812 (+12)')
     expect(eloZeile({ zaehltFuerElo: false, eloVorher: null, eloNachher: null, gast: false })).toBe('Elo: zählt nicht')
     expect(eloZeile({ zaehltFuerElo: false, eloVorher: null, eloNachher: null, gast: true })).toBeNull()
+  })
+
+  it('liefert den Elo-Gewinn fuers Sieg-Abzeichen nur bei gezaehlter, gestiegener Elo', () => {
+    expect(eloGewinn({ zaehltFuerElo: true, eloVorher: 800, eloNachher: 812, gast: false })).toEqual({ elo: 812, plus: '+12' })
+    expect(eloGewinn({ zaehltFuerElo: true, eloVorher: 800, eloNachher: 800, gast: false })).toBeNull()
+    expect(eloGewinn({ zaehltFuerElo: false, eloVorher: null, eloNachher: null, gast: false })).toBeNull()
+    expect(eloGewinn({ zaehltFuerElo: true, eloVorher: 800, eloNachher: 812, gast: true })).toBeNull()
   })
 })

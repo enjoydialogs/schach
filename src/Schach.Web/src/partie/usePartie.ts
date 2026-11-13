@@ -5,7 +5,8 @@ import { gastPartieId } from '../components/SpeicherSchluessel'
 import { useSitzung } from '../components/sitzung'
 import { de } from '../i18n/de'
 import { nachZug, sichtbareStellung, type Anzeige } from './anzeige'
-import { spieleTon, vibriere, VIBRATION_ENDE, VIBRATION_ZUG } from './toene'
+import { sichtAuf } from './erklaerung'
+import { spieleTon, vibriere, VIBRATION_ENDE, VIBRATION_SIEG, VIBRATION_ZUG } from './toene'
 import type { TippStand } from './tipp'
 import { restMs, uhrVersatz } from './uhr'
 
@@ -33,6 +34,8 @@ export interface PartieSteuerung {
   lade: LadeStand
   zustand: ZustandDto | null
   anzeige: Anzeige | null
+  /** Gerade hier beendet (Offen → Beendet gesehen): Ende-Ton und Sieg-Konfetti, nicht beim Wieder-Oeffnen. */
+  frischBeendet: boolean
   /** `true` Gast, `false` Spieler, `null` unbekannt (Sitzung nicht lesbar). */
   gast: boolean | null
   offline: boolean
@@ -335,9 +338,15 @@ export function usePartie(id: string, toeneAn: boolean, toeneLautstaerke = 1): P
 
   // Toene fuer sichtbar gewordene Gegnerzuege und das Partieende.
   const tonHalbzug = useRef<number | null>(null)
-  const warOffen = useRef(false)
   const sichtbarerHalbzug = anzeige?.halbzug ?? null
   const endeSichtbar = zustand?.status === 'Beendet' && anzeige !== null && !anzeige.gegnerDenkt
+  // Partie, die hier offen zu sehen war. Waehrend des Renderns gesetzt (React: Zustand aus Props
+  // ableiten), damit Ende-Ton und Sieg-Feier (Endeblatt) dasselbe Signal lesen.
+  const [offenGesehen, setOffenGesehen] = useState<string | null>(null)
+  if (zustand?.status === 'Offen' && offenGesehen !== zustand.id) setOffenGesehen(zustand.id)
+  /** Gerade hier beendet (Uebergang Offen → Beendet), nicht beim Oeffnen einer schon beendeten Partie. */
+  const frischBeendet = endeSichtbar && zustand !== null && offenGesehen === zustand.id
+  const sieg = zustand !== null && zustand.ergebnis !== null && sichtAuf(zustand.ergebnis, zustand.spielerFarbe) === 'sieg'
   useEffect(() => {
     if (zustand === null || sichtbarerHalbzug === null) return
     const vorher = tonHalbzug.current
@@ -347,20 +356,17 @@ export function usePartie(id: string, toeneAn: boolean, toeneLautstaerke = 1): P
     if (zug !== undefined && zug.seite !== zustand.spielerFarbe) spieleTon(zug.san.includes('x') ? 'schlag' : 'zug', lautstaerkeRef.current)
   }, [sichtbarerHalbzug, zustand])
   useEffect(() => {
-    if (zustand?.status === 'Offen') warOffen.current = true
-    // Nur beim Uebergang Offen → Beendet, nicht beim Oeffnen einer schon beendeten Partie.
-    if (!endeSichtbar || !warOffen.current) return
-    warOffen.current = false
-    if (toeneRef.current) {
-      spieleTon('ende', lautstaerkeRef.current)
-      vibriere(VIBRATION_ENDE)
-    }
-  }, [endeSichtbar, zustand])
+    if (!frischBeendet || !toeneRef.current) return
+    // Sieg: eigener heller Lauf; Niederlage und Remis bleiben beim ruhigen Ende-Ton.
+    spieleTon(sieg ? 'sieg' : 'ende', lautstaerkeRef.current)
+    vibriere(sieg ? VIBRATION_SIEG : VIBRATION_ENDE)
+  }, [frischBeendet, sieg])
 
   return {
     lade,
     zustand,
     anzeige,
+    frischBeendet,
     gast,
     offline,
     hinweis,
