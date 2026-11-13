@@ -15,7 +15,8 @@ import { fuelle } from '../partie/text'
 
 /**
  * Start (`/`), der Hub (SCHACH-SPEC 10.1, 10.4): Wortmarke, Elo-Chip oder „Anmelden“, Hauptkarte
- * mit offener Partie, Zeilen „Partien“ und „Profil“ (Spieler) oder Gast-Hinweis (10.11).
+ * mit offener Partie, Zeilen „Partien“, „Profil“ und „Übungen“ (Spieler) oder „Übungen“ und
+ * Gast-Hinweis (10.11, 10.16).
  */
 export function Start() {
   const navigate = useNavigate()
@@ -56,6 +57,15 @@ export function Start() {
       setBeschaeftigt(false)
     }
   }
+
+  const uebungenZeile = (
+    <li>
+      <Link className="zeile" to="/uebungen">
+        <span className="zeile__mitte zeile__titel">{t('uebungen.hubZeile')}</span>
+        <ChevronRight className="zeile__pfeil" aria-hidden="true" />
+      </Link>
+    </li>
+  )
 
   return (
     <Seite>
@@ -131,12 +141,17 @@ export function Start() {
                   <ChevronRight className="zeile__pfeil" aria-hidden="true" />
                 </Link>
               </li>
+              {uebungenZeile}
             </ul>
           ) : (
-            <section className="karte karte--gast">
-              <p className="karte__text">{t('hub.gastText')}</p>
-              <Link to="/anmelden">{t('hub.gastLink')}</Link>
-            </section>
+            <>
+              {/* Uebungen sind ungewertet und darum auch fuer Gaeste da (10.16). */}
+              <ul className="liste">{uebungenZeile}</ul>
+              <section className="karte karte--gast">
+                <p className="karte__text">{t('hub.gastText')}</p>
+                <Link to="/anmelden">{t('hub.gastLink')}</Link>
+              </section>
+            </>
           )}
 
           <InstallHinweis />

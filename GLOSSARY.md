@@ -99,3 +99,7 @@ _Avoid_: Replay, Review, Analyse
 **Tipp**:
 Eine Lernhilfe, die auf Wunsch den besten Zug zeigt; nur ohne Bedenkzeit, und der erste Tipp nimmt die Partie aus der Elo.
 _Avoid_: Hint, Vorschlag
+
+**Übung**:
+Eine geführte Situation aus fester Stellung mit vorgegebenen Zügen, die ein zufälliger Gegner erklärt; ohne Uhr, ohne Elo, keine Partie.
+_Avoid_: Lektion, Rätsel, Puzzle, Szenario, Training

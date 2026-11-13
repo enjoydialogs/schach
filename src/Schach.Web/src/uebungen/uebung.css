@@ -1,0 +1,21 @@
+/* Uebung (SCHACH-SPEC 10.16): Erklaerungen sind laenger als Sprueche. Der Kopf waechst mit der
+   Blase, bis zu sechs Zeilen; dafuer gibt das Brett Hoehe ab, nie Breite unter 12 px Rand. */
+.uebung .partie__kopf--blase {
+  grid-template-rows: 48px auto;
+  height: auto;
+  min-height: 112px;
+}
+
+.uebung .partie__kopf--blase .spruchblase {
+  height: auto;
+  min-height: 56px;
+}
+
+.uebung .spruchblase__text {
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+}
+
+.uebung .partie__kopf--blase + .partie__brett {
+  width: min(100vw - var(--brett-rand), 480px, calc(100dvh - 412px));
+}
