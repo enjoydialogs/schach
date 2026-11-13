@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { afterEach, vi } from 'vitest'
 import { Brett, type BrettProps } from './Brett'
 
@@ -114,5 +115,98 @@ describe('Brett', () => {
     expect(ebene('e1').backgroundImage).toContain('radial-gradient')
     expect(ebene('b1').backgroundImage).toContain('--overlay-warnung')
     expect(ebene('g1').boxShadow).toBe('var(--tipp-ring)')
+  })
+
+  describe('Tastatur', () => {
+    const brett = () => screen.getByRole('application', { name: /Schachbrett/ })
+    const ansage = () => screen.getByTestId('brett-ansage').textContent
+
+    it('ist genau ein Tab-Stopp, die Figuren nicht', async () => {
+      const user = userEvent.setup()
+      zeige()
+      await user.tab()
+      expect(brett()).toHaveFocus()
+      await user.tab()
+      expect(brett().contains(document.activeElement)).toBe(false)
+    })
+
+    it('waehlt und zieht mit Pfeilen und Enter, beginnend am eigenen Koenig', async () => {
+      const user = userEvent.setup()
+      const { onZug } = zeige()
+      await user.tab()
+      expect(ansage()).toBe('e1, weißer König')
+      expect(ebene('e1').boxShadow).toBe('var(--overlay-cursor)')
+      await user.keyboard('{ArrowUp}')
+      expect(ansage()).toBe('e2, weißer Bauer')
+      await user.keyboard('{Enter}')
+      expect(ansage()).toBe('Bauer e2 gewählt')
+      expect(ebene('e2').backgroundImage).toContain('--overlay-auswahl')
+      await user.keyboard('{ArrowUp}{ArrowUp}')
+      expect(ansage()).toBe('e4, leer, Zug möglich')
+      await user.keyboard(' ')
+      expect(onZug).toHaveBeenCalledWith('e2e4')
+      expect(ansage()).toBe('Zug e2 nach e4')
+    })
+
+    it('spiegelt die Pfeile, wenn Schwarz unten sitzt', async () => {
+      const user = userEvent.setup()
+      const { onZug } = zeige({
+        fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
+        orientierung: 'Schwarz',
+        erlaubteZuege: ['e7e5', 'e7e6'],
+      })
+      await user.tab()
+      expect(ansage()).toBe('e8, schwarzer König')
+      await user.keyboard('{ArrowRight}')
+      expect(ansage()).toBe('d8, schwarze Dame')
+      await user.keyboard('{ArrowLeft}{ArrowUp}')
+      expect(ansage()).toBe('e7, schwarzer Bauer')
+      await user.keyboard('{Enter}{ArrowUp}{ArrowUp}{Enter}')
+      expect(onZug).toHaveBeenCalledWith('e7e5')
+    })
+
+    it('hebt die Auswahl mit Escape auf', async () => {
+      const user = userEvent.setup()
+      const { onZug } = zeige()
+      await user.tab()
+      await user.keyboard('{ArrowUp}{Enter}{Escape}')
+      expect(ansage()).toBe('Auswahl aufgehoben')
+      expect(ebene('e2').backgroundImage).toBe('')
+      await user.keyboard('{ArrowUp}{ArrowUp}{Enter}')
+      expect(onZug).not.toHaveBeenCalled()
+    })
+
+    it('liest ohne Eingabe vor, waehlt aber nichts', async () => {
+      const user = userEvent.setup()
+      zeige({ eingabeAktiv: false })
+      await user.tab()
+      await user.keyboard('{ArrowUp}{Enter}')
+      expect(ansage()).toBe('Gerade kein Zug möglich')
+      expect(ebene('e2').backgroundImage).toBe('')
+    })
+
+    it('fuehrt die Umwandlung per Tastatur bis zum Zug', async () => {
+      const user = userEvent.setup()
+      const { onZug } = zeige({ fen: UMWANDLUNG, erlaubteZuege: ['a7a8q', 'a7a8r', 'a7a8b', 'a7a8n'] })
+      await user.tab()
+      // e1 -> a1 -> a7
+      await user.keyboard('{Home}{ArrowUp>6/}{Enter}{ArrowUp}{Enter}')
+      expect(screen.getByRole('dialog', { name: 'Umwandeln in' })).toBeInTheDocument()
+      await user.tab()
+      expect(screen.getByRole('button', { name: 'Dame' })).toHaveFocus()
+      await user.keyboard('{Enter}')
+      expect(onZug).toHaveBeenCalledWith('a7a8q')
+      expect(brett()).toHaveFocus()
+    })
+
+    it('zeigt den Cursor nach Tippen nicht', async () => {
+      const user = userEvent.setup()
+      zeige()
+      await user.tab()
+      expect(ebene('e1').boxShadow).toBe('var(--overlay-cursor)')
+      await user.click(feld('e2'))
+      expect(ebene('e1').boxShadow).toBe('')
+      expect(ebene('e2').boxShadow).toBe('')
+    })
   })
 })

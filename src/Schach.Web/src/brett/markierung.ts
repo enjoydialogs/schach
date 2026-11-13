@@ -16,6 +16,8 @@ export interface Markierungen {
   schach?: string | null
   warnungen?: readonly string[]
   tippFeld?: string | null
+  /** Tastatur-Cursor (nur sichtbar, solange die Tastatur bedient wird). */
+  cursor?: string | null
 }
 
 const flaeche = (farbe: string) => `linear-gradient(${farbe}, ${farbe})`
@@ -45,6 +47,14 @@ export function feldStile(m: Markierungen): Record<string, CSSProperties> {
     lege(m.letzterZug.nach, flaeche('var(--overlay-letzter-zug)'))
   }
   if (m.tippFeld) schatten.set(m.tippFeld, 'var(--tipp-ring)')
+  // Cursor als oberste Schattenebene. Liegt er auf dem Tipp-Feld, rueckt der Tipp-Ring nach innen,
+  // damit beide sichtbar bleiben.
+  if (m.cursor) {
+    schatten.set(
+      m.cursor,
+      m.cursor === m.tippFeld ? 'var(--overlay-cursor), var(--tipp-ring-unter-cursor)' : 'var(--overlay-cursor)',
+    )
+  }
 
   const stile: Record<string, CSSProperties> = {}
   for (const [feld, liste] of ebenen) stile[feld] = { backgroundImage: liste.join(', ') }

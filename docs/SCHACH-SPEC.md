@@ -802,6 +802,7 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 - **Ziehen** über `onPieceDrop`. Illegal: zurückschnappen.
 - Optimistisch anzeigen. Lehnt der Server ab: zurücksetzen mit „Zug nicht möglich“.
 - **Umwandlung:** eigenes Overlay, 4 Kacheln à 88 px (D, T, L, S). Tippen daneben bricht ab.
+- **Tastatur und Vorleser:** Das Brett ist genau ein Tab-Stopp (`role="application"`, Label „Schachbrett, Pfeiltasten wählen ein Feld, Eingabe zieht“); die Figuren sind keine eigenen Tab-Stopps. Pfeiltasten bewegen einen Cursor ein Feld in Bildschirmrichtung (mit Schwarz unten gespiegelt) und bleiben am Rand stehen; Pos1/Ende springen an den linken/rechten Rand der Reihe. Der Cursor startet auf der Auswahl, sonst auf dem eigenen König, und bleibt über Züge hinweg stehen. Enter oder Leertaste wirkt genau wie Tippen auf das Cursorfeld (auch Umwandlung), Escape hebt die Auswahl auf. Ohne Eingabe (Gegner am Zug, Nachspielen) lesen die Pfeile weiter vor, Enter wählt nichts. Der Cursor zeigt einen zweifarbigen Ring (`--overlay-cursor`: 3 px Textfarbe außen, 2 px Grundfarbe innen; Textfarbe mindestens 3:1 zu beiden Feldfarben, `palette.test.ts`), nur solange die Tastatur bedient wird; Tippen oder Ziehen blendet ihn aus. Liegt er auf dem Tipp-Feld, rückt der Tipp-Ring nach innen. Eine Live-Region (`aria-live="polite"`) sagt kurz an: „e4, weißer Bauer“, „e5, leer“ (mit Lernhilfe an einem Ziel: „…, Zug möglich“), „Bauer e2 gewählt“, „Zug e2 nach e4“, „Auswahl aufgehoben“.
 
 **Layout von oben nach unten** (16 px Rand außer beim Brett):
 
