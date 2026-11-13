@@ -62,3 +62,22 @@ describe('feldStile', () => {
     expect(ebenen.indexOf('transparent 79%')).toBeLessThan(ebenen.indexOf('--overlay-letzter-zug'))
   })
 })
+
+describe('feldStile: Tastatur-Cursor', () => {
+  it('legt den Cursor-Ring als Schatten auf das Feld', () => {
+    expect(feldStile({ cursor: 'e4' }).e4).toEqual({ boxShadow: 'var(--overlay-cursor)' })
+  })
+
+  it('behaelt Auswahl-Flaeche und Cursor zusammen', () => {
+    const stil = feldStile({ cursor: 'e2', auswahl: 'e2' }).e2
+    expect(stil?.backgroundImage).toContain('--overlay-auswahl')
+    expect(stil?.boxShadow).toBe('var(--overlay-cursor)')
+  })
+
+  it('rueckt den Tipp-Ring unter dem Cursor nach innen', () => {
+    expect(feldStile({ cursor: 'g1', tippFeld: 'g1' }).g1?.boxShadow).toBe(
+      'var(--overlay-cursor), var(--tipp-ring-unter-cursor)',
+    )
+    expect(feldStile({ cursor: 'e2', tippFeld: 'g1' }).g1?.boxShadow).toBe('var(--tipp-ring)')
+  })
+})

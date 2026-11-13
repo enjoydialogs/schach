@@ -49,3 +49,14 @@
 .umwandlung__kachel:active {
   transform: scale(0.95);
 }
+
+/* Tastatur-Flaeche (10.3, Brett): ein Tab-Stopp. Den Fokus zeigt der Cursor-Ring auf dem Feld
+   (--overlay-cursor), darum kein Umriss um das ganze Brett. */
+.brett__flaeche {
+  width: 100%;
+  height: 100%;
+}
+
+.brett__flaeche:focus {
+  outline: none;
+}

@@ -44,6 +44,10 @@
   --overlay-ziel: color-mix(in srgb, var(--text) 30%, transparent);
   --overlay-warnung: rgba(233, 162, 59, 0.6);
   --tipp-ring: inset 0 0 0 4px var(--accent);
+  /* Tastatur-Cursor: zweifarbig (Text aussen, Grund innen), liest sich auf hellen und dunklen
+     Feldern jeder Palette und unterscheidet sich vom Akzent der Auswahl und des Tipps. */
+  --overlay-cursor: inset 0 0 0 3px var(--text), inset 0 0 0 5px var(--bg);
+  --tipp-ring-unter-cursor: inset 0 0 0 9px var(--accent);
 
   /* Glas-Ebene: helle, halbtransparente Flaechen ueber einem weichen Farbhintergrund.
      Deckkraft >= 0.72, damit --text-muted auf Glas 4.5:1 haelt. */
