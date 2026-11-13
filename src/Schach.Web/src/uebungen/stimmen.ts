@@ -58,7 +58,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         'Zur Sicherheit noch einmal: En passant gilt nur, wenn ein Bauer zwei Felder zieht und neben deinem landet. Einen Zug später ist es vorbei.',
     },
     Lehrerhaft: {
-      einleitung: 'Jetzt lernst du eine besondere Regel. Mein Bauer ist gerade zwei Felder vorgezogen und steht nun direkt neben deinem.',
+      einleitung: 'Hier gilt eine besondere Bauernregel. Mein Bauer ist gerade zwei Felder vorgezogen und steht nun direkt neben deinem.',
       schritte: [
         {
           hinweis: 'Fast. Diese Regel gilt nur in genau diesem Moment. Zieh deinen Bauern schräg nach d6, auf das Feld hinter meinem Bauern.',
@@ -83,7 +83,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Mein Bauer schreitet zwei Felder vor, ganz elegant, direkt neben deinen. Er glaubt, er kommt so an dir vorbei.',
       schritte: [
         {
-          hinweis: 'Ein Zug ohne Glanz. Jetzt geht etwas viel Eleganteres: en passant. Zieh deinen Bauern schräg nach d6, hinter meinen.',
+          hinweis: 'Ein Allerweltszug. Jetzt geht etwas viel Feineres: en passant. Zieh deinen Bauern schräg nach d6, hinter meinen.',
           erklaerung: 'Bravo, mit Stil! Du ziehst schräg auf das übersprungene Feld und nimmst meinen Bauern vom Brett. Das geht nur im Zug direkt danach.',
         },
       ],
@@ -162,7 +162,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Jetzt kommt die Rochade. Da ziehen König und Turm in einem Zug. Das ist der einzige Zug, wo zwei Figuren auf einmal ziehen.',
       schritte: [
         {
-          hinweis: 'Ach, nimm lieber den König. Zwei Felder nach rechts, nach g1, dann springt der Turm von allein drüber.',
+          hinweis: 'Bei der Rochade zieht der König. Zwei Felder nach rechts, nach g1, dann springt der Turm von allein drüber.',
           erklaerung: 'Schön! Der König sitzt sicher hinter seinen Bauern wie hinterm Ofen, und der Turm ist auf f1 bereit. Jetzt zeig ich dir die lange Rochade.',
         },
       ],
@@ -219,7 +219,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Dein Bauer steht kurz vor seinem großen Auftritt. Erreicht ein Bauer die letzte Reihe, verwandelt er sich in eine andere Figur.',
       schritte: [
         {
-          hinweis: 'Erlaubt, aber wenig glanzvoll. Die Dame ist fast immer die stärkste Wahl. Versuch es noch einmal.',
+          hinweis: 'Erlaubt, aber eine Nebenrolle. Die Dame ist fast immer die stärkste Wahl. Versuch es noch einmal.',
           erklaerung: 'Bravo, eine neue Dame! Zwei Damen sind erlaubt, auch wenn die erste noch steht. Sehr elegant.',
         },
       ],
@@ -273,7 +273,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         'Merk dir für deine Partien: Gib dem König früh ein Luftloch, zum Beispiel mit dem Bauern h2 nach h3. Dann ist die Grundreihe kein Problem.',
     },
     Verspielt: {
-      einleitung: 'Ups, mein König auf g8 hat sich hinter drei Bauern eingesperrt. Nach vorn kann er nicht flüchten. Mal sehen, ob du das merkst.',
+      einleitung: 'Mein König auf g8 hat sich hinter drei Bauern verkrochen. Nach vorn kann er nicht flüchten. Mal sehen, ob du das merkst.',
       schritte: [
         {
           hinweis: 'Knapp daneben. Schau mal auf die achte Reihe. Dein Turm kann bis ganz nach hinten sausen.',
@@ -287,7 +287,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Mein König auf g8 sitzt hinter drei Bauern wie in einer Loge, aber ohne Notausgang nach vorn. Ein Schönheitsfehler, zugegeben.',
       schritte: [
         {
-          hinweis: 'Nicht ganz brillant. Schau auf die achte Reihe: Dein Turm kann bis ganz nach hinten ziehen.',
+          hinweis: 'Fast, aber nicht der Höhepunkt. Schau auf die achte Reihe: Dein Turm kann bis ganz nach hinten ziehen.',
           erklaerung: 'Matt! Ein starker Schlussakt. Mein König kann nicht nach vorn, weil seine eigenen Bauern im Weg stehen, und dein Turm deckt die Reihe.',
         },
       ],
@@ -298,7 +298,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Schau dir meinen König auf g8 an. Vor ihm stehen drei Bauern, und nach vorn kann er nirgends hin. Mei, das ist gefährlich für mich.',
       schritte: [
         {
-          hinweis: 'Ach, schau lieber auf die achte Reihe. Dein Turm kann bis ganz nach hinten ziehen.',
+          hinweis: 'Schau mal auf die achte Reihe. Dein Turm kann bis ganz nach hinten ziehen.',
           erklaerung: 'Matt! Na gut, mein König kann nicht nach vorn, weil seine eigenen Bauern im Weg stehen, und dein Turm deckt die Reihe.',
         },
       ],
@@ -346,7 +346,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         'Halte deine Türme weit genug vom König weg, sonst schlägt er einen. Kommt er zu nah, ziehst du den Turm in aller Ruhe ans andere Ende der Reihe.',
     },
     Lehrerhaft: {
-      einleitung: 'Jetzt lernst du das Treppenmatt: Mit zwei Türmen setzt du einen König allein matt. Ein Turm sperrt eine Reihe, der andere gibt Schach.',
+      einleitung: 'Das Treppenmatt geht so: Mit zwei Türmen setzt du einen König allein matt. Ein Turm sperrt eine Reihe, der andere gibt Schach.',
       schritte: [
         {
           hinweis: 'Erstens: Ein Turm sperrt eine ganze Reihe. Zieh den Turm von b2 nach b6.',
@@ -368,7 +368,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Zwei Türme gegen meinen König allein, oje. Die Türme laufen wie eine Treppe: einer sperrt eine Reihe, der andere gibt Schach.',
       schritte: [
         {
-          hinweis: 'Hm, nicht ganz. Ein Turm soll erst mal eine ganze Reihe sperren. Zieh den Turm von b2 nach b6.',
+          hinweis: 'Andersrum! Ein Turm soll erst mal eine ganze Reihe sperren. Zieh den Turm von b2 nach b6.',
           erklaerung: 'Oha, jetzt komm ich nicht mehr nach unten. Mein König muss auf der siebten oder achten Reihe bleiben.',
         },
         {
@@ -406,8 +406,8 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Mit zwei Türmen setzt du einen König allein matt, ganz gemütlich. Die gehen wie eine Treppe: einer sperrt eine Reihe, der andere gibt Schach.',
       schritte: [
         {
-          hinweis: 'Ach, erst sperrt ein Turm eine ganze Reihe. Zieh den Turm von b2 nach b6.',
-          erklaerung: 'Na gut, jetzt kann mein König nicht mehr nach unten. Er muss auf der siebten oder achten Reihe bleiben.',
+          hinweis: 'Immer schön der Reihe nach: Erst sperrt ein Turm eine ganze Reihe. Zieh den Turm von b2 nach b6.',
+          erklaerung: 'So, jetzt kann mein König nicht mehr nach unten. Er muss auf der siebten oder achten Reihe bleiben.',
         },
         {
           hinweis: 'Jetzt ist der andere Turm dran. Der gibt Schach auf der siebten Reihe, von a7 aus.',
@@ -472,7 +472,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Springer sind meine Lieblinge, die greifen zwei Figuren auf einmal an. Das heißt Gabel. Am fiesesten ist sie, wenn der König dabei ist.',
       schritte: [
         {
-          hinweis: 'Hm, nicht ganz. Such ein Feld, von dem dein Springer g8 und c8 zugleich erreicht. Probier mal e7.',
+          hinweis: 'Knapp vorbei. Such ein Feld, von dem dein Springer g8 und c8 zugleich erreicht. Probier mal e7.',
           erklaerung: 'Gabel, oh nein! Mein König steht im Schach und muss weg. Tschüss, Dame auf c8.',
         },
         {
@@ -484,10 +484,10 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         'Schau bei jedem Zug, ob dein Springer zwei Figuren gleichzeitig angreifen kann. Und guck, dass dir nicht dasselbe passiert.',
     },
     Eitel: {
-      einleitung: 'Die Gabel ist der eleganteste Trick des Springers: zwei Figuren auf einmal angreifen. Am schönsten, wenn der König mitspielt.',
+      einleitung: 'Die Gabel ist der feinste Trick des Springers: zwei Figuren auf einmal angreifen. Am schönsten, wenn der König mitspielt.',
       schritte: [
         {
-          hinweis: 'Noch nicht brillant. Suche ein Feld, von dem dein Springer g8 und c8 zugleich erreicht. Probier e7.',
+          hinweis: 'Das war noch nichts. Suche ein Feld, von dem dein Springer g8 und c8 zugleich erreicht. Probier e7.',
           erklaerung: 'Gabel, zugegeben, brillant. Mein König steht im Schach und muss weg. Meine Dame auf c8 verlässt die Bühne.',
         },
         {
@@ -507,7 +507,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         },
         {
           hinweis: 'Dein Springer greift noch meine Dame auf c8 an. Schlag sie ruhig.',
-          erklaerung: 'Na gut, die Dame gehört dir. Für einen Springer die stärkste Figur, nicht schlecht.',
+          erklaerung: 'Die Dame gehört dir. Für einen Springer die stärkste Figur, nicht schlecht.',
         },
       ],
       abschluss:
@@ -524,7 +524,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         },
         {
           hinweis: 'Springer zuerst, die greifen an. Zieh den Springer von g1 nach f3.',
-          erklaerung: 'Stark, dein Springer greift meinen Bauern auf e5 an. Ich decke ihn mit meinem Springer.',
+          erklaerung: 'Gut so, dein Springer greift meinen Bauern auf e5 an. Ich decke ihn mit meinem Springer.',
         },
         {
           hinweis: 'Der Läufer auf f1 will in den Kampf. Zieh ihn nach c4.',
@@ -588,12 +588,12 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Eröffnung, juhu! Drei Ziele: die Mitte besetzen, Springer und Läufer rausholen und den König in Sicherheit bringen. Heute bin ich brav.',
       schritte: [
         {
-          hinweis: 'Hm, lieber erst in die Mitte. Zieh den Bauern von e2 nach e4.',
+          hinweis: 'Erst mal ab in die Mitte. Zieh den Bauern von e2 nach e4.',
           erklaerung: 'Schön, dein Bauer hat die Mitte und macht Platz für Läufer und Dame. Ich mach einfach dasselbe, ganz ohne Gambit.',
         },
         {
           hinweis: 'Springer kommen zuerst raus. Zieh den Springer von g1 nach f3.',
-          erklaerung: 'Oha, dein Springer greift meinen Bauern auf e5 an. Ich decke ihn schnell mit meinem Springer.',
+          erklaerung: 'Hey, dein Springer greift meinen Bauern auf e5 an. Ich decke ihn schnell mit meinem Springer.',
         },
         {
           hinweis: 'Der Läufer auf f1 langweilt sich. Zieh ihn nach c4.',
@@ -612,10 +612,10 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       schritte: [
         {
           hinweis: 'Kein guter Auftakt. Zuerst ein Bauer in die Mitte: Zieh den Bauern von e2 nach e4.',
-          erklaerung: 'Gut, dein Bauer beherrscht die Mitte und macht Platz für Läufer und Dame. Ich spiele dasselbe, nur eleganter.',
+          erklaerung: 'Gut, dein Bauer beherrscht die Mitte und macht Platz für Läufer und Dame. Ich spiele dasselbe, nur schöner.',
         },
         {
-          hinweis: 'Springer zuerst, das hat Stil. Zieh den Springer von g1 nach f3.',
+          hinweis: 'Springer zuerst, so macht man das. Zieh den Springer von g1 nach f3.',
           erklaerung: 'Hübsch, dein Springer greift meinen Bauern auf e5 an. Ich decke ihn mit meinem Springer, ganz souverän.',
         },
         {
@@ -634,12 +634,12 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Bei der Eröffnung merk ich mir drei Sachen: die Mitte besetzen, Springer und Läufer rausbringen und den König in Sicherheit bringen.',
       schritte: [
         {
-          hinweis: 'Ach, fang lieber mit einem Bauern in der Mitte an. Zieh den Bauern von e2 nach e4.',
+          hinweis: 'Fang mit einem Bauern in der Mitte an, so hab ich es auch gelernt. Zieh den Bauern von e2 nach e4.',
           erklaerung: 'Passt scho, dein Bauer kontrolliert jetzt die Mitte und macht Platz für Läufer und Dame. Ich mache dasselbe.',
         },
         {
           hinweis: 'Springer kommen zuerst ins Spiel. Zieh den Springer von g1 nach f3, in aller Ruhe.',
-          erklaerung: 'Schön, dein Springer greift meinen Bauern auf e5 an. Na gut, ich decke ihn mit meinem Springer.',
+          erklaerung: 'Schön, dein Springer greift meinen Bauern auf e5 an. Dann deck ich ihn halt mit meinem Springer.',
         },
         {
           hinweis: 'Der Läufer auf f1 will auch mitspielen. Zieh ihn nach c4.',
@@ -659,7 +659,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Heute spielst du Schwarz, und ich greife sofort an: Schäfermatt, mein Lieblingstrick. Mal sehen, ob du ihn durchschaust.',
       schritte: [
         {
-          hinweis: 'Nicht so zaghaft. Stell dich mir in der Mitte entgegen: Zieh den Bauern von e7 nach e5.',
+          hinweis: 'Mitte, und zwar jetzt! Stell dich mir entgegen: Zieh den Bauern von e7 nach e5.',
           erklaerung: 'Gut. Jetzt kommt mein Läufer nach c4, mit Blick auf dein Feld f7. Der Angriff läuft.',
         },
         {
@@ -672,7 +672,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         },
         {
           hinweis: 'Der Springer auf g8 kann sich vor f7 stellen. Zieh ihn nach f6, schnell.',
-          erklaerung: 'Stark verteidigt! Dein Springer sperrt die Linie und ist dabei noch entwickelt. Mein Angriff ist verpufft.',
+          erklaerung: 'Gut verteidigt! Dein Springer sperrt die Linie und ist dabei noch entwickelt. Mein Angriff ist verpufft.',
         },
       ],
       abschluss:
@@ -728,7 +728,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Heute spielst du Schwarz. Ich probier einen frechen Trick, das Schäfermatt. Mal gucken, ob du mich erwischst.',
       schritte: [
         {
-          hinweis: 'Hm, lieber in die Mitte. Zieh den Bauern von e7 nach e5.',
+          hinweis: 'Komm, stell dich mir in der Mitte entgegen. Zieh den Bauern von e7 nach e5.',
           erklaerung: 'Gut. Jetzt flitzt mein Läufer nach c4. Er schielt auf dein Feld f7.',
         },
         {
@@ -751,8 +751,8 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Heute spielst du Schwarz, und ich gebe meine Paradenummer: das Schäfermatt. Durchschaust du den Trick?',
       schritte: [
         {
-          hinweis: 'Zu bescheiden. Stell dich mir in der Mitte entgegen: Zieh den Bauern von e7 nach e5.',
-          erklaerung: 'Gut. Jetzt zieht mein Läufer elegant nach c4 und zielt auf dein Feld f7.',
+          hinweis: 'Ein Auftakt ohne Wirkung. Stell dich mir in der Mitte entgegen: Zieh den Bauern von e7 nach e5.',
+          erklaerung: 'Gut. Jetzt gleitet mein Läufer nach c4 und zielt auf dein Feld f7.',
         },
         {
           hinweis: 'Bring zuerst einen Springer ins Spiel, nach c6. Schlicht, aber richtig.',
@@ -764,7 +764,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         },
         {
           hinweis: 'Der Springer auf g8 kann sich als Schutzschild vor f7 stellen. Zieh ihn nach f6.',
-          erklaerung: 'Sehr gut! Dein Springer sperrt die Linie und ist gleichzeitig entwickelt. Meine Nummer ist durchgefallen, aber mit Stil.',
+          erklaerung: 'Sehr gut! Dein Springer sperrt die Linie und ist gleichzeitig entwickelt. Meine Nummer ist durchgefallen, aber wenigstens schön.',
         },
       ],
       abschluss:
@@ -774,7 +774,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Heute spielst du Schwarz. Ich probier einen frechen Trick, das Schäfermatt, aber nur zum Üben, gell. Schauen wir, ob du ihn durchschaust.',
       schritte: [
         {
-          hinweis: 'Ach, stell dich mir lieber in der Mitte entgegen. Zieh den Bauern von e7 nach e5.',
+          hinweis: 'Stell dich mir in der Mitte entgegen, ruhig und fest. Zieh den Bauern von e7 nach e5.',
           erklaerung: 'Gut so. Jetzt bringe ich meinen Läufer nach c4, der zielt auf dein Feld f7. A bisserl frech von mir.',
         },
         {
@@ -840,21 +840,21 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         'Im Schach sind nur Züge erlaubt, die das Schach beenden. Guck immer zuerst, ob du den Angreifer schnappen kannst.',
     },
     Eitel: {
-      einleitung: 'Schach! Mein Turm greift deinen König an, ein eleganter Zug. Jetzt musst du handeln: König wegziehen, eine Figur dazwischenstellen oder den Angreifer schlagen.',
+      einleitung: 'Schach! Mein Turm greift deinen König an, ein feiner Zug. Jetzt musst du handeln: König wegziehen, eine Figur dazwischenstellen oder den Angreifer schlagen.',
       schritte: [
         {
-          hinweis: 'Gerettet, aber ohne Glanz. Dein Springer auf d3 kann meinen Turm schlagen.',
+          hinweis: 'Gerettet, aber ziemlich schlicht. Dein Springer auf d3 kann meinen Turm schlagen.',
           erklaerung: 'Mein schöner Turm! Du hast das Schach abgewehrt und ihn dabei gewonnen. Schlagen ist oft die beste Abwehr.',
         },
       ],
       abschluss:
-        'Im Schach sind nur Züge erlaubt, die das Schach beenden. Prüf immer zuerst, ob du den Angreifer schlagen kannst. Das ist die eleganteste Antwort.',
+        'Im Schach sind nur Züge erlaubt, die das Schach beenden. Prüf immer zuerst, ob du den Angreifer schlagen kannst. Das ist die schönste Antwort.',
     },
     Gemuetlich: {
       einleitung: 'Schach! Mein Turm greift deinen König an. Jetzt musst du was tun: König wegziehen, eine Figur dazwischenstellen oder den Angreifer schlagen.',
       schritte: [
         {
-          hinweis: 'Ach, das rettet deinen König schon. Aber schau, dein Springer auf d3 kann meinen Turm schlagen.',
+          hinweis: 'Das rettet deinen König schon. Aber schau, dein Springer auf d3 kann meinen Turm schlagen.',
           erklaerung: 'Na sowas, jetzt ist mein Turm weg. Du hast das Schach abgewehrt und ihn gleich mitgenommen. Schlagen ist oft die beste Abwehr.',
         },
       ],
@@ -922,8 +922,8 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Ich habe nur noch meinen König. Aber schau: Kann ich nicht mehr ziehen und stehe nicht im Schach, ist es Patt. Dann endet die Partie Remis.',
       schritte: [
         {
-          hinweis: 'Ach, schau nach deinem Zug: Kann mein König noch ziehen? Steht er nicht im Schach und hat kein freies Feld, ist es Patt. Such ein Schach auf der h-Linie.',
-          erklaerung: 'Matt! Na gut. Mein König steht im Schach, und alle Felder um ihn decken deine Dame und dein König.',
+          hinweis: 'Schau nach deinem Zug in Ruhe: Kann mein König noch ziehen? Steht er nicht im Schach und hat kein freies Feld, ist es Patt. Such ein Schach auf der h-Linie.',
+          erklaerung: 'Matt, und kein Patt, schön! Mein König steht im Schach, und alle Felder um ihn decken deine Dame und dein König.',
         },
       ],
       abschluss:
@@ -962,7 +962,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         'Treib den König mit der Dame an den Rand, hol deinen König heran und setz erst dann matt. Die Dame steht oft direkt vor dem gegnerischen König, gedeckt vom eigenen.',
     },
     Lehrerhaft: {
-      einleitung: 'Heute lernst du das Matt mit Dame und König. Die Dame kann das nicht allein, sie braucht die Hilfe deines Königs.',
+      einleitung: 'Matt mit Dame und König gehört zum Grundwissen. Die Dame kann das nicht allein, sie braucht die Hilfe deines Königs.',
       schritte: [
         {
           hinweis: 'Erstens sperrt die Dame die siebte Reihe. Zieh sie nach a7.',
@@ -980,8 +980,8 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Dame und König gegen meinen König allein, das wird knapp für mich. Die Dame schafft es nicht allein, dein König muss mitspielen.',
       schritte: [
         {
-          hinweis: 'Hm, erst mal die siebte Reihe sperren. Zieh die Dame nach a7.',
-          erklaerung: 'Ups, jetzt kann mein König nur noch auf der letzten Reihe hin und her. Lass ihm noch ein Feld, sonst ist es Patt.',
+          hinweis: 'Probier erst mal, die siebte Reihe zu sperren. Zieh die Dame nach a7.',
+          erklaerung: 'Oh, jetzt kann mein König nur noch auf der letzten Reihe hin und her. Lass ihm noch ein Feld, sonst ist es Patt.',
         },
         {
           hinweis: 'Trau dich: Deine Dame darf direkt neben meinen König, wenn dein König sie deckt. Probier f7.',
@@ -995,7 +995,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Mit Dame und König setzt du einen König allein matt. Selbst die Dame, die stärkste Figur, braucht dafür die Hilfe deines Königs.',
       schritte: [
         {
-          hinweis: 'Nicht ganz elegant. Die Dame sperrt zuerst die siebte Reihe: Zieh sie nach a7.',
+          hinweis: 'Falsche Reihenfolge. Die Dame sperrt zuerst die siebte Reihe: Zieh sie nach a7.',
           erklaerung: 'Gut gesetzt. Mein König kann nur noch auf der letzten Reihe hin und her. Lass ihm ein Feld, sonst wäre es ein peinliches Patt.',
         },
         {
@@ -1010,12 +1010,12 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Mit Dame und König setzt du einen König allein matt. Die Dame schafft das nicht allein, dein König muss a bisserl mithelfen.',
       schritte: [
         {
-          hinweis: 'Ach, erst sperrt die Dame die siebte Reihe. Zieh sie nach a7.',
+          hinweis: 'Zuerst sperrt die Dame die siebte Reihe. Zieh sie nach a7.',
           erklaerung: 'Gut. Mein König kann nur noch auf der letzten Reihe hin und her. Lass ihm aber ein Feld, sonst ist es Patt.',
         },
         {
           hinweis: 'Deine Dame darf ruhig direkt neben meinen König, wenn dein König sie deckt. Probier f7.',
-          erklaerung: 'Matt! Na gut, ich kann deine Dame nicht schlagen, weil dein König sie deckt.',
+          erklaerung: 'Matt! Ich kann deine Dame nicht schlagen, weil dein König daneben steht und sie deckt.',
         },
       ],
       abschluss:
@@ -1057,7 +1057,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         'Der Grund: Springer springen über Figuren. Ein König, der von eigenen Figuren eingeklemmt ist, ist gegen einen Springer besonders gefährdet.',
     },
     Verspielt: {
-      einleitung: 'Ups, mein König hat sich in der Ecke mit Turm und Bauern zugebaut. Ganz schön eng da. Ein Springer könnte das ausnutzen.',
+      einleitung: 'Mein König hat sich in der Ecke mit Turm und Bauern zugebaut. Ganz schön eng da. Ein Springer könnte das ausnutzen.',
       schritte: [
         {
           hinweis: 'Fast! Von welchem Feld erwischt dein Springer h8? Guck mal auf f7.',
@@ -1137,7 +1137,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         'Merk dir: Figuren auf einer Linie mit dem König sind gefährdet. Läufer, Turm oder Dame können sie fesseln, und gefesselte Figuren sind leichte Beute.',
     },
     Verspielt: {
-      einleitung: 'Ups, meine Dame und mein König stehen auf derselben Linie. Greifst du die Dame dort an, darf sie nicht weg, sonst stünde mein König im Schach. Das heißt Fesselung.',
+      einleitung: 'Hoppla, meine Dame und mein König stehen auf derselben Linie. Greifst du die Dame dort an, darf sie nicht weg, sonst stünde mein König im Schach. Das heißt Fesselung.',
       schritte: [
         {
           hinweis: 'Hm, probier lieber die e-Linie, auf der meine Dame und mein König stehen. Stell deinen Turm dorthin.',
@@ -1155,7 +1155,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Meine Dame und mein König stehen auf einer Linie, ein seltener Fehler. Greifst du die Dame dort an, darf sie nicht weg, sonst stünde mein König im Schach: Fesselung.',
       schritte: [
         {
-          hinweis: 'Das geht eleganter. Stell deinen Turm auf die e-Linie, auf der meine Dame und mein König stehen.',
+          hinweis: 'Da gibt es einen feineren Zug. Stell deinen Turm auf die e-Linie, auf der meine Dame und mein König stehen.',
           erklaerung: 'Gefesselt! Meine Dame kann nicht zur Seite, sonst stünde mein König im Schach. Dann opfere ich sie wenigstens mit Würde für deinen Turm.',
         },
         {
@@ -1170,7 +1170,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Schau, meine Dame und mein König stehen auf derselben Linie. Greifst du die Dame dort an, darf sie nicht weg, sonst stünde mein König im Schach. Das heißt Fesselung.',
       schritte: [
         {
-          hinweis: 'Ach, stell deinen Turm lieber auf die e-Linie, auf der meine Dame und mein König stehen.',
+          hinweis: 'Schau auf die e-Linie: Da stehen meine Dame und mein König. Da kommt dein Turm hin.',
           erklaerung: 'Gefesselt! Meine Dame kann nicht zur Seite, sonst stünde mein König im Schach. Na, dann nehm ich halt deinen Turm, bevor ich sie ganz verliere.',
         },
         {
@@ -1214,7 +1214,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         'Der Spieß ist die umgekehrte Fesselung: Vorne steht die wertvollere Figur. Mit einem Schach ist er fast sicher, weil der König ausweichen muss.',
     },
     Lehrerhaft: {
-      einleitung: 'Heute lernst du den Spieß: Du greifst eine wertvolle Figur an, hinter der eine andere steht. Weicht sie aus, fällt die hintere. Mein König steht vor meiner Dame.',
+      einleitung: 'Jetzt kommt der Spieß: Du greifst eine wertvolle Figur an, hinter der eine andere steht. Weicht sie aus, fällt die hintere. Mein König steht vor meiner Dame.',
       schritte: [
         {
           hinweis: 'Schau auf die e-Linie: Dort stehen mein König und meine Dame. Gib dort Schach.',
@@ -1232,7 +1232,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Beim Spieß greifst du eine wertvolle Figur an, hinter der eine andere steht. Hüpft die vordere weg, ist die hintere dran. Mein König steht ausgerechnet vor meiner Dame.',
       schritte: [
         {
-          hinweis: 'Hm, nicht ganz. Mein König und meine Dame stehen beide auf der e-Linie. Gib dort Schach.',
+          hinweis: 'Guck mal: Mein König und meine Dame stehen beide auf der e-Linie. Gib dort Schach.',
           erklaerung: 'Schach! Mein König muss von der Linie runter, und dann steht meine Dame ganz allein vor deinem Turm. Ups.',
         },
         {
@@ -1251,7 +1251,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
           erklaerung: 'Schach! Mein König muss die Linie verlassen, und meine Dame steht ohne Schutz vor deinem Turm. Wie unschön.',
         },
         {
-          hinweis: 'Dein Turm sieht jetzt meine Dame auf e8. Nimm sie, wenn du dich traust.',
+          hinweis: 'Dein Turm sieht jetzt meine Dame auf e8. Nimm sie, sie war ohnehin zu gut für diese Partie.',
           erklaerung: 'Die Dame gehört dir. Ein Spieß, das muss ich neidlos anerkennen.',
         },
       ],
@@ -1288,7 +1288,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         },
         {
           hinweis: 'Springer raus, und zwar schnell. Zieh einen nach c3 oder f3.',
-          erklaerung: 'Stark, dein Springer erhöht den Druck auf d5. Ich bringe sofort meinen Springer.',
+          erklaerung: 'So mag ich das: Dein Springer erhöht den Druck auf d5. Ich bringe sofort meinen Springer.',
         },
         {
           hinweis: 'Der Läufer auf c1 will mitkämpfen. Zieh ihn nach g5.',
@@ -1348,7 +1348,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
       einleitung: 'Das Damengambit, eins meiner liebsten! Es beginnt mit dem Damenbauern. Gambit heißt: Du bietest einen Bauern an und bekommst dafür die Mitte.',
       schritte: [
         {
-          hinweis: 'Hm, heute mal mit dem Bauern vor der Dame. Zieh ihn von d2 nach d4.',
+          hinweis: 'Heute mal mit dem Bauern vor der Dame! Zieh ihn von d2 nach d4.',
           erklaerung: 'Gut, so geht die Mitte auch. Ich mach einfach dasselbe.',
         },
         {
@@ -1357,7 +1357,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         },
         {
           hinweis: 'Springer zuerst raus. Zieh einen nach c3 oder f3.',
-          erklaerung: 'Oha, dein Springer erhöht den Druck auf d5. Ich hole schnell meinen Springer.',
+          erklaerung: 'Uh, dein Springer erhöht den Druck auf d5. Ich hole schnell meinen Springer.',
         },
         {
           hinweis: 'Der Läufer auf c1 zappelt schon. Zieh ihn nach g5.',
@@ -1380,7 +1380,7 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         },
         {
           hinweis: 'Springer kommen früh ins Spiel, das gehört sich so. Zieh einen nach c3 oder f3.',
-          erklaerung: 'Hübsch, dein Springer erhöht den Druck auf d5. Ich bringe auch meinen Springer, natürlich eleganter.',
+          erklaerung: 'Hübsch, dein Springer erhöht den Druck auf d5. Ich bringe auch meinen Springer, natürlich mit Schwung.',
         },
         {
           hinweis: 'Der Läufer auf c1 wartet noch auf seinen Auftritt. Zieh ihn nach g5.',
@@ -1388,13 +1388,13 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         },
       ],
       abschluss:
-        'Im Damengambit kämpfst du mit c4 um die Mitte. Nimmt Schwarz den Bauern, holst du ihn meistens später zurück. Danach Figuren raus und mit Stil rochieren.',
+        'Im Damengambit kämpfst du mit c4 um die Mitte. Nimmt Schwarz den Bauern, holst du ihn meistens später zurück. Danach Figuren raus und vornehm rochieren.',
     },
     Gemuetlich: {
       einleitung: 'Das Damengambit beginnt mit dem Damenbauern. Ein Gambit heißt: Du bietest einen Bauern an, und dafür kriegst du die Mitte.',
       schritte: [
         {
-          hinweis: 'Ach, diesmal fängst du mit dem Bauern vor der Dame an. Zieh ihn von d2 nach d4.',
+          hinweis: 'Heute fängst du mit dem Bauern vor der Dame an. Zieh ihn von d2 nach d4.',
           erklaerung: 'Gut, so kontrollierst du die Mitte auch. Ich mach es genauso.',
         },
         {
@@ -1528,13 +1528,13 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         },
       ],
       abschluss:
-        'Bei Sizilianisch hast du am Ende einen Mittelbauern mehr als Weiß. Dafür ist Weiß schneller entwickelt. Bring deine Figuren zügig heraus und rochiere mit Stil.',
+        'Bei Sizilianisch hast du am Ende einen Mittelbauern mehr als Weiß. Dafür ist Weiß schneller entwickelt. Bring deine Figuren zügig heraus und rochiere, bevor es eng wird.',
     },
     Gemuetlich: {
       einleitung: 'Du spielst Schwarz. Ich fang mit e4 an. Die Sizilianische Verteidigung ist eine sehr beliebte Antwort darauf: Du kämpfst von der Seite um die Mitte.',
       schritte: [
         {
-          hinweis: 'Ach, diesmal nicht e5. Zieh den Bauern von c7 nach c5, der kontrolliert d4.',
+          hinweis: 'Diesmal kein e5. Zieh den Bauern von c7 nach c5, der kontrolliert d4.',
           erklaerung: 'Das ist Sizilianisch. Dein Bauer auf c5 hat das Feld d4 im Blick. Ich bring meinen Springer.',
         },
         {
