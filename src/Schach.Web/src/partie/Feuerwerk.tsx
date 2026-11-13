@@ -2,8 +2,8 @@ import type { CSSProperties } from 'react'
 import { FEUERWERK_AUFSTIEG_MS, FEUERWERK_FUNKEN_MS, FEUERWERK_VORLAUF_MS, RAKETEN } from './feuerwerkZeit'
 import './feuerwerk.css'
 
-const FUNKEN = 16
-const WEITE_PX = 72
+const FUNKEN = 20
+const WEITE_PX = 88
 
 /**
  * Kurzes buntes Feuerwerk ueber dem Brett beim frischen Sieg (SCHACH-SPEC 10.3): drei Raketen

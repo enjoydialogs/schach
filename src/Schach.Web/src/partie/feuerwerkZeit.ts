@@ -19,9 +19,9 @@ export interface Rakete {
 }
 
 export const RAKETEN: Rakete[] = [
-  { x: 28, y: 34, startMs: 0, farben: [1, 2] },
-  { x: 72, y: 24, startMs: 280, farben: [3, 4] },
-  { x: 50, y: 14, startMs: 560, farben: [5, 2] },
+  { x: 28, y: 38, startMs: 0, farben: [1, 2] },
+  { x: 72, y: 30, startMs: 280, farben: [3, 4] },
+  { x: 50, y: 24, startMs: 560, farben: [5, 2] },
 ]
 
 /** Zeitpunkt der Explosion ab Blatt-Start in Sekunden (fuer den Knall). */

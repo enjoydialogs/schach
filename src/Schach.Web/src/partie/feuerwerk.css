@@ -34,10 +34,10 @@
 
 .feuerwerk__blitz {
   position: absolute;
-  left: -24px;
-  top: -24px;
-  width: 48px;
-  height: 48px;
+  left: -32px;
+  top: -32px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: radial-gradient(circle, var(--farbe) 0%, transparent 70%);
   opacity: 0;
@@ -46,10 +46,10 @@
 
 .feuerwerk__funke {
   position: absolute;
-  left: -3px;
-  top: -3px;
-  width: 6px;
-  height: 6px;
+  left: -3.5px;
+  top: -3.5px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--farbe);
   box-shadow: 0 0 6px var(--farbe);
