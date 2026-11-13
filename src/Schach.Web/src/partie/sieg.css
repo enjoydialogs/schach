@@ -23,10 +23,10 @@
   stroke-width: 2.25;
 }
 
-/* Erst nach dem Hochgleiten des Sheets (240 ms) federt der Pokal auf: 600 ms mit leichtem
+/* Erst nach dem Hochgleiten des Sheets (--dauer-mittel) federt der Pokal auf: 600 ms mit leichtem
    Ueberschwingen (Aufmerksamkeit, motion: 500 bis 800 ms). */
 .sieg--feiern .sieg__pokal {
-  animation: sieg-pokal 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 200ms both;
+  animation: sieg-pokal 600ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--dauer-mittel) both;
 }
 
 .sieg__konfetti {
@@ -38,7 +38,7 @@
   margin: -4px 0 0 -4px;
   border-radius: 2px;
   opacity: 0;
-  animation: sieg-konfetti 800ms var(--kurve-raus) calc(200ms + var(--v)) both;
+  animation: sieg-konfetti 800ms var(--kurve-raus) calc(var(--dauer-mittel) + var(--v)) both;
 }
 
 .sieg__konfetti--0 {
