@@ -1,7 +1,8 @@
 import { useUeberlage } from '../components/useUeberlage'
 import { t } from '../i18n/de'
 import type { Umwandlungsfigur } from './auswahl'
-import { Figur } from './figuren'
+import { usePalette } from '../components/palette'
+import { FIGUR_JE_SATZ } from './figurensatz'
 
 const AUSWAHL: { figur: Umwandlungsfigur; code: string; name: string }[] = [
   { figur: 'q', code: 'Q', name: t('brett.umwandlungDame') },
@@ -21,6 +22,7 @@ export function Umwandlung({
   onAbbruch: () => void
 }) {
   const flaeche = useUeberlage<HTMLDivElement>(onAbbruch)
+  const Figur = FIGUR_JE_SATZ[usePalette().figuren]
   return (
     <div className="umwandlung" data-testid="umwandlung-hintergrund" onClick={onAbbruch}>
       <div

@@ -14,7 +14,7 @@ Sprache des Spiels, der Tickets und dieser Spec: Deutsch. Begriffe nach [`GLOSSA
 - Android-Handy im Browser, Referenz Pixel 7 im Hochformat (CSS-Breite 412 px).
 - PWA, installierbar (Startbildschirm, Vollbild).
 - Spielen braucht Internet. Offline geht nur Nachspielen bereits geladener Partien.
-- Wenige Farben, einfacher Stil. Nur helle Paletten; der Spieler wählt die Grundfarbe (Lila, Pink, Grün, Blau, Abschnitt 10.3).
+- Wenige Farben, einfacher Stil. Vier helle Paletten und eine dunkle; der Spieler wählt die Grundfarbe (Lila, Pink, Grün, Blau, Nacht, Abschnitt 10.3).
 
 **Konto und Gast:**
 - Offene Registrierung für jeden, Anmeldung per Magic Link (E-Mail) mit 6-stelligem Code als zweitem Weg.
@@ -28,7 +28,6 @@ Sprache des Spiels, der Tickets und dieser Spec: Deutsch. Begriffe nach [`GLOSSA
 - Google-Login. Nur Magic Link.
 - Offline-Notgegner im Browser.
 - Engine-Analyse beim Nachspielen. Frühestens nach dem MVP, wenn die VPS-Messung freie Rechenzeit zeigt. Kein Vorbau nötig.
-- Dunkle Palette.
 - AGB.
 - Löschung inaktiver Konten (späteres Backlog-Ticket).
 - Push-Kanäle (SignalR, WebSocket, SSE).
@@ -267,7 +266,7 @@ Alle Gegner tragen nur Vornamen und sprechen in Du-Form.
 | `--avatar-turnierspieler` | `#155443` | `#FFFFFF` |
 | `--avatar-meister` | `#0E3A2F` | `#FFFFFF` |
 
-- 48 px in der Gegnerwahl, 40 px im Partie-Kopf und in Listen, 96 px für einen Kopf mit Sprechblase über dem Brett.
+- 48 px in der Gegnerwahl, 40 px in Listen, 96 px im Partie-Kopf links neben der Spruchblase.
 - Besiegt: Häkchen unten rechts am Kreis (bei 96 px größer).
 
 ### 4.5 Gegnerwahl-Zeile
@@ -796,7 +795,7 @@ Quelle: [Wie funktioniert die Anmeldung per Magic Link?](https://github.com/enjo
 Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 
 **Brett:** react-chessboard 5.x (MIT) in der eigenen Komponente `Brett`. cm-chessboard bleibt Ausweg hinter denselben Props, falls die Prototyp-Abnahme scheitert.
-- Optionen: `position` (FEN vom Server), `boardOrientation` = Spielerfarbe, `allowDrawingArrows: false`, `dragActivationDistance: 8`, `animationDurationInMs: 200`, Koordinaten an, `pieces` = 12 Cburnett-SVGs (BSD-3-Clause, direkt von Wikimedia Commons), `arrows` nur für den Tipp.
+- Optionen: `position` (FEN vom Server), `boardOrientation` = Spielerfarbe, `allowDrawingArrows: false`, `dragActivationDistance: 8`, `animationDurationInMs: 200`, Koordinaten an, `pieces` je Palette (`figuren` in `palette.ts`): helle Paletten 12 Cburnett-SVGs (BSD-3-Clause, direkt von Wikimedia Commons), Nacht 12 eigene flache Figuren (`brett/figurenFlach.tsx`: runde Formen, Umriss, Glanzstelle, dunkler Sockel, Schatten im SVG), `arrows` nur für den Tipp. Die Umwandlungs-Kacheln zeigen denselben Satz.
 - **Tippen-Tippen** über `onSquareClick`: leer → eigene Figur am Zug wählen → legales Ziel sendet den Zug / andere eigene Figur wählt neu / sonst abwählen.
 - **Ziehen** über `onPieceDrop`. Illegal: zurückschnappen.
 - Optimistisch anzeigen. Lehnt der Server ab: zurücksetzen mit „Zug nicht möglich“.
@@ -806,9 +805,8 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 
 | Bereich | Höhe | Inhalt |
 |---|---|---|
-| Kopfzeile | 56 px | Avatar 40 px, Name, „Elo 1200“, Gegner-Uhr 80×36, Menü „⋯“ 48×48 |
-| Spruchblase | 56 px fest reserviert | 2 Zeilen, `line-clamp: 2` |
-| Brett | `min(100vw - 24px, 480px, calc(100dvh - 300px))` | ca. 388 px, Felder 48,5 px |
+| Kopf | 112 px | Links Avatar 96 px über beide Zeilen. Rechts oben (48 px): Name, „Elo 1200“, Gegner-Uhr 80×36, Menü „⋯“ 48×48. Rechts darunter (64 px fest reserviert): Spruchblase, 2 Zeilen, `line-clamp: 2`, runde Blase mit Spitze zum Avatar |
+| Brett | `min(100vw - Rand, 480px, calc(100dvh - 300px))`, Rand 24 px (Nacht: 0, randlos über die volle Breite) | ca. 388 px, Felder 48,5 px |
 | Statuszeile | 48 px reserviert | Vorrang: „Keine Verbindung“ > Tipp > Warnung > „Schach!“ > „Ilse denkt nach …“ |
 | Eigene Zeile | 48 px | „Du“ + Farbpunkt + Pille „Zählt nicht für die Elo“ oder „Gast“, eigene Uhr |
 | Knopfleiste | 64 px + safe-area | 4 Knöpfe je ca. 89×56, Icon (lucide) über Text: Zurücknehmen, Tipp, Remis anbieten, Aufgeben (rot) |
@@ -824,7 +822,7 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 
 **Menü** (Bottom-Sheet, Zeilen 48 px): Schalter „Erlaubte Züge anzeigen“, „Vor ungedeckten Figuren warnen“, „Töne und Vibration“, „Sprüche vorlesen“ (alle Standard an, localStorage), Auswahl „Grundfarbe“, „Partie verlassen“ (Partie bleibt offen).
 
-**Farben** (nur hell, CSS-Variablen in `src/styles/palette.css`): Der Spieler wählt die Grundfarbe aus vier Paletten. Jede hat einen pastelligen Grund und ein passendes Brett, dazu einen kräftigen Akzent in Gegenfarbe für Aktionen. Pastell nur für Flächen; Text und Knöpfe nutzen die kräftigen Töne, alle Paare mindestens 4,5:1 (`palette.test.ts` prüft das für jede Palette).
+**Farben** (CSS-Variablen in `src/styles/palette.css`): Der Spieler wählt die Grundfarbe aus fünf Paletten. Die vier hellen haben einen pastelligen Grund und ein passendes Brett, dazu einen kräftigen Akzent in Gegenfarbe für Aktionen. Pastell nur für Flächen; Text und Knöpfe nutzen die kräftigen Töne. Die dunkle Palette Nacht ist ein flacher, dunkler Lernspiel-Stil: Schiefergrund, Schieferbrett mit wenig Kontrast, flache Figuren, helles Eisblau als Akzent. Alle Paare mindestens 4,5:1 (`palette.test.ts` prüft das für jede Palette und rechnet abgeleitete Flächen aus ihrer `color-mix`-Formel nach).
 
 | Palette (`id`) | Grund `--bg` | Brett hell / dunkel | Akzent `--accent` |
 |---|---|---|---|
@@ -832,11 +830,13 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 | Pink (`pink`) | `#FCF1F6` Rosenebel | `#FBE6EF` / `#E09CBA` | `#1B6A7E` Petrol |
 | Grün (`gruen`) | `#EFF7F2` Minznebel | `#E4F3EA` / `#8EC6A7` | `#6A45B0` Violett |
 | Blau (`blau`) | `#F0F4FB` Himmelnebel | `#E6EEFA` / `#94AFDE` | `#A3336B` Beere |
+| Nacht (`nacht`, dunkel) | `#131F24` Schiefer | `#24343D` / `#172228` | `#6BC1E8` Eisblau, Knopftext dunkel `#0B1C24` |
 
-- Auswahl „Grundfarbe“: vier runde Farbmuster (Brett und Akzent) als Radiogruppe, im Partie-Menü und im Profil. Wirkt sofort, auch mitten in der Partie.
+- Auswahl „Grundfarbe“: fünf runde Farbmuster (Brett und Akzent) als Radiogruppe, im Partie-Menü und im Profil. Wirkt sofort, auch mitten in der Partie.
 - Gespeichert im Gerät (localStorage `palette`, Abschnitt 12.3). Fehlender oder unbekannter Wert gilt als `lila`.
-- Umsetzung: `data-palette` am `<html>`, gesetzt vor dem ersten Rendern. `:root` ist Lila; jede weitere Palette überschreibt nur Grund, Text, Rand, Akzent, Brett, Schatten-Grundton und Avatare. Overlays, Glas, Fokusring und Farbflecken leiten sich per `color-mix` daraus ab.
-- Gleich in allen Paletten: `--surface`, Warnung, Gefahr, `--on-accent`.
+- Umsetzung: `data-palette` am `<html>`, gesetzt vor dem ersten Rendern. `:root` ist Lila; jede weitere helle Palette überschreibt nur Grund, Text, Rand, Akzent, Brett, Schatten-Grundton und Avatare. Overlays, Glas, Fokusring und Farbflecken leiten sich per `color-mix` daraus ab.
+- Gleich in allen hellen Paletten: `--surface`, Warnung, Gefahr, `--on-accent`, `--on-danger`.
+- Nacht überschreibt zusätzlich `--surface`, Warnung, Gefahr, `--on-accent` und `--on-danger` (dunkle Schrift auf hellem Akzent und hellem Rot), die Schrift der hellen Avatar-Stufen, Glas (deckend, ohne Unschärfe; Tiefe über Flächentöne: Grund `#131F24` < Fläche `#1C2B32` < erhoben `#243540` für Sheets und Dialoge), Schalter- und Reglerknauf (`--knauf` aus in Nebentext-Grau, `--knauf-an` dunkel auf dem Akzent, je mindestens 3:1), Schatten (harte Kante unten statt weichem Schatten), Scrim und Farbflecken (keine) sowie die Brettdetails `--brett-rand`, `--brett-schatten`, `--notation-auf-hell`/`--notation-auf-dunkel` und die Spruchblase `--blase-flaeche`/`--blase-rand`. `color-scheme: dark`.
 
 Die folgende Tabelle zeigt die Standardpalette Lila.
 
@@ -857,9 +857,9 @@ Die folgende Tabelle zeigt die Standardpalette Lila.
 | `--board-light` | `#EEE9FB` |
 | `--board-dark` | `#A898D8` |
 
-Overlays: Auswahl Akzent 50 %, letzter Zug Akzent 30 %, Zielpunkt und Schlagring `--text` 30 %, Schach roter Radialverlauf, Warnung `rgba(233,162,59,.6)`, Tipp-Ring `inset 0 0 0 4px` Akzent, Tipp-Pfeil in Akzentfarbe, Brettkoordinaten in der Gegenfarbe des Feldes. `theme-color` folgt `--bg` der gewählten Palette (Standard `#F4F2FB`). Schrift Inter, selbst gehostet.
+Overlays: Auswahl Akzent 50 %, letzter Zug Akzent 30 %, Zielpunkt und Schlagring `--text` 30 %, Schach roter Radialverlauf, Warnung `rgba(233,162,59,.6)`, Tipp-Ring `inset 0 0 0 4px` Akzent, Tipp-Pfeil in Akzentfarbe, Brettkoordinaten in der Gegenfarbe des Feldes (Nacht: leise, `--text` 56 %, mindestens 4,5:1 auf beiden Feldern; dort Auswahl Akzent 45 %, letzter Zug Akzent 28 %, Zielpunkt `--text` 35 %). `theme-color` folgt `--bg` der gewählten Palette (Standard `#F4F2FB`). Schrift Inter, selbst gehostet.
 
-**Glas:** Karten, Listen, Dialoge, Sheets und die Bedienelemente der Partie sind halbtransparente weiße Flächen (Deckkraft mindestens 0,72) mit Hintergrundunschärfe über `--bg` mit weichen Farbflecken in Pfirsich, im dunklen Brettton und im hellen Akzent (in Lila: Pfirsich, Flieder, Minze). Das Brett bleibt deckend. Ohne `backdrop-filter` oder bei `prefers-reduced-transparency` deckende Flächen.
+**Glas:** Karten, Listen, Dialoge, Sheets und die Bedienelemente der Partie sind halbtransparente weiße Flächen (Deckkraft mindestens 0,72) mit Hintergrundunschärfe über `--bg` mit weichen Farbflecken in Pfirsich, im dunklen Brettton und im hellen Akzent (in Lila: Pfirsich, Flieder, Minze). Das Brett bleibt deckend. Ohne `backdrop-filter` oder bei `prefers-reduced-transparency` deckende Flächen. In Nacht ist alles flach: deckende Flächen in `--surface`, Rand `--border`, keine Farbflecken.
 
 **Dialoge:**
 - **Aufgeben bestätigen:** Titel „Partie aufgeben?“, Knöpfe „Aufgeben“ (rot) und „Abbrechen“. Text:
@@ -1136,7 +1136,7 @@ localStorage- und sessionStorage-Schlüssel stehen ohne Präfix in der Konstante
 | `schach-partien-v1` | Cache Storage | beendete Partien für Offline-Nachspielen |
 | `gastPartieId` | localStorage | laufende Gast-Partie |
 | `einstellungen` | localStorage | JSON `{"erlaubteZuegeAnzeigen":true,"vorUngedecktenWarnen":true,"toeneUndVibration":true,"spruecheVorlesen":true,"toeneLautstaerke":1,"spruecheLautstaerke":1}`; fehlender Schalter oder Parse-Fehler gilt als `true`, fehlende oder ungültige Lautstärke als `1`, Werte außerhalb 0,1 bis 1 werden begrenzt |
-| `palette` | localStorage | gewählte Grundfarbe: `lila`, `pink`, `gruen` oder `blau`; fehlender oder unbekannter Wert gilt als `lila` |
+| `palette` | localStorage | gewählte Grundfarbe: `lila`, `pink`, `gruen`, `blau` oder `nacht`; fehlender oder unbekannter Wert gilt als `lila` |
 | `installHinweis` | localStorage | ISO-Zeitpunkt des letzten „Später“ |
 | `anmeldungId` | sessionStorage | Code-Weg der Anmeldung |
 
@@ -1171,7 +1171,7 @@ Quelle: [Braucht es Datenschutzerklärung und Konto löschen?](https://github.co
 | Brett | react-chessboard 5.x (Ausweg cm-chessboard) |
 | Regeln Server | Gera.Chess (MIT); NuGet 1.2.0 liegt hinter Repo 1.3.x |
 | Regeln Browser | chess.js (BSD-2-Clause) für PGN, Nachspielen und Warnung |
-| Figuren | Cburnett, BSD-3-Clause, direkt von Wikimedia Commons |
+| Figuren | Cburnett, BSD-3-Clause, direkt von Wikimedia Commons (helle Paletten); eigene flache Figuren (Nacht) |
 | Engine | eigener Container, Python 3.12 (Abschnitt 5.2) |
 | Mail | Lettermint über `IEmailSender` |
 | Sprachmodell | Mistral `ministral-8b-2512`, EU-Endpunkt |

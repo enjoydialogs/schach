@@ -7,8 +7,8 @@ import type { Knopf, KnopfArt } from './knoepfe'
 import { fuelle } from './text'
 import { formatiereUhr, restMs, uhrZustand } from './uhr'
 
-// Zeilen des Partie-Bildschirms (SCHACH-SPEC 10.3): Kopfzeile, Spruchblase, Statuszeile,
-// eigene Zeile, Knopfleiste.
+// Zeilen des Partie-Bildschirms (SCHACH-SPEC 10.3): Kopf (Avatar neben Name und Spruchblase),
+// Statuszeile, eigene Zeile, Knopfleiste.
 
 export function Uhr({
   uhr,
@@ -45,31 +45,40 @@ export function AmZugPunkt({ sichtbar }: { sichtbar: boolean }) {
   return <span className={`am-zug${sichtbar ? '' : ' am-zug--aus'}`} aria-label={sichtbar ? t('partie.amZug') : undefined} />
 }
 
+/** Kopf: Avatar links ueber zwei Zeilen, rechts oben Name, Uhr und Menue, darunter die Spruchblase. */
 export function Kopfzeile({
   gegner,
   amZug,
   uhr,
+  spruch,
   onMenue,
 }: {
   gegner: GegnerDto
   amZug: boolean
   uhr: React.ReactNode
+  /** Die Spruchblase; sie zeigt mit ihrer Spitze auf den Avatar. */
+  spruch: React.ReactNode
   onMenue: () => void
 }) {
   return (
-    <header className="partie__kopf">
-      <Avatar gegner={gegner} />
-      <div className="partie__gegner">
-        <span className="partie__name">
-          {gegner.name}
-          <AmZugPunkt sichtbar={amZug} />
-        </span>
-        <span className="partie__elo">{fuelle(de.partie.elo, { elo: gegner.elo })}</span>
+    <header className="partie__kopf partie__kopf--blase">
+      <div className="partie__gesicht">
+        <Avatar gegner={gegner} groesse={96} />
       </div>
-      {uhr}
-      <button type="button" className="symbolknopf" aria-label={t('partie.menue')} onClick={onMenue}>
-        <Ellipsis aria-hidden="true" />
-      </button>
+      <div className="partie__kopfzeile">
+        <div className="partie__gegner">
+          <span className="partie__name">
+            {gegner.name}
+            <AmZugPunkt sichtbar={amZug} />
+          </span>
+          <span className="partie__elo">{fuelle(de.partie.elo, { elo: gegner.elo })}</span>
+        </div>
+        {uhr}
+        <button type="button" className="symbolknopf" aria-label={t('partie.menue')} onClick={onMenue}>
+          <Ellipsis aria-hidden="true" />
+        </button>
+      </div>
+      {spruch}
     </header>
   )
 }
@@ -81,10 +90,12 @@ export function Spruchblase({ text, onTipp }: { text: string | null; onTipp?: ()
       {text !== null &&
         (onTipp ? (
           <button type="button" className="spruchblase spruchblase--knopf" aria-label={fuelle(de.partie.spruchVorlesen, { text })} onClick={onTipp}>
-            {text}
+            <span className="spruchblase__text">{text}</span>
           </button>
         ) : (
-          <p className="spruchblase">{text}</p>
+          <p className="spruchblase">
+            <span className="spruchblase__text">{text}</span>
+          </p>
         ))}
     </div>
   )

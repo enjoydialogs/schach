@@ -150,11 +150,13 @@ export function Partie({
         gegner={z.gegner}
         amZug={z.status === 'Offen' && !spielerAmZug}
         uhr={gegnerUhr}
+        spruch={
+          <Spruchblase
+            text={spruch?.text ?? null}
+            onTipp={einstellungen.spruecheVorlesen && spruch?.stimme ? vorlesenWiederholen : undefined}
+          />
+        }
         onMenue={() => setOffen('menue')}
-      />
-      <Spruchblase
-        text={spruch?.text ?? null}
-        onTipp={einstellungen.spruecheVorlesen && spruch?.stimme ? vorlesenWiederholen : undefined}
       />
       <div className="partie__brett">
         <Brett

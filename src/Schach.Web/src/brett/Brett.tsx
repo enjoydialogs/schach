@@ -3,7 +3,7 @@ import { Chessboard, type ChessboardOptions } from 'react-chessboard'
 import type { Farbe } from '../api/types'
 import { legeAb, tippeFeld, umwandlungsZug, zielfelder, type BrettAktion } from './auswahl'
 import { usePalette } from '../components/palette'
-import { cburnett } from './figurensatz'
+import { FIGURENSAETZE } from './figurensatz'
 import { feldStile, figurAuf, zieleMitArt } from './markierung'
 import { Umwandlung } from './Umwandlung'
 import './brett.css'
@@ -31,7 +31,7 @@ export interface BrettProps {
   onZug: (uci: string) => void
 }
 
-/** Brett nach SCHACH-SPEC 10.3: react-chessboard 5 mit Cburnett-Figuren, Tippen-Tippen und Ziehen. */
+/** Brett nach SCHACH-SPEC 10.3: react-chessboard 5, Figurensatz je Palette, Tippen-Tippen und Ziehen. */
 export function Brett(props: BrettProps) {
   const { fen, orientierung, erlaubteZuege, eingabeAktiv, zeigeZiele, onZug } = props
   const eigene = orientierung === 'Weiss' ? 'w' : 'b'
@@ -72,7 +72,7 @@ export function Brett(props: BrettProps) {
     id: 'brett',
     position: fen,
     boardOrientation: orientierung === 'Weiss' ? 'white' : 'black',
-    pieces: cburnett,
+    pieces: FIGURENSAETZE[palette.figuren],
     allowDrawingArrows: false,
     dragActivationDistance: 8,
     animationDurationInMs: 200,
@@ -86,9 +86,10 @@ export function Brett(props: BrettProps) {
     squareStyles: stile,
     lightSquareStyle: { backgroundColor: 'var(--board-light)' },
     darkSquareStyle: { backgroundColor: 'var(--board-dark)' },
-    // Koordinaten in der Gegenfarbe des Feldes; die Bibliothek setzt sonst Braun fest.
-    lightSquareNotationStyle: { color: 'var(--board-dark)', fontWeight: 600 },
-    darkSquareNotationStyle: { color: 'var(--board-light)', fontWeight: 600 },
+    // Koordinaten aus der Palette (hell: Gegenfarbe des Feldes, Nacht: leise); die Bibliothek setzt
+    // sonst Braun fest.
+    lightSquareNotationStyle: { color: 'var(--notation-auf-hell)', fontWeight: 600 },
+    darkSquareNotationStyle: { color: 'var(--notation-auf-dunkel)', fontWeight: 600 },
     canDragPiece: ({ piece }) => eingabeAktiv && piece.pieceType[0] === eigene,
     onSquareClick: ({ square }) => {
       if (!eingabeAktiv) return
