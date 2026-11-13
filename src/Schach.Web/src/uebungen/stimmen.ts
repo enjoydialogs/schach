@@ -794,6 +794,766 @@ export const STIMMEN: Readonly<Record<string, Readonly<Record<Persoenlichkeit, S
         'Kommt die Dame früh heraus, schau immer auf f7 (als Weiß auf f2). Deck das Feld oder versperr den Weg, und hol dabei deine Figuren raus.',
     },
   },
+  'schach-abwehren': {
+    Aggressiv: {
+      einleitung: 'Schach! Mein Turm greift deinen König direkt an. Jetzt musst du reagieren: König wegziehen, eine Figur dazwischenstellen oder den Angreifer schlagen.',
+      schritte: [
+        {
+          hinweis: 'Dein König ist gerettet, aber das ist reine Verteidigung. Dein Springer auf d3 kann meinen Turm schlagen.',
+          erklaerung: 'Autsch, mein Turm ist weg! Du wehrst das Schach ab und gewinnst noch Material. Schlagen ist oft die beste Abwehr.',
+        },
+      ],
+      abschluss:
+        'Im Schach sind nur Züge erlaubt, die das Schach beenden. Schau zuerst, ob du den Angreifer schlagen kannst, dann ist der Angriff vorbei.',
+    },
+    Vorsichtig: {
+      einleitung: 'Schach. Mein Turm greift deinen König an. Im Schach hast du drei Möglichkeiten: König wegziehen, eine Figur dazwischenstellen oder den Angreifer schlagen.',
+      schritte: [
+        {
+          hinweis: 'Das ist sicher, aber es gibt einen besseren Zug: Dein Springer auf d3 kann meinen Turm schlagen.',
+          erklaerung: 'Richtig. Schach abgewehrt und meinen Turm gewonnen, fünf Punkte. Schlagen ist oft die beste Abwehr.',
+        },
+      ],
+      abschluss:
+        'Im Schach sind nur Züge erlaubt, die das Schach beenden. Prüf in Ruhe alle drei Möglichkeiten und fang mit dem Schlagen an.',
+    },
+    Lehrerhaft: {
+      einleitung: 'Schach! Mein Turm greift deinen König an. Merk dir die drei Abwehren: König wegziehen, eine Figur dazwischenstellen oder den Angreifer schlagen.',
+      schritte: [
+        {
+          hinweis: 'Das rettet deinen König. Es gibt aber eine bessere Abwehr: Dein Springer auf d3 kann meinen Turm schlagen.',
+          erklaerung: 'Sehr gut! Du hast das Schach abgewehrt und dabei meinen Turm gewonnen. Die beste Abwehr ist oft das Schlagen.',
+        },
+      ],
+      abschluss:
+        'Im Schach sind nur Züge erlaubt, die das Schach beenden. Geh die drei Abwehren der Reihe nach durch und prüf zuerst das Schlagen.',
+    },
+    Verspielt: {
+      einleitung: 'Schach! Mein Turm ist frech zu deinem König gesaust. Jetzt musst du was tun: König wegziehen, eine Figur dazwischenstellen oder den Angreifer schlagen.',
+      schritte: [
+        {
+          hinweis: 'Klappt, aber da geht noch was Lustigeres: Dein Springer auf d3 kann meinen Turm schlagen.',
+          erklaerung: 'Oh, mein Turm ist weg! Schach abgewehrt und noch was gewonnen. Schlagen ist oft die beste Abwehr.',
+        },
+      ],
+      abschluss:
+        'Im Schach sind nur Züge erlaubt, die das Schach beenden. Guck immer zuerst, ob du den Angreifer schnappen kannst.',
+    },
+    Eitel: {
+      einleitung: 'Schach! Mein Turm greift deinen König an, ein eleganter Zug. Jetzt musst du handeln: König wegziehen, eine Figur dazwischenstellen oder den Angreifer schlagen.',
+      schritte: [
+        {
+          hinweis: 'Gerettet, aber ohne Glanz. Dein Springer auf d3 kann meinen Turm schlagen.',
+          erklaerung: 'Mein schöner Turm! Du hast das Schach abgewehrt und ihn dabei gewonnen. Schlagen ist oft die beste Abwehr.',
+        },
+      ],
+      abschluss:
+        'Im Schach sind nur Züge erlaubt, die das Schach beenden. Prüf immer zuerst, ob du den Angreifer schlagen kannst. Das ist die eleganteste Antwort.',
+    },
+    Gemuetlich: {
+      einleitung: 'Schach! Mein Turm greift deinen König an. Jetzt musst du was tun: König wegziehen, eine Figur dazwischenstellen oder den Angreifer schlagen.',
+      schritte: [
+        {
+          hinweis: 'Ach, das rettet deinen König schon. Aber schau, dein Springer auf d3 kann meinen Turm schlagen.',
+          erklaerung: 'Na sowas, jetzt ist mein Turm weg. Du hast das Schach abgewehrt und ihn gleich mitgenommen. Schlagen ist oft die beste Abwehr.',
+        },
+      ],
+      abschluss:
+        'Steht dein König im Schach, darfst du nur Züge machen, die das Schach beenden. Schau immer zuerst, ob du den Angreifer schlagen kannst.',
+    },
+  },
+  'patt-vermeiden': {
+    Aggressiv: {
+      einleitung: 'Ich habe nur noch meinen König, aber unterschätz ihn nicht. Kann ich nicht ziehen und stehe nicht im Schach, ist es Patt, und die Partie endet Remis.',
+      schritte: [
+        {
+          hinweis: 'Nicht so schnell. Kann mein König nach deinem Zug noch ziehen? Ohne Schach und ohne freies Feld ist es Patt. Gib Schach auf der h-Linie.',
+          erklaerung: 'Matt, sauber zu Ende gebracht! Mein König steht im Schach, und alle Felder um ihn decken deine Dame und dein König.',
+        },
+      ],
+      abschluss:
+        'Hätte deine Dame auf g6 gestanden, wäre es Patt gewesen: kein Schach, aber auch kein Zug für mich. Ein Sieg ist erst ein Sieg, wenn das Matt sitzt.',
+    },
+    Vorsichtig: {
+      einleitung: 'Ich habe nur noch meinen König. Meine letzte Hoffnung ist ein Patt: Kann ich nicht mehr ziehen und stehe nicht im Schach, endet die Partie Remis.',
+      schritte: [
+        {
+          hinweis: 'Vorsicht. Prüf nach deinem Zug, ob mein König noch ziehen kann. Ohne Schach und ohne freies Feld ist es Patt. Such ein Schach auf der h-Linie.',
+          erklaerung: 'Matt. Mein König steht im Schach, und alle Felder um ihn decken deine Dame und dein König. Kein Patt, gut aufgepasst.',
+        },
+      ],
+      abschluss:
+        'Hätte deine Dame auf g6 gestanden, wäre es Patt gewesen: kein Schach, aber auch kein Zug für mich. Zähl vor jedem Zug kurz nach, wohin mein König noch kann.',
+    },
+    Lehrerhaft: {
+      einleitung: 'Ich habe nur noch meinen König. Jetzt lernst du das Patt: Kann ich nicht mehr ziehen und stehe nicht im Schach, endet die Partie Remis.',
+      schritte: [
+        {
+          hinweis: 'Stell dir nach jedem Zug zwei Fragen: Steht mein König im Schach? Hat er ein freies Feld? Zweimal nein heißt Patt. Gib Schach auf der h-Linie.',
+          erklaerung: 'Matt! Mein König steht im Schach, und deine Dame und dein König decken alle Felder um ihn. So unterscheidest du Matt von Patt.',
+        },
+      ],
+      abschluss:
+        'Hätte deine Dame auf g6 gestanden, wäre es Patt gewesen: kein Schach, aber auch kein Zug für mich. Mit viel Material zählst du darum vor jedem Zug kurz nach.',
+    },
+    Verspielt: {
+      einleitung: 'Ich habe nur noch meinen König. Mein letzter Trick heißt Patt: Kann ich nicht ziehen und stehe nicht im Schach, endet die Partie Remis.',
+      schritte: [
+        {
+          hinweis: 'Achtung, Patt-Falle! Kann mein König nach deinem Zug noch irgendwohin? Ohne Schach und ohne Feld ist es Patt. Such ein Schach auf der h-Linie.',
+          erklaerung: 'Matt, mein Trick ist geplatzt! Mein König steht im Schach, und alle Felder um ihn decken deine Dame und dein König.',
+        },
+      ],
+      abschluss:
+        'Hätte deine Dame auf g6 gestanden, wäre es Patt gewesen: kein Schach, aber auch kein Zug für mich. Mit viel Material lieber kurz nachzählen.',
+    },
+    Eitel: {
+      einleitung: 'Ich habe nur noch meinen König, aber ein Patt wäre mein Rettungsanker: Kann ich nicht ziehen und stehe nicht im Schach, endet die Partie Remis.',
+      schritte: [
+        {
+          hinweis: 'Riskant. Prüf nach deinem Zug: Kann mein König noch ziehen? Ohne Schach und ohne freies Feld ist es Patt. Ein Schach auf der h-Linie wäre stilvoller.',
+          erklaerung: 'Matt, zugegeben, sauber gespielt. Mein König steht im Schach, und alle Felder um ihn decken deine Dame und dein König.',
+        },
+      ],
+      abschluss:
+        'Hätte deine Dame auf g6 gestanden, wäre es Patt gewesen: kein Schach, aber auch kein Zug für mich. Ein Remis aus Gewinnstellung ist der peinlichste Schluss.',
+    },
+    Gemuetlich: {
+      einleitung: 'Ich habe nur noch meinen König. Aber schau: Kann ich nicht mehr ziehen und stehe nicht im Schach, ist es Patt. Dann endet die Partie Remis.',
+      schritte: [
+        {
+          hinweis: 'Ach, schau nach deinem Zug: Kann mein König noch ziehen? Steht er nicht im Schach und hat kein freies Feld, ist es Patt. Such ein Schach auf der h-Linie.',
+          erklaerung: 'Matt! Na gut. Mein König steht im Schach, und alle Felder um ihn decken deine Dame und dein König.',
+        },
+      ],
+      abschluss:
+        'Hätte deine Dame auf g6 gestanden, wäre es Patt gewesen: kein Schach, aber auch kein Zug für mich. Mit viel Material lohnt es sich, in Ruhe nachzuzählen.',
+    },
+  },
+  'dame-und-koenig': {
+    Aggressiv: {
+      einleitung: 'Dame und König gegen meinen König allein. Die Dame jagt, aber für das Matt braucht sie deinen König als Helfer.',
+      schritte: [
+        {
+          hinweis: 'Erst einsperren: Die Dame sperrt die siebte Reihe. Zieh sie nach a7.',
+          erklaerung: 'Gut, mein König sitzt auf der letzten Reihe fest. Lass ihm aber ein Feld, sonst ist es Patt.',
+        },
+        {
+          hinweis: 'Ran an den König! Deine Dame darf direkt neben ihn, wenn dein König sie deckt. Probier f7.',
+          erklaerung: 'Matt! Ich kann deine Dame nicht schlagen, dein König deckt sie.',
+        },
+      ],
+      abschluss:
+        'Treib den König mit der Dame an den Rand, hol deinen König heran und schlag zu. Die Dame steht dabei oft direkt vor dem gegnerischen König, gedeckt vom eigenen.',
+    },
+    Vorsichtig: {
+      einleitung: 'Mit Dame und König setzt du einen König allein matt. Die Dame schafft es nicht allein, dein König muss mithelfen.',
+      schritte: [
+        {
+          hinweis: 'Erst die siebte Reihe sperren. Zieh die Dame nach a7.',
+          erklaerung: 'Gut. Mein König kann nur noch auf der letzten Reihe hin und her. Achte darauf, dass er ein Feld behält, sonst ist es Patt.',
+        },
+        {
+          hinweis: 'Deine Dame kann gefahrlos neben meinen König, weil dein König sie deckt. Probier f7.',
+          erklaerung: 'Matt. Ich kann deine Dame nicht schlagen, weil dein König sie deckt. Gut abgesichert.',
+        },
+      ],
+      abschluss:
+        'Treib den König mit der Dame an den Rand, hol deinen König heran und setz erst dann matt. Die Dame steht oft direkt vor dem gegnerischen König, gedeckt vom eigenen.',
+    },
+    Lehrerhaft: {
+      einleitung: 'Heute lernst du das Matt mit Dame und König. Die Dame kann das nicht allein, sie braucht die Hilfe deines Königs.',
+      schritte: [
+        {
+          hinweis: 'Erstens sperrt die Dame die siebte Reihe. Zieh sie nach a7.',
+          erklaerung: 'Richtig. Mein König kann nur noch auf der letzten Reihe hin und her. Wichtig: Er braucht noch ein Feld, sonst wäre es Patt.',
+        },
+        {
+          hinweis: 'Zweitens: Deine Dame darf direkt neben meinen König, wenn dein König sie deckt. Probier f7.',
+          erklaerung: 'Matt! Ich kann deine Dame nicht schlagen, weil dein König sie deckt. Genau so arbeiten die beiden zusammen.',
+        },
+      ],
+      abschluss:
+        'Das Rezept: König mit der Dame an den Rand treiben, den eigenen König heranholen, dann matt setzen. Die Dame steht oft direkt vor dem gegnerischen König, gedeckt vom eigenen.',
+    },
+    Verspielt: {
+      einleitung: 'Dame und König gegen meinen König allein, das wird knapp für mich. Die Dame schafft es nicht allein, dein König muss mitspielen.',
+      schritte: [
+        {
+          hinweis: 'Hm, erst mal die siebte Reihe sperren. Zieh die Dame nach a7.',
+          erklaerung: 'Ups, jetzt kann mein König nur noch auf der letzten Reihe hin und her. Lass ihm noch ein Feld, sonst ist es Patt.',
+        },
+        {
+          hinweis: 'Trau dich: Deine Dame darf direkt neben meinen König, wenn dein König sie deckt. Probier f7.',
+          erklaerung: 'Matt! Ich würde deine Dame ja schlagen, aber dein König deckt sie.',
+        },
+      ],
+      abschluss:
+        'Treib den König mit der Dame an den Rand, hol deinen König dazu und setz dann matt. Die Dame steht dabei oft direkt vor dem gegnerischen König, gedeckt vom eigenen.',
+    },
+    Eitel: {
+      einleitung: 'Mit Dame und König setzt du einen König allein matt. Selbst die Dame, die stärkste Figur, braucht dafür die Hilfe deines Königs.',
+      schritte: [
+        {
+          hinweis: 'Nicht ganz elegant. Die Dame sperrt zuerst die siebte Reihe: Zieh sie nach a7.',
+          erklaerung: 'Gut gesetzt. Mein König kann nur noch auf der letzten Reihe hin und her. Lass ihm ein Feld, sonst wäre es ein peinliches Patt.',
+        },
+        {
+          hinweis: 'Deine Dame darf direkt neben meinen König, wenn dein König sie deckt. Ein mutiger Auftritt auf f7.',
+          erklaerung: 'Matt! Ich kann deine Dame nicht schlagen, weil dein König sie deckt. Ein schönes Duett.',
+        },
+      ],
+      abschluss:
+        'Treib den König mit der Dame an den Rand und hol deinen König heran, dann folgt das Matt. Die Dame steht dabei oft direkt vor dem gegnerischen König, gedeckt vom eigenen.',
+    },
+    Gemuetlich: {
+      einleitung: 'Mit Dame und König setzt du einen König allein matt. Die Dame schafft das nicht allein, dein König muss a bisserl mithelfen.',
+      schritte: [
+        {
+          hinweis: 'Ach, erst sperrt die Dame die siebte Reihe. Zieh sie nach a7.',
+          erklaerung: 'Gut. Mein König kann nur noch auf der letzten Reihe hin und her. Lass ihm aber ein Feld, sonst ist es Patt.',
+        },
+        {
+          hinweis: 'Deine Dame darf ruhig direkt neben meinen König, wenn dein König sie deckt. Probier f7.',
+          erklaerung: 'Matt! Na gut, ich kann deine Dame nicht schlagen, weil dein König sie deckt.',
+        },
+      ],
+      abschluss:
+        'Erst treibt die Dame den König an den Rand, dann kommt dein König dazu, und dann ist es matt. Die Dame steht dabei oft direkt vor dem gegnerischen König, gedeckt vom eigenen.',
+    },
+  },
+  'ersticktes-matt': {
+    Aggressiv: {
+      einleitung: 'Mein König hockt in der Ecke, eingekeilt von Turm und Bauern. Eine Einladung für einen Springerangriff.',
+      schritte: [
+        {
+          hinweis: 'Gezielter! Von welchem Feld trifft dein Springer h8? Schau auf f7.',
+          erklaerung: 'Matt, mitten rein! Mein König kann nicht weg, weil seine eigenen Figuren alle Felder besetzen. Das ist ersticktes Matt.',
+        },
+      ],
+      abschluss:
+        'Springer springen über Figuren. Ein König, der von eigenen Figuren eingeklemmt ist, ist darum gegen einen Springer ein leichtes Ziel.',
+    },
+    Vorsichtig: {
+      einleitung: 'Mein König steht in der Ecke, umringt von seinem Turm und seinen Bauern. Das wirkt sicher, ist es aber nicht: Ein Springer kann das ausnutzen.',
+      schritte: [
+        {
+          hinweis: 'Rechne kurz nach: Von welchem Feld greift dein Springer h8 an? Probier f7.',
+          erklaerung: 'Matt. Mein König kann nicht weg, weil seine eigenen Figuren alle Felder besetzen. Ersticktes Matt, zu viel Deckung kann schaden.',
+        },
+      ],
+      abschluss:
+        'Springer springen über Figuren. Ein König, der von eigenen Figuren eingeklemmt ist, ist gegen einen Springer darum nicht sicher.',
+    },
+    Lehrerhaft: {
+      einleitung: 'Mein König steht in der Ecke, umringt von seinem Turm und seinen Bauern. Er hat sich selbst eingemauert. Genau das nutzt ein Springer aus.',
+      schritte: [
+        {
+          hinweis: 'Denk an die Gangart des Springers: Von welchem Feld greift er h8 an? Schau auf f7.',
+          erklaerung: 'Matt! Mein König kann nicht weg, weil seine eigenen Figuren alle Felder besetzen. Merk dir den Namen: ersticktes Matt.',
+        },
+      ],
+      abschluss:
+        'Der Grund: Springer springen über Figuren. Ein König, der von eigenen Figuren eingeklemmt ist, ist gegen einen Springer besonders gefährdet.',
+    },
+    Verspielt: {
+      einleitung: 'Ups, mein König hat sich in der Ecke mit Turm und Bauern zugebaut. Ganz schön eng da. Ein Springer könnte das ausnutzen.',
+      schritte: [
+        {
+          hinweis: 'Fast! Von welchem Feld erwischt dein Springer h8? Guck mal auf f7.',
+          erklaerung: 'Matt! Mein König ist in seiner eigenen Burg erstickt, weil seine Figuren alle Felder besetzen. Das heißt ersticktes Matt.',
+        },
+      ],
+      abschluss:
+        'Springer springen einfach über alles drüber. Ein König, der von eigenen Figuren eingeklemmt ist, hat gegen einen Springer darum schlechte Karten.',
+    },
+    Eitel: {
+      einleitung: 'Mein König residiert in der Ecke, umgeben von Turm und Bauern. Leider hat er sich dabei selbst eingemauert. Ein Springer kann das ausnutzen.',
+      schritte: [
+        {
+          hinweis: 'Das geht schöner. Von welchem Feld greift dein Springer h8 an? Schau auf f7.',
+          erklaerung: 'Matt! Das berühmteste Springermatt überhaupt. Mein König kann nicht weg, weil seine eigenen Figuren alle Felder besetzen. Ersticktes Matt.',
+        },
+      ],
+      abschluss:
+        'Springer springen über Figuren. Ein König, der von eigenen Figuren eingeklemmt ist, ist gegen einen Springer besonders gefährdet, so prächtig er auch wohnt.',
+    },
+    Gemuetlich: {
+      einleitung: 'Mein König steht in der Ecke, umringt von seinem Turm und seinen Bauern. Mei, so eingemauert. Das kann ein Springer ausnutzen.',
+      schritte: [
+        {
+          hinweis: 'Ach, von welchem Feld greift dein Springer h8 an? Schau mal auf f7.',
+          erklaerung: 'Matt! Mein König kann nicht weg, weil seine eigenen Figuren alle Felder zustellen. Das nennt man ersticktes Matt, und es passiert mir nicht zum ersten Mal.',
+        },
+      ],
+      abschluss:
+        'Springer springen über Figuren. Darum ist ein König, der von eigenen Figuren eingeklemmt ist, gegen einen Springer ganz schön gefährdet.',
+    },
+  },
+  fesselung: {
+    Aggressiv: {
+      einleitung: 'Meine Dame und mein König stehen auf derselben Linie. Greifst du die Dame dort an, darf sie nicht weg, sonst stünde mein König im Schach. Das ist eine Fesselung.',
+      schritte: [
+        {
+          hinweis: 'Greif an! Stell deinen Turm auf die e-Linie, auf der meine Dame und mein König stehen.',
+          erklaerung: 'Gefesselt! Meine Dame kann nicht zur Seite, sonst stünde mein König im Schach. Dann nehme ich wenigstens deinen Turm mit.',
+        },
+        {
+          hinweis: 'Meine Dame steht direkt neben deinem König. Schlag zu.',
+          erklaerung: 'Ein Turm für eine Dame, so gewinnt man Material.',
+        },
+      ],
+      abschluss:
+        'Achte auf Figuren, die mit dem König auf einer Linie stehen. Läufer, Turm oder Dame können sie fesseln, und gefesselte Figuren sind leichte Beute.',
+    },
+    Vorsichtig: {
+      einleitung: 'Meine Dame steht mit meinem König auf einer Linie. Greifst du sie dort an, darf sie nicht weg, sonst stünde mein König im Schach. Das heißt Fesselung.',
+      schritte: [
+        {
+          hinweis: 'Der Turm gehört auf die e-Linie, auf der meine Dame und mein König stehen.',
+          erklaerung: 'Gefesselt. Meine Dame kann nicht zur Seite, sonst stünde mein König im Schach. Ich schlage deinen Turm, damit ich wenigstens etwas rette.',
+        },
+        {
+          hinweis: 'Meine Dame steht direkt neben deinem König, und sie ist nicht gedeckt. Schlag sie.',
+          erklaerung: 'Ein Turm gegen eine Dame, das sind vier Punkte Gewinn für dich.',
+        },
+      ],
+      abschluss:
+        'Prüf immer, welche Figuren mit dem König auf einer Linie stehen. Läufer, Turm oder Dame können sie fesseln. Gefesselte Figuren sind leichte Beute.',
+    },
+    Lehrerhaft: {
+      einleitung: 'Heute lernst du die Fesselung. Meine Dame und mein König stehen auf derselben Linie. Greifst du die Dame dort an, darf sie nicht weg, sonst stünde mein König im Schach.',
+      schritte: [
+        {
+          hinweis: 'Fast. Die Fesselung braucht die e-Linie, auf der meine Dame und mein König stehen. Stell deinen Turm dorthin.',
+          erklaerung: 'Gefesselt! Meine Dame kann nicht zur Seite, sonst stünde mein König im Schach. Darum schlage ich deinen Turm, bevor ich sie ganz verliere.',
+        },
+        {
+          hinweis: 'Jetzt steht meine Dame direkt neben deinem König. Schlag sie.',
+          erklaerung: 'Richtig. Ein Turm gegen eine Dame, ein sehr guter Tausch für dich.',
+        },
+      ],
+      abschluss:
+        'Merk dir: Figuren auf einer Linie mit dem König sind gefährdet. Läufer, Turm oder Dame können sie fesseln, und gefesselte Figuren sind leichte Beute.',
+    },
+    Verspielt: {
+      einleitung: 'Ups, meine Dame und mein König stehen auf derselben Linie. Greifst du die Dame dort an, darf sie nicht weg, sonst stünde mein König im Schach. Das heißt Fesselung.',
+      schritte: [
+        {
+          hinweis: 'Hm, probier lieber die e-Linie, auf der meine Dame und mein König stehen. Stell deinen Turm dorthin.',
+          erklaerung: 'Gefesselt, oje! Meine Dame kann nicht zur Seite, sonst stünde mein König im Schach. Dann schnappe ich mir wenigstens deinen Turm.',
+        },
+        {
+          hinweis: 'Meine Dame steht jetzt direkt neben deinem König. Na los, schlag sie.',
+          erklaerung: 'Ein Turm gegen eine Dame, guter Tausch für dich. Das war wohl nichts von mir.',
+        },
+      ],
+      abschluss:
+        'Guck immer, welche Figuren mit dem König auf einer Linie stehen. Läufer, Turm oder Dame können sie fesseln. Gefesselte Figuren sind leichte Beute.',
+    },
+    Eitel: {
+      einleitung: 'Meine Dame und mein König stehen auf einer Linie, ein seltener Fehler. Greifst du die Dame dort an, darf sie nicht weg, sonst stünde mein König im Schach: Fesselung.',
+      schritte: [
+        {
+          hinweis: 'Das geht eleganter. Stell deinen Turm auf die e-Linie, auf der meine Dame und mein König stehen.',
+          erklaerung: 'Gefesselt! Meine Dame kann nicht zur Seite, sonst stünde mein König im Schach. Dann opfere ich sie wenigstens mit Würde für deinen Turm.',
+        },
+        {
+          hinweis: 'Meine Dame steht direkt neben deinem König. Schlag sie, ich schaue nicht hin.',
+          erklaerung: 'Ein Turm gegen eine Dame. Für dich ein glänzendes Geschäft, für mich ein schwarzer Tag.',
+        },
+      ],
+      abschluss:
+        'Achte auf Figuren, die mit dem König auf einer Linie stehen. Ein Läufer, Turm oder eine Dame kann sie fesseln. Gefesselte Figuren sind leichte Beute, sogar meine.',
+    },
+    Gemuetlich: {
+      einleitung: 'Schau, meine Dame und mein König stehen auf derselben Linie. Greifst du die Dame dort an, darf sie nicht weg, sonst stünde mein König im Schach. Das heißt Fesselung.',
+      schritte: [
+        {
+          hinweis: 'Ach, stell deinen Turm lieber auf die e-Linie, auf der meine Dame und mein König stehen.',
+          erklaerung: 'Gefesselt! Meine Dame kann nicht zur Seite, sonst stünde mein König im Schach. Na, dann nehm ich halt deinen Turm, bevor ich sie ganz verliere.',
+        },
+        {
+          hinweis: 'Jetzt steht meine Dame direkt neben deinem König. Nimm sie dir.',
+          erklaerung: 'Ein Turm gegen eine Dame, da hast du ein gutes Geschäft gemacht.',
+        },
+      ],
+      abschluss:
+        'Schau auf Figuren, die mit dem König auf einer Linie stehen. Ein Läufer, Turm oder eine Dame kann sie fesseln, und dann sind sie leichte Beute.',
+    },
+  },
+  spiess: {
+    Aggressiv: {
+      einleitung: 'Beim Spieß greifst du eine wertvolle Figur an, hinter der eine andere steht. Weicht die vordere aus, holst du dir die hintere. Mein König steht vor meiner Dame.',
+      schritte: [
+        {
+          hinweis: 'Direkt drauf! Mein König und meine Dame stehen beide auf der e-Linie. Gib dort Schach.',
+          erklaerung: 'Schach! Mein König muss weg von der Linie, und dann liegt meine Dame frei vor deinem Turm.',
+        },
+        {
+          hinweis: 'Jetzt zuschlagen: Dein Turm sieht meine Dame auf e8.',
+          erklaerung: 'Die Dame gehört dir. Ein Spieß, direkt durch.',
+        },
+      ],
+      abschluss:
+        'Der Spieß ist die umgekehrte Fesselung: Vorne steht die wertvollere Figur. Mit Schach klappt er fast immer, weil der König ausweichen muss.',
+    },
+    Vorsichtig: {
+      einleitung: 'Beim Spieß greifst du eine wertvolle Figur an, hinter der eine andere steht. Weicht die vordere aus, fällt die hintere. Mein König steht leider vor meiner Dame.',
+      schritte: [
+        {
+          hinweis: 'Mein König und meine Dame stehen beide auf der e-Linie. Ein Schach dort wäre der sichere Gewinn.',
+          erklaerung: 'Schach. Mein König muss die Linie verlassen, und dann ist meine Dame frei für deinen Turm. Das hätte ich vermeiden sollen.',
+        },
+        {
+          hinweis: 'Dein Turm sieht jetzt meine Dame auf e8, und sie ist ungeschützt. Schlag sie.',
+          erklaerung: 'Die Dame gehört dir. Das war ein Spieß, neun Punkte für einen Turmzug.',
+        },
+      ],
+      abschluss:
+        'Der Spieß ist die umgekehrte Fesselung: Vorne steht die wertvollere Figur. Mit einem Schach ist er fast sicher, weil der König ausweichen muss.',
+    },
+    Lehrerhaft: {
+      einleitung: 'Heute lernst du den Spieß: Du greifst eine wertvolle Figur an, hinter der eine andere steht. Weicht sie aus, fällt die hintere. Mein König steht vor meiner Dame.',
+      schritte: [
+        {
+          hinweis: 'Schau auf die e-Linie: Dort stehen mein König und meine Dame. Gib dort Schach.',
+          erklaerung: 'Schach! Mein König muss die Linie verlassen. Danach ist meine Dame frei für deinen Turm, das ist der Kern des Spießes.',
+        },
+        {
+          hinweis: 'Jetzt der zweite Teil: Dein Turm sieht meine Dame auf e8. Schlag sie.',
+          erklaerung: 'Sehr gut, die Dame gehört dir. Das war ein Spieß.',
+        },
+      ],
+      abschluss:
+        'Der Spieß ist die umgekehrte Fesselung: Vorne steht die wertvollere Figur. Er klappt fast immer mit einem Schach, weil der König ausweichen muss.',
+    },
+    Verspielt: {
+      einleitung: 'Beim Spieß greifst du eine wertvolle Figur an, hinter der eine andere steht. Hüpft die vordere weg, ist die hintere dran. Mein König steht ausgerechnet vor meiner Dame.',
+      schritte: [
+        {
+          hinweis: 'Hm, nicht ganz. Mein König und meine Dame stehen beide auf der e-Linie. Gib dort Schach.',
+          erklaerung: 'Schach! Mein König muss von der Linie runter, und dann steht meine Dame ganz allein vor deinem Turm. Ups.',
+        },
+        {
+          hinweis: 'Dein Turm guckt jetzt genau auf meine Dame auf e8. Schnapp sie dir.',
+          erklaerung: 'Die Dame gehört dir. Das war ein Spieß, und ich bin voll reingelaufen.',
+        },
+      ],
+      abschluss:
+        'Der Spieß ist eine Fesselung andersherum: Vorne steht die wertvollere Figur. Mit Schach klappt er fast immer, weil der König weg muss.',
+    },
+    Eitel: {
+      einleitung: 'Der Spieß ist elegant: Du greifst eine wertvolle Figur an, hinter der eine andere steht. Weicht die vordere aus, fällt die hintere. Mein König steht vor meiner Dame.',
+      schritte: [
+        {
+          hinweis: 'Zu umständlich. Mein König und meine Dame stehen beide auf der e-Linie. Gib dort Schach.',
+          erklaerung: 'Schach! Mein König muss die Linie verlassen, und meine Dame steht ohne Schutz vor deinem Turm. Wie unschön.',
+        },
+        {
+          hinweis: 'Dein Turm sieht jetzt meine Dame auf e8. Nimm sie, wenn du dich traust.',
+          erklaerung: 'Die Dame gehört dir. Ein Spieß, das muss ich neidlos anerkennen.',
+        },
+      ],
+      abschluss:
+        'Der Spieß ist die umgekehrte Fesselung: Vorne steht die wertvollere Figur. Mit einem Schach klappt er fast immer, weil auch ein König wie meiner ausweichen muss.',
+    },
+    Gemuetlich: {
+      einleitung: 'Beim Spieß greifst du eine wertvolle Figur an, hinter der eine andere steht. Weicht die vordere aus, schlägst du die hintere. Und schau, mein König steht vor meiner Dame.',
+      schritte: [
+        {
+          hinweis: 'Ach, mein König und meine Dame stehen beide auf der e-Linie. Gib dort Schach.',
+          erklaerung: 'Schach! Mein König muss die Linie verlassen, und dann ist meine Dame frei für deinen Turm. Na gut.',
+        },
+        {
+          hinweis: 'Dein Turm sieht jetzt meine Dame auf e8. Nimm sie.',
+          erklaerung: 'Die Dame gehört dir. Das war ein Spieß, schön gemacht.',
+        },
+      ],
+      abschluss:
+        'Der Spieß ist die umgekehrte Fesselung: Vorne steht die wertvollere Figur. Mit einem Schach klappt er fast immer, weil der König halt ausweichen muss.',
+    },
+  },
+  damengambit: {
+    Aggressiv: {
+      einleitung: 'Das Damengambit beginnt mit dem Damenbauern. Gambit heißt: Du gibst einen Bauern her und bekommst dafür die Mitte. Ein Angebot ganz nach meinem Geschmack.',
+      schritte: [
+        {
+          hinweis: 'Heute zuerst der Damenbauer. Zieh ihn von d2 nach d4.',
+          erklaerung: 'Gut, so packst du die Mitte auch. Ich halte genauso dagegen.',
+        },
+        {
+          hinweis: 'Jetzt das Gambit! Zieh den Bauern von c2 nach c4, er greift meinen Bauern auf d5 an.',
+          erklaerung: 'Damengambit. Ich nehme den Bauern nicht, ich stütze meinen Bauern auf d5 mit e6 und halte die Stellung.',
+        },
+        {
+          hinweis: 'Springer raus, und zwar schnell. Zieh einen nach c3 oder f3.',
+          erklaerung: 'Stark, dein Springer erhöht den Druck auf d5. Ich bringe sofort meinen Springer.',
+        },
+        {
+          hinweis: 'Der Läufer auf c1 will mitkämpfen. Zieh ihn nach g5.',
+          erklaerung: 'Druck ohne Ende! Dein Läufer greift meinen Springer an, der d5 schützt. Ich stelle meinen Läufer dazwischen.',
+        },
+      ],
+      abschluss:
+        'Im Damengambit kämpfst du mit c4 um die Mitte. Nimmt Schwarz den Bauern, holst du ihn meistens später zurück. Dann Figuren raus, rochieren und angreifen.',
+    },
+    Vorsichtig: {
+      einleitung: 'Das Damengambit beginnt mit dem Damenbauern. Ein Gambit heißt: Du bietest einen Bauern an und bekommst dafür die Mitte. Ein überlegtes Risiko.',
+      schritte: [
+        {
+          hinweis: 'Diesmal beginnst du mit dem Bauern vor der Dame. Zieh ihn von d2 nach d4.',
+          erklaerung: 'Gut, auch so kontrollierst du die Mitte. Ich antworte mit demselben Zug, das ist solide.',
+        },
+        {
+          hinweis: 'Jetzt kommt das Gambit. Zieh den Bauern von c2 nach c4, er greift meinen Bauern auf d5 an. Keine Sorge, du bekommst ihn meist zurück.',
+          erklaerung: 'Das ist das Damengambit. Ich nehme den Bauern nicht, das ist mir zu unsicher. Ich stütze meinen Bauern auf d5 mit e6.',
+        },
+        {
+          hinweis: 'Springer kommen früh ins Spiel, das hat sich bewährt. Zieh einen nach c3 oder f3.',
+          erklaerung: 'Richtig, dein Springer erhöht den Druck auf d5. Ich bringe auch meinen Springer, zur Verstärkung.',
+        },
+        {
+          hinweis: 'Der Läufer auf c1 ist noch nicht entwickelt. Zieh ihn nach g5.',
+          erklaerung: 'Gut. Dein Läufer greift meinen Springer an, der d5 schützt. Ich stelle meinen Läufer dazwischen, sicher ist sicher.',
+        },
+      ],
+      abschluss:
+        'Im Damengambit kämpfst du mit c4 um die Mitte. Nimmt Schwarz den Bauern, holst du ihn meistens später zurück. Danach in Ruhe Figuren raus und rochieren.',
+    },
+    Lehrerhaft: {
+      einleitung: 'Heute lernst du das Damengambit. Es beginnt mit dem Damenbauern. Gambit heißt: Du bietest einen Bauern an, damit du dafür die Mitte bekommst.',
+      schritte: [
+        {
+          hinweis: 'Diesmal beginnt alles mit dem Bauern vor der Dame. Zieh ihn von d2 nach d4.',
+          erklaerung: 'Richtig, auch so kontrollierst du die Mitte. Ich antworte mit demselben Zug.',
+        },
+        {
+          hinweis: 'Jetzt folgt das eigentliche Gambit. Zieh den Bauern von c2 nach c4, er greift meinen Bauern auf d5 an.',
+          erklaerung: 'Das ist das Damengambit. Ich nehme den Bauern nicht an, sondern stütze meinen Bauern auf d5 mit e6. So spielt man das abgelehnte Damengambit.',
+        },
+        {
+          hinweis: 'Erinnerst du dich? Springer kommen früh ins Spiel. Zieh einen nach c3 oder f3.',
+          erklaerung: 'Sehr gut, dein Springer erhöht den Druck auf d5. Ich bringe auch meinen Springer.',
+        },
+        {
+          hinweis: 'Jetzt der Läufer auf c1. Zieh ihn nach g5.',
+          erklaerung: 'Ausgezeichnet! Dein Läufer greift meinen Springer an, der d5 schützt. Ich stelle meinen Läufer dazwischen.',
+        },
+      ],
+      abschluss:
+        'Im Damengambit kämpfst du mit c4 um die Mitte. Nimmt Schwarz den Bauern, holst du ihn meistens später zurück. Danach gilt wie immer: Figuren raus und rochieren.',
+    },
+    Verspielt: {
+      einleitung: 'Das Damengambit, eins meiner liebsten! Es beginnt mit dem Damenbauern. Gambit heißt: Du bietest einen Bauern an und bekommst dafür die Mitte.',
+      schritte: [
+        {
+          hinweis: 'Hm, heute mal mit dem Bauern vor der Dame. Zieh ihn von d2 nach d4.',
+          erklaerung: 'Gut, so geht die Mitte auch. Ich mach einfach dasselbe.',
+        },
+        {
+          hinweis: 'Jetzt kommt der Trick, das Gambit. Zieh den Bauern von c2 nach c4, er greift meinen Bauern auf d5 an.',
+          erklaerung: 'Das ist das Damengambit. Ich bin heute brav und nehme den Bauern nicht. Ich stütze meinen Bauern auf d5 mit e6.',
+        },
+        {
+          hinweis: 'Springer zuerst raus. Zieh einen nach c3 oder f3.',
+          erklaerung: 'Oha, dein Springer erhöht den Druck auf d5. Ich hole schnell meinen Springer.',
+        },
+        {
+          hinweis: 'Der Läufer auf c1 zappelt schon. Zieh ihn nach g5.',
+          erklaerung: 'Huch, dein Läufer greift meinen Springer an, der d5 schützt. Ich schiebe schnell meinen Läufer dazwischen.',
+        },
+      ],
+      abschluss:
+        'Im Damengambit kämpfst du mit c4 um die Mitte. Nimmt Schwarz den Bauern, holst du ihn meistens später zurück. Danach Figuren raus und ab in die Rochade.',
+    },
+    Eitel: {
+      einleitung: 'Das Damengambit ist die vornehmste aller Eröffnungen. Es beginnt mit dem Damenbauern. Gambit heißt: Du bietest einen Bauern an und bekommst dafür die Mitte.',
+      schritte: [
+        {
+          hinweis: 'Heute hat der Damenbauer den ersten Zug. Zieh ihn von d2 nach d4.',
+          erklaerung: 'Gut, auch so kontrollierst du die Mitte. Ich antworte genauso, nur mit mehr Stil.',
+        },
+        {
+          hinweis: 'Jetzt das Gambit, der feine Teil. Zieh den Bauern von c2 nach c4, er greift meinen Bauern auf d5 an.',
+          erklaerung: 'Das ist das Damengambit. Ich nehme den Bauern nicht, das wäre zu gewöhnlich. Ich stütze meinen Bauern auf d5 mit e6.',
+        },
+        {
+          hinweis: 'Springer kommen früh ins Spiel, das gehört sich so. Zieh einen nach c3 oder f3.',
+          erklaerung: 'Hübsch, dein Springer erhöht den Druck auf d5. Ich bringe auch meinen Springer, natürlich eleganter.',
+        },
+        {
+          hinweis: 'Der Läufer auf c1 wartet noch auf seinen Auftritt. Zieh ihn nach g5.',
+          erklaerung: 'Sehr gut! Dein Läufer greift meinen Springer an, der d5 schützt. Ich stelle meinen Läufer dazwischen, souverän wie immer.',
+        },
+      ],
+      abschluss:
+        'Im Damengambit kämpfst du mit c4 um die Mitte. Nimmt Schwarz den Bauern, holst du ihn meistens später zurück. Danach Figuren raus und mit Stil rochieren.',
+    },
+    Gemuetlich: {
+      einleitung: 'Das Damengambit beginnt mit dem Damenbauern. Ein Gambit heißt: Du bietest einen Bauern an, und dafür kriegst du die Mitte.',
+      schritte: [
+        {
+          hinweis: 'Ach, diesmal fängst du mit dem Bauern vor der Dame an. Zieh ihn von d2 nach d4.',
+          erklaerung: 'Gut, so kontrollierst du die Mitte auch. Ich mach es genauso.',
+        },
+        {
+          hinweis: 'Jetzt kommt das Gambit. Zieh den Bauern von c2 nach c4, der greift meinen Bauern auf d5 an.',
+          erklaerung: 'Das ist das Damengambit. Ich nehm den Bauern nicht, sondern stütze meinen Bauern auf d5 mit e6, ganz gemütlich.',
+        },
+        {
+          hinweis: 'Springer kommen früh ins Spiel, gell. Zieh einen nach c3 oder f3.',
+          erklaerung: 'Schön, dein Springer erhöht den Druck auf d5. Ich bring auch meinen Springer.',
+        },
+        {
+          hinweis: 'Der Läufer auf c1 möcht auch raus. Zieh ihn nach g5.',
+          erklaerung: 'Fein! Dein Läufer greift meinen Springer an, der d5 schützt. Ich stell meinen Läufer dazwischen.',
+        },
+      ],
+      abschluss:
+        'Im Damengambit kämpfst du mit c4 um die Mitte. Nimmt Schwarz den Bauern, holst du ihn meistens später zurück. Danach Figuren raus und rochieren, in aller Ruhe.',
+    },
+  },
+  sizilianisch: {
+    Aggressiv: {
+      einleitung: 'Du spielst Schwarz, ich eröffne mit e4. Die Sizilianische Verteidigung ist die kämpferischste Antwort darauf: Du greifst die Mitte von der Seite an.',
+      schritte: [
+        {
+          hinweis: 'Nicht e5, heute wird es schärfer. Zieh den Bauern von c7 nach c5, er kontrolliert d4.',
+          erklaerung: 'Sizilianisch, jetzt wird gekämpft. Dein Bauer auf c5 hat das Feld d4 im Visier. Ich bringe meinen Springer.',
+        },
+        {
+          hinweis: 'Ein kleiner Bauernzug mit Wirkung: d7 nach d6. Er öffnet den Weg für deinen Läufer auf c8.',
+          erklaerung: 'Gut. Jetzt reiße ich die Mitte auf, mit d4.',
+        },
+        {
+          hinweis: 'Mein Bauer auf d4 steht in Reichweite deines c-Bauern. Schlag zu.',
+          erklaerung: 'Genau. Dein Randbauer gegen meinen Mittelbauern, guter Tausch. Ich schlage mit dem Springer zurück.',
+        },
+        {
+          hinweis: 'Dein Springer auf g8 wartet auf seinen Einsatz. Zieh ihn nach f6.',
+          erklaerung: 'Stark! Dein Springer greift e4 an, und ich muss ihn decken. Deine Stellung ist gesund und bissig.',
+        },
+      ],
+      abschluss:
+        'Bei Sizilianisch hast du am Ende einen Mittelbauern mehr als Weiß. Dafür ist Weiß schneller entwickelt. Hol deine Figuren zügig raus und rochiere.',
+    },
+    Vorsichtig: {
+      einleitung: 'Du spielst Schwarz. Ich beginne mit e4. Die Sizilianische Verteidigung ist eine bewährte Antwort darauf: Du kämpfst von der Seite um die Mitte.',
+      schritte: [
+        {
+          hinweis: 'Heute nicht e5. Zieh den Bauern von c7 nach c5, er kontrolliert d4.',
+          erklaerung: 'Das ist Sizilianisch. Dein Bauer auf c5 überwacht das Feld d4. Ich bringe vorsichtig meinen Springer.',
+        },
+        {
+          hinweis: 'Ein kleiner, solider Bauernzug: d7 nach d6. Er öffnet den Weg für deinen Läufer auf c8.',
+          erklaerung: 'Gut. Jetzt öffne ich die Mitte mit d4, nach reiflicher Überlegung.',
+        },
+        {
+          hinweis: 'Mein Bauer auf d4 steht in Reichweite deines c-Bauern. Schlag ihn, das ist sicher.',
+          erklaerung: 'Richtig. Du tauschst deinen Randbauern gegen meinen Mittelbauern. Ich schlage mit dem Springer zurück.',
+        },
+        {
+          hinweis: 'Dein Springer auf g8 ist noch nicht im Spiel. Zieh ihn nach f6.',
+          erklaerung: 'Gut gemacht. Dein Springer greift e4 an, und ich muss ihn decken. Deine Stellung ist gesund und sicher.',
+        },
+      ],
+      abschluss:
+        'Bei Sizilianisch hast du am Ende einen Mittelbauern mehr als Weiß. Dafür ist Weiß schneller entwickelt. Bring deine Figuren zügig heraus und rochiere früh.',
+    },
+    Lehrerhaft: {
+      einleitung: 'Du spielst Schwarz, ich beginne mit e4. Heute lernst du die Sizilianische Verteidigung: Du kämpfst von der Seite um die Mitte.',
+      schritte: [
+        {
+          hinweis: 'Diesmal nicht e5. Der Bauer geht von c7 nach c5 und kontrolliert d4.',
+          erklaerung: 'Richtig, das ist Sizilianisch. Dein Bauer auf c5 hält das Feld d4 im Blick. Ich bringe meinen Springer.',
+        },
+        {
+          hinweis: 'Jetzt ein kleiner Bauernzug: d7 nach d6. Er öffnet den Weg für deinen Läufer auf c8.',
+          erklaerung: 'Gut. Jetzt öffne ich die Mitte mit d4. Achte darauf, was dein c-Bauer jetzt kann.',
+        },
+        {
+          hinweis: 'Dein c-Bauer kann meinen Bauern auf d4 schlagen. Schlag ihn.',
+          erklaerung: 'Genau. Merk dir den Tausch: dein Randbauer gegen meinen Mittelbauern. Ich schlage mit dem Springer zurück.',
+        },
+        {
+          hinweis: 'Jetzt entwickelst du den Springer auf g8. Zieh ihn nach f6.',
+          erklaerung: 'Sehr gut! Dein Springer greift e4 an, und ich muss ihn decken. Deine Stellung ist gesund.',
+        },
+      ],
+      abschluss:
+        'Der Gedanke hinter Sizilianisch: Am Ende hast du einen Mittelbauern mehr als Weiß, dafür ist Weiß schneller entwickelt. Bring deine Figuren zügig heraus und rochiere.',
+    },
+    Verspielt: {
+      einleitung: 'Du spielst Schwarz, ich fange mit e4 an. Die Sizilianische Verteidigung ist eine sehr beliebte Antwort darauf: Du kämpfst von der Seite um die Mitte. Wild!',
+      schritte: [
+        {
+          hinweis: 'Hm, heute nicht e5. Zieh den Bauern von c7 nach c5, er kontrolliert d4.',
+          erklaerung: 'Sizilianisch, juhu, jetzt wird es wild! Dein Bauer auf c5 schielt auf das Feld d4. Ich hole meinen Springer.',
+        },
+        {
+          hinweis: 'Ein winziger Bauernzug: d7 nach d6. Er macht den Weg frei für deinen Läufer auf c8.',
+          erklaerung: 'Gut. Jetzt mach ich die Mitte auf, mit d4.',
+        },
+        {
+          hinweis: 'Mein Bauer auf d4 ist in Reichweite deines c-Bauern. Schnapp ihn dir.',
+          erklaerung: 'Genau. Dein Randbauer gegen meinen Mittelbauern, cleverer Tausch. Ich schlage mit dem Springer zurück.',
+        },
+        {
+          hinweis: 'Dein Springer auf g8 will endlich mitspielen. Zieh ihn nach f6.',
+          erklaerung: 'Oha, dein Springer greift e4 an, und ich muss ihn decken. Deine Stellung ist gesund und macht Spaß.',
+        },
+      ],
+      abschluss:
+        'Bei Sizilianisch hast du am Ende einen Mittelbauern mehr als Weiß. Dafür ist Weiß schneller entwickelt. Also Figuren flott raus und rochieren.',
+    },
+    Eitel: {
+      einleitung: 'Du spielst Schwarz, ich eröffne natürlich mit e4. Die Sizilianische Verteidigung ist eine sehr beliebte Antwort darauf: Du kämpfst von der Seite um die Mitte.',
+      schritte: [
+        {
+          hinweis: 'Nicht e5, das sieht man zu oft. Zieh den Bauern von c7 nach c5, er kontrolliert d4.',
+          erklaerung: 'Sizilianisch, eine Eröffnung mit Charakter. Dein Bauer auf c5 hält das Feld d4 im Blick. Ich bringe meinen Springer.',
+        },
+        {
+          hinweis: 'Ein kleiner, feiner Bauernzug: d7 nach d6. Er öffnet den Weg für deinen Läufer auf c8.',
+          erklaerung: 'Gut. Jetzt öffne ich die Mitte mit d4, mit großer Geste.',
+        },
+        {
+          hinweis: 'Mein Bauer auf d4 steht in Reichweite deines c-Bauern. Nimm ihn, ich gönne ihn dir.',
+          erklaerung: 'Genau. Du tauschst deinen Randbauern gegen meinen Mittelbauern. Ich schlage mit dem Springer zurück, formvollendet.',
+        },
+        {
+          hinweis: 'Dein Springer auf g8 will auch glänzen. Zieh ihn nach f6.',
+          erklaerung: 'Sehr gut! Dein Springer greift e4 an, und ich muss ihn decken. Eine gesunde Stellung, fast so schön wie meine.',
+        },
+      ],
+      abschluss:
+        'Bei Sizilianisch hast du am Ende einen Mittelbauern mehr als Weiß. Dafür ist Weiß schneller entwickelt. Bring deine Figuren zügig heraus und rochiere mit Stil.',
+    },
+    Gemuetlich: {
+      einleitung: 'Du spielst Schwarz. Ich fang mit e4 an. Die Sizilianische Verteidigung ist eine sehr beliebte Antwort darauf: Du kämpfst von der Seite um die Mitte.',
+      schritte: [
+        {
+          hinweis: 'Ach, diesmal nicht e5. Zieh den Bauern von c7 nach c5, der kontrolliert d4.',
+          erklaerung: 'Das ist Sizilianisch. Dein Bauer auf c5 hat das Feld d4 im Blick. Ich bring meinen Springer.',
+        },
+        {
+          hinweis: 'Ein kleiner Bauernzug: d7 nach d6. Der macht den Weg frei für deinen Läufer auf c8.',
+          erklaerung: 'Schön. Jetzt öffne ich die Mitte mit d4, mal schauen.',
+        },
+        {
+          hinweis: 'Mein Bauer auf d4 steht in Reichweite deines c-Bauern. Nimm ihn ruhig.',
+          erklaerung: 'Genau so. Du tauschst deinen Randbauern gegen meinen Mittelbauern. Ich schlag mit dem Springer zurück.',
+        },
+        {
+          hinweis: 'Jetzt noch der Springer auf g8, der kommt nach f6.',
+          erklaerung: 'Wunderbar! Dein Springer greift e4 an, und ich muss ihn decken. Du stehst gesund da, passt scho.',
+        },
+      ],
+      abschluss:
+        'Bei Sizilianisch hast du am Ende einen Mittelbauern mehr als Weiß. Dafür ist Weiß schneller entwickelt. Bring deine Figuren zügig raus und rochiere, dann passt das.',
+    },
+  },
 }
 
 /**
