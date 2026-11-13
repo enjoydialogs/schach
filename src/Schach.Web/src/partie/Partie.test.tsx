@@ -68,6 +68,12 @@ describe('Partie-Bildschirm', () => {
     await waitFor(() => expect(knopf('Zurücknehmen')).not.toHaveAttribute('aria-disabled'))
   })
 
+  it('nennt die eigene Farbe als Wort, nicht nur als Punkt', async () => {
+    await zeige(starte())
+
+    expect(screen.getByTestId('eigene-farbe')).toHaveTextContent('Weiß')
+  })
+
   it('erklaert einen gesperrten Knopf in der Statuszeile, statt zu handeln', async () => {
     await zeige(starte())
 

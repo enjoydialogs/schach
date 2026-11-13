@@ -97,8 +97,9 @@ export function Profil() {
               <span className="zeile__mitte">
                 <span className="zeile__titel">{g.name}</span>
                 <span className="zeile__klein">{de.stufe[g.stufe]}</span>
+                {/* Unter dem Namen: ausgeschrieben passt die Bilanz bei 412 px nicht mehr rechts daneben. */}
+                {g.bilanz !== null && <Bilanz bilanz={g.bilanz} />}
               </span>
-              {g.bilanz !== null && <Bilanz bilanz={g.bilanz} />}
             </li>
           ))}
         </ul>

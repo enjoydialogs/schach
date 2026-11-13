@@ -272,7 +272,7 @@ Alle Gegner tragen nur Vornamen und sprechen in Du-Form.
 
 ### 4.5 Gegnerwahl-Zeile
 
-Avatar (4.4), Name, „Stufe · Elo“ (z. B. „Hobbyspieler · 1000“ für Theo), Vorstellungssatz, eigene S/R/N, Besiegt-Häkchen. Gäste sehen keine S/R/N.
+Avatar (4.4), Name, „Stufe · Elo“ (z. B. „Hobbyspieler · 1000“ für Theo), Vorstellungssatz, eigene Bilanz ausgeschrieben („Siege 3 · Remis 1 · Niederlagen 2“), Besiegt-Häkchen. Gäste sehen keine Bilanz.
 
 Quelle: [Wer sind die Gegner?](https://github.com/enjoydialogs/schach/issues/7), [Welche Bildschirme gibt es außerhalb der Partie?](https://github.com/enjoydialogs/schach/issues/18), [Wann und wie spricht ein Gegner?](https://github.com/enjoydialogs/schach/issues/9), Lückenschluss, vom Betreiber bestätigt am 2026-11-07
 
@@ -776,7 +776,7 @@ Quelle: [Wie funktioniert die Anmeldung per Magic Link?](https://github.com/enjo
 - Zwei Layouts:
   - `Seite`: scrollt, 16 px Rand, Kopf- und Fußzeile. Für Start, Neu, Partien, Profil, Anmelden, Rechtstexte, 404.
   - `Fest`: kein Scrollen. Für Partie und Nachspielen.
-- Fußzeile 12 px: „Impressum · Datenschutz · Quellcode“. Der Quellcode-Link trägt den 7-stelligen Commit-SHA aus `VITE_COMMIT_SHA`.
+- Fußzeile 13 px: „Impressum · Datenschutz · Quellcode“, jeder Link 48 px hoch tippbar. Der Quellcode-Link trägt den 7-stelligen Commit-SHA aus `VITE_COMMIT_SHA`.
 - React Router 7, ein Guard `RequireSpieler`. Zurück = `navigate(-1)`, ohne Verlauf nach `/`.
 - Sitzungsstatus `laedt | gast | spieler | unbekannt` (Netzfehler). `RequireSpieler`: `gast` → `/anmelden`; `unbekannt` → Kind rendern (offline erreicht ein Spieler gecachte Partien).
 
@@ -815,10 +815,12 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 | Kopf | 112 px + 12 px Abstand zum Brett | Links Avatar 96 px über beide Zeilen. Rechts oben (48 px): Name, „Elo 1200“, Gegner-Uhr 80×36, Menü „⋯“ 48×48. Rechts darunter (64 px fest reserviert): Spruchblase, 2 Zeilen, `line-clamp: 2`, runde Blase mit Spitze zum Avatar |
 | Brett | `min(100vw - Rand, 480px, calc(100dvh - 312px))` (Nachspielen: `- 300px`), Rand 24 px (Nacht: 0, randlos über die volle Breite) | ca. 388 px, Felder 48,5 px |
 | Statuszeile | 48 px reserviert | Vorrang: „Keine Verbindung“ > Hinweis (3 s, z. B. „Zug nicht möglich“ oder Grund eines gesperrten Knopfs) > Tipp > Warnung > „Schach!“ > „Ilse denkt nach …“ |
-| Eigene Zeile | 48 px | „Du“ + Farbpunkt + Pille „Zählt nicht für die Elo“ oder „Gast“, eigene Uhr |
+| Eigene Zeile | 48 px | „Du“ + Farbpunkt mit Wort („Weiß“/„Schwarz“) + Pille „Zählt nicht für die Elo“ oder „Gast“, eigene Uhr |
 | Knopfleiste | 64 px + safe-area | 4 Knöpfe je ca. 89×56, Icon (lucide) über Text: Zurücknehmen, Tipp, Remis anbieten, Aufgeben (roter Text, keine rote Fläche). Alle leise: Glasfläche mit Haarlinie, ohne Glanzkante und Schatten, kein Knopf im Akzent. Das Brett bleibt der einzige Blickfang; Tipp wird nie hervorgehoben, weil er die Elo-Wertung nimmt |
 
 - Kein Scrollen: `overflow: hidden`, `overscroll-behavior: none`, `touch-action: manipulation`.
+- Übrige Höhe (Pixel 7: ca. 170 px) verteilt sich gleich über dem Kopf und über der Knopfleiste; Kopf und Brett bleiben beisammen, das Brett rückt näher an den Daumen.
+- Querformat im Browser-Tab (bis 540 px Höhe): Brett links über die volle Höhe, Kopf, Status, eigene Zeile und Knöpfe rechts. Die installierte App bleibt hochkant.
 - Am-Zug-Punkt 8 px neben dem Namen.
 - Uhr `mm:ss` mit tabellarischen Ziffern. Aktive Uhr in Akzentfarbe, unter 20 s rot. Ohne Bedenkzeit keine Uhren.
 - Mit Bedenkzeit entfallen Zurücknehmen und Tipp: 2 Knöpfe à 182 px.
@@ -876,7 +878,7 @@ Overlays: Auswahl Akzent 50 %, letzter Zug Akzent 30 %, Zielpunkt und Schlagring
   - Gast: „Die Gastpartie endet als Niederlage und wird nicht gespeichert.“
 - Erster Tipp und erste Zurücknahme je Partie (nur Spieler, nur solange die Partie zählt): einmalige Frage, dass die Partie dann nicht mehr für die Elo zählt. Danach keine Frage mehr.
 - Remis anbieten ohne Bestätigung.
-- **Partieende:** Bottom-Sheet über dem unteren Drittel mit Titel, Grund, festem Erklärsatz, letztem Spruch, Elo-Zeile („Elo 812 (+12)“ / „zählt nicht“ / Gast-Hinweis aufs Konto), Knöpfen „Neue Partie“ und „Nachspielen“ (nur Spieler), Link „Zur Startseite“. Schließbar, die Stellung bleibt sichtbar. **Sieg-Moment** (nur Sieg, nicht Remis oder Niederlage): unter dem Titel ein Streifen in `--accent-tint` mit Pokal; bei Elo-Gewinn steht statt „(+12)“ ein Abzeichen „+12“ im Akzent („Elo 812 +12“). Endet die Partie gerade auf diesem Gerät (Übergang Offen → Beendet, nicht beim Wieder-Öffnen), federt der Pokal auf (600 ms, leichtes Überschwingen) und Konfetti in Paletten-Tönen fliegt einmal aus dem Streifen (800 ms, nur CSS, erst nach dem Hochgleiten des Blatts). Bei `prefers-reduced-motion: reduce` bleibt nur der statische Streifen. Niederlage und Remis bleiben ruhig, ohne Effekt.
+- **Partieende:** Bottom-Sheet über dem unteren Drittel mit Titel, Grund, festem Erklärsatz, letztem Spruch, Elo-Zeile („Elo 812 (+12)“ / „zählt nicht“ / Gast-Hinweis aufs Konto), Knöpfen „Neue Partie“ und „Nachspielen“ (nur Spieler), Link „Zur Startseite“. Schließbar, die Stellung bleibt sichtbar. **Sieg-Moment** (nur Sieg, nicht Remis oder Niederlage): unter dem Titel ein Streifen in `--accent-tint` mit Pokal; bei Elo-Gewinn steht statt „(+12)“ ein Abzeichen „+12“ im Akzent („Elo 812 +12“). Endet die Partie gerade auf diesem Gerät (Übergang Offen → Beendet, nicht beim Wieder-Öffnen), federt der Pokal auf (600 ms, leichtes Überschwingen) und Konfetti in Paletten-Tönen fliegt einmal aus dem Streifen (800 ms, nur CSS, erst nach dem Hochgleiten des Blatts). Gleichzeitig steigen über dem Brett drei Raketen auf und zerplatzen in bunten Funken (Tokens `--feuerwerk-1` bis `-5`, zusammen knapp 2 s, nur CSS, fängt keine Klicks ab; Zeitleiste in `partie/feuerwerkZeit.ts` für Bild und Ton). Bei `prefers-reduced-motion: reduce` bleibt nur der statische Streifen, ohne Konfetti und Feuerwerk. Niederlage und Remis bleiben ruhig, ohne Effekt.
 
 **Erklärsätze** (Partieende-Blatt und Nachspielen): in `src/i18n/de.ts` unter `partieende.erklaerung[grund][sicht]` mit `sicht ∈ {sieg, niederlage, remis}`. Der Client leitet die Sicht aus `ergebnis` und `spielerFarbe` ab. `{name}` ist der Gegner. Höchstens 90 Zeichen.
 
@@ -897,7 +899,7 @@ Overlays: Auswahl Akzent 50 %, letzter Zug Akzent 30 %, Zielpunkt und Schlagring
 
 Eine Kombination ohne Eintrag zeigt nur das Grund-Label, nie einen Fehler.
 
-**Töne und Haptik:** WebAudio-Synthese (keine Dateien) für Zug, Schlag und Partieende; beim Sieg ein eigener heller Lauf (knapp 0,8 s). `navigator.vibrate(15)` beim eigenen Zug, `[30,40,30]` am Ende, beim Sieg `[40,60,40,60,120]`. Ende-Ton und Vibration nur beim Übergang Offen → Beendet. Ein Schalter, dazu der Regler „Lautstärke Töne“ (nur Töne, nicht die Vibration).
+**Töne und Haptik:** WebAudio-Synthese (keine Dateien) für Zug, Schlag und Partieende; beim Sieg ein heller Lauf (knapp 0,8 s) und dazu das Feuerwerk: je Rakete leises Pfeifen, Knall und Knistern, genau auf der Explosion. `navigator.vibrate(15)` beim eigenen Zug, `[30,40,30]` am Ende, beim Sieg `[40,550,30,250,30,250,60]` (ein Puls je Knall). Ende-Ton und Vibration nur beim Übergang Offen → Beendet. Ein Schalter, dazu der Regler „Lautstärke Töne“ (nur Töne, nicht die Vibration).
 
 ### 10.4 Start (`/`)
 
@@ -918,7 +920,7 @@ Auf Start und Neu.
 
 ### 10.6 Neue Partie (`/neu`)
 
-- 8 Gegnerzeilen nach Abschnitt 4.5, Elo aufsteigend. Gäste ohne S/R/N.
+- 8 Gegnerzeilen nach Abschnitt 4.5, Elo aufsteigend. Gäste ohne Bilanz.
 - Tippen öffnet das Bottom-Sheet „Partie gegen Oscar“:
   - Farbe: Weiß | Schwarz | Zufall (Standard Zufall).
   - Bedenkzeit als Radio, jede Wahl mit Untertitel, der die Kurzform erklärt:
@@ -996,6 +998,7 @@ Passiv an drei Stellen:
 ### 10.14 Bausteine und Texte
 
 - Gemeinsame Bausteine: `Seite`, `Kopfzeile`, `Fusszeile`, `BottomSheet`, `Dialog`, `Avatar`, `GegnerZeile`, `Ladeanzeige` (Spinner nach 300 ms, Skelette für Listen), `Fehlerkarte` („Erneut versuchen“), `OfflineBanner`, `UpdateHinweis`, `InstallHinweis`, `Hinweis` (Toast).
+- Überlagen (`BottomSheet`, `Dialog`, Umwandlung) legen einen eigenen Verlaufseintrag an: Die Android-Zurück-Geste schließt erst die oberste Überlage, wie Tippen daneben oder Escape, und verlässt erst danach die Seite.
 - Alle UI-Texte stehen in `src/i18n/de.ts`.
 
 ### 10.15 Abnahme Bildschirme
