@@ -18,7 +18,7 @@ describe('Profil', () => {
     expect(elo).toHaveTextContent(/^\d+$/)
     const bilanz = await screen.findByRole('list', { name: 'Bilanz' })
     expect(within(bilanz).getAllByRole('listitem')).toHaveLength(8)
-    expect(within(bilanz).getByText('Theo').closest('li')).toHaveTextContent('S 0 · R 0 · N 1')
+    expect(within(bilanz).getByText('Theo').closest('li')).toHaveTextContent('Siege 0 · Remis 0 · Niederlagen 1')
   })
 
   it('zeigt „Spieler seit“ mit dem Anlagedatum des Kontos', async () => {

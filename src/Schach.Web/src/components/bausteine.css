@@ -277,10 +277,11 @@
   outline-offset: 2px;
 }
 
-/* Lautstaerke-Regler: Text, Schiene (gefuellt bis zum Wert in Akzent), Prozent. Zeile 48 px. */
+/* Lautstaerke-Regler: Text, Schiene (gefuellt bis zum Wert in Akzent), Prozent. Zeile 48 px.
+   Schiene hoechstens 136 px, damit „Lautstärke Sprüche“ bei 412 px in eine Zeile passt. */
 .regler {
   display: grid;
-  grid-template-columns: 1fr minmax(96px, 160px) 6ch;
+  grid-template-columns: minmax(0, 1fr) minmax(96px, 136px) 5ch;
   align-items: center;
   gap: 12px;
   min-height: 48px;
@@ -366,8 +367,9 @@
 }
 
 /* Grundfarbe (10.3): vier Farbmuster als Radiogruppe, Ziel je 48 px hoch */
+/* Die Legende sitzt auf der Oberkante des Feldsatzes; der Abstand trennt sie vom Regler darueber. */
 .palettewahl {
-  margin: 0;
+  margin: 8px 0 0;
   padding: 8px 0;
   border: 0;
   min-width: 0;

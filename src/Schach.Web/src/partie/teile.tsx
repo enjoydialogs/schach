@@ -126,11 +126,11 @@ export function EigeneZeile({
     <div className="partie__eigene">
       <span className="partie__name">
         {t('partie.du')}
-        <span
-          className={`farbpunkt farbpunkt--${farbe === 'Weiss' ? 'weiss' : 'schwarz'}`}
-          role="img"
-          aria-label={farbe === 'Weiss' ? t('partie.farbeWeiss') : t('partie.farbeSchwarz')}
-        />
+        {/* Farbe als Wort neben dem Punkt: ein Punkt allein sagt Anfaengern nicht, welche Seite sie spielen. */}
+        <span className="partie__farbe" data-testid="eigene-farbe">
+          <span className={`farbpunkt farbpunkt--${farbe === 'Weiss' ? 'weiss' : 'schwarz'}`} aria-hidden="true" />
+          {farbe === 'Weiss' ? t('partie.farbeWeiss') : t('partie.farbeSchwarz')}
+        </span>
         <AmZugPunkt sichtbar={amZug} />
       </span>
       {pille !== null && <span className="pille">{pille}</span>}
