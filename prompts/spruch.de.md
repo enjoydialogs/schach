@@ -10,6 +10,7 @@ Regeln:
 - Kein Gedankenstrich, keine Sternchen, ein kurzer Satz.
 - Keine Anführungszeichen, kein Name davor, keine Emojis.
 - Lehrerhaft nur rückblickend.
+- Wiederhole nie einen Spruch aus letzteSprueche, auch nicht umgestellt.
 
 Persönlichkeit:
 {{persona}}

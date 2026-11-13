@@ -11,6 +11,29 @@ public enum SpruchAblehnung
     Url,
     Platzhalter,
     Sperrliste,
+
+    /// <summary>Gleich einem Spruch, den der Gegner in dieser Partie schon gesagt hat.</summary>
+    Wiederholung,
+}
+
+/// <summary>
+/// Wann zwei Sprueche als gleich gelten: ohne Gross/Klein, Satzzeichen und Leerraum.
+/// „Hm, spannend.“ und „hm spannend!“ sind derselbe Spruch.
+/// </summary>
+public static class SpruchVergleich
+{
+    public static bool Gleich(string a, string b) =>
+        string.Equals(Kern(a), Kern(b), StringComparison.Ordinal);
+
+    public static bool Enthalten(IEnumerable<string> texte, string text)
+    {
+        ArgumentNullException.ThrowIfNull(texte);
+        var kern = Kern(text);
+        return texte.Any(t => string.Equals(Kern(t), kern, StringComparison.Ordinal));
+    }
+
+    private static string Kern(string text) =>
+        string.Concat((text ?? "").Where(char.IsLetterOrDigit)).ToLowerInvariant();
 }
 
 /// <param name="Ok">Wahr, wenn <paramref name="Text"/> gezeigt werden darf.</param>
