@@ -68,7 +68,7 @@ describe('Uebungen', () => {
   it('Schwarz-Uebung: Brett von Schwarz, der Gegner zieht zuerst', async () => {
     zeigeApp('/uebungen/schaefermatt-abwehren')
     await screen.findByText(/^Hallo, ich bin/)
-    expect(screen.getByRole('img', { name: 'Schwarz' })).toBeInTheDocument()
+    expect(screen.getByTestId('eigene-farbe')).toHaveTextContent('Schwarz')
     await waitFor(() => expect(screen.getByTestId('statuszeile')).toHaveTextContent('Bauer e7 nach e5'), { timeout: 3000 })
   })
 
