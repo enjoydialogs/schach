@@ -35,13 +35,13 @@ export const FAKE_ID_PRAEFIX = 'fake-'
 
 export const FAKE_GEGNER: GegnerDto[] = [
   gegner('ilse', 'Ilse', 600, 'Anfaenger', 'Gemuetlich', 'Keine Eile. Wir spielen in aller Ruhe, ja?'),
-  gegner('finn', 'Finn', 800, 'Anfaenger', 'Aggressiv', 'Ich greif einfach immer an!'),
-  gegner('oscar', 'Oscar', 1000, 'Hobbyspieler', 'Lehrerhaft', 'Ich erklär dir hinterher gern, warum ich so gezogen hab.'),
-  gegner('nele', 'Nele', 1200, 'Hobbyspieler', 'Verspielt', 'Mal gucken, was passiert, wenn ich das probiere.'),
-  gegner('theo', 'Theo', 1400, 'Vereinsspieler', 'Vorsichtig', 'Sicher ist sicher. Ich decke erst mal alles ab.'),
-  gegner('sementa', 'Sementa', 1600, 'Vereinsspieler', 'Eitel', 'Elegant, oder? So sind meine Züge immer.'),
-  gegner('konrad', 'Konrad', 1900, 'Turnierspieler', 'Lehrerhaft', 'Erst die Grundsätze, dann der Angriff.'),
-  gegner('maren', 'Maren', 2200, 'Meister', 'Aggressiv', 'Ich opfere gern eine Figur für den Angriff.'),
+  gegner('finn', 'Finn', 700, 'Anfaenger', 'Aggressiv', 'Ich greif einfach immer an!'),
+  gegner('oscar', 'Oscar', 800, 'Anfaenger', 'Lehrerhaft', 'Ich erklär dir hinterher gern, warum ich so gezogen hab.'),
+  gegner('nele', 'Nele', 900, 'Anfaenger', 'Verspielt', 'Mal gucken, was passiert, wenn ich das probiere.'),
+  gegner('theo', 'Theo', 1000, 'Hobbyspieler', 'Vorsichtig', 'Sicher ist sicher. Ich decke erst mal alles ab.'),
+  gegner('sementa', 'Sementa', 1100, 'Hobbyspieler', 'Eitel', 'Elegant, oder? So sind meine Züge immer.'),
+  gegner('konrad', 'Konrad', 1200, 'Hobbyspieler', 'Lehrerhaft', 'Erst die Grundsätze, dann der Angriff.'),
+  gegner('maren', 'Maren', 1300, 'Hobbyspieler', 'Aggressiv', 'Ich opfere gern eine Figur für den Angriff.'),
 ]
 
 function gegner(

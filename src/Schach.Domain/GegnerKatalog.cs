@@ -51,15 +51,15 @@ public static class GegnerKatalog
     public static IReadOnlyList<Gegner> Alle { get; } =
     [
         Neu("ilse", "Ilse", 600, Stufe.Anfaenger, Persoenlichkeit.Gemuetlich, "Keine Eile. Wir spielen in aller Ruhe, ja?", Frechheit.Freundlich, new(1, 1, 0, 0)),
-        Neu("finn", "Finn", 800, Stufe.Anfaenger, Persoenlichkeit.Aggressiv, "Ich greif einfach immer an!", Frechheit.Vorlaut, new(1, 2, 3, 1))
+        Neu("finn", "Finn", 700, Stufe.Anfaenger, Persoenlichkeit.Aggressiv, "Ich greif einfach immer an!", Frechheit.Vorlaut, new(1, 2, 3, 1))
             with { AbstandTierB = 1, AbstandTierC = 2 },
-        Neu("oscar", "Oscar", 1000, Stufe.Hobbyspieler, Persoenlichkeit.Lehrerhaft, "Ich erklär dir hinterher gern, warum ich so gezogen hab.", Frechheit.Freundlich, new(1, 1, 0, 0)),
-        Neu("nele", "Nele", 1200, Stufe.Hobbyspieler, Persoenlichkeit.Verspielt, "Mal gucken, was passiert, wenn ich das probiere.", Frechheit.Neckend, new(1, 3, 2, 0)),
-        Neu("theo", "Theo", 1400, Stufe.Vereinsspieler, Persoenlichkeit.Vorsichtig, "Sicher ist sicher. Ich decke erst mal alles ab.", Frechheit.Freundlich, new(3, 1, 0, 0)),
-        Neu("sementa", "Sementa", 1600, Stufe.Vereinsspieler, Persoenlichkeit.Eitel, "Elegant, oder? So sind meine Züge immer.", Frechheit.Vorlaut, new(1, 2, 3, 1))
+        Neu("oscar", "Oscar", 800, Stufe.Anfaenger, Persoenlichkeit.Lehrerhaft, "Ich erklär dir hinterher gern, warum ich so gezogen hab.", Frechheit.Freundlich, new(1, 1, 0, 0)),
+        Neu("nele", "Nele", 900, Stufe.Anfaenger, Persoenlichkeit.Verspielt, "Mal gucken, was passiert, wenn ich das probiere.", Frechheit.Neckend, new(1, 3, 2, 0)),
+        Neu("theo", "Theo", 1000, Stufe.Hobbyspieler, Persoenlichkeit.Vorsichtig, "Sicher ist sicher. Ich decke erst mal alles ab.", Frechheit.Freundlich, new(3, 1, 0, 0)),
+        Neu("sementa", "Sementa", 1100, Stufe.Hobbyspieler, Persoenlichkeit.Eitel, "Elegant, oder? So sind meine Züge immer.", Frechheit.Vorlaut, new(1, 2, 3, 1))
             with { AbstandTierB = 1, AbstandTierC = 2 },
-        Neu("konrad", "Konrad", 1900, Stufe.Turnierspieler, Persoenlichkeit.Lehrerhaft, "Erst die Grundsätze, dann der Angriff.", Frechheit.Neckend, new(3, 1, 1, 0)),
-        Neu("maren", "Maren", 2200, Stufe.Meister, Persoenlichkeit.Aggressiv, "Ich opfere gern eine Figur für den Angriff.", Frechheit.Vorlaut, new(2, 1, 3, 1)),
+        Neu("konrad", "Konrad", 1200, Stufe.Hobbyspieler, Persoenlichkeit.Lehrerhaft, "Erst die Grundsätze, dann der Angriff.", Frechheit.Neckend, new(3, 1, 1, 0)),
+        Neu("maren", "Maren", 1300, Stufe.Hobbyspieler, Persoenlichkeit.Aggressiv, "Ich opfere gern eine Figur für den Angriff.", Frechheit.Vorlaut, new(2, 1, 3, 1)),
     ];
 
     /// <summary>Gegner zum Key oder <c>null</c>.</summary>

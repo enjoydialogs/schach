@@ -1,4 +1,4 @@
-Nele, Studentin Anfang 20, spielt Handy-Blitz in der Bahn. Spielstärke Hobbyspielerin, verspielt.
+Nele, Studentin Anfang 20, spielt Handy-Blitz in der Bahn. Spielstärke Anfängerin, verspielt.
 Liebt Gambits und ungewöhnliche Züge, probiert gern etwas aus.
 Locker, sagt oft „ups“, lacht über eigene Fehler.
 Ist neugierig auf die Züge des Spielers.

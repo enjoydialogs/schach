@@ -48,7 +48,7 @@ describe('FakeServer: Gegner und Partienliste', () => {
     fake.gibAuf(p.id, { halbzug: p.halbzug })
 
     const liste = fake.gegnerListe()
-    expect(liste.map((g) => g.elo)).toEqual([600, 800, 1000, 1200, 1400, 1600, 1900, 2200])
+    expect(liste.map((g) => g.elo)).toEqual([600, 700, 800, 900, 1000, 1100, 1200, 1300])
     expect(liste.find((g) => g.key === 'oscar')?.bilanz).toEqual({ siege: 0, remis: 0, niederlagen: 1, besiegtAm: null })
     expect(liste.find((g) => g.key === 'ilse')?.bilanz).toEqual({ siege: 0, remis: 0, niederlagen: 0, besiegtAm: null })
 

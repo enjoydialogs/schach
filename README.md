@@ -16,7 +16,7 @@ Ein Browserspiel fürs Handy: Du spielst Partien gegen Gegner mit eigener Persö
 
 | | |
 |---|---|
-| 🎭 **Gegner mit Persönlichkeit** | Jeder Gegner hat Namen, Persönlichkeit und Spielstärke, von Anfänger bis Meister. Er kommentiert Züge mit Sprüchen. |
+| 🎭 **Gegner mit Persönlichkeit** | Jeder Gegner hat Namen, Persönlichkeit und Spielstärke, von Anfänger bis Hobbyspieler. Er kommentiert Züge mit Sprüchen. |
 | 💡 **Lernhilfen** | Erlaubte Züge anzeigen, Warnung vor einer ungedeckten Figur, Tipp auf Wunsch. |
 | 📈 **Elo** | Spieler mit Konto bekommen eine Elo. Jeder Gegner hat eine feste Elo passend zu seiner Spielstärke. |
 | ⏱️ **Bedenkzeit** | Optional beim Start wählbar. Ohne Bedenkzeit gibt es Zurücknehmen und Tipp. |

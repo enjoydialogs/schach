@@ -84,23 +84,21 @@ class GegnerEintrag:
 # Aufstellung (SCHACH-SPEC 4.3, `GegnerKatalog`).
 GEGNER: tuple[GegnerEintrag, ...] = (
     GegnerEintrag("ilse", 600, "gemuetlich"),
-    GegnerEintrag("finn", 800, "aggressiv"),
-    GegnerEintrag("oscar", 1000, "lehrerhaft"),
-    GegnerEintrag("nele", 1200, "verspielt"),
-    GegnerEintrag("theo", 1400, "vorsichtig"),
-    GegnerEintrag("sementa", 1600, "eitel"),
-    GegnerEintrag("konrad", 1900, "lehrerhaft"),
-    GegnerEintrag("maren", 2200, "aggressiv"),
+    GegnerEintrag("finn", 700, "aggressiv"),
+    GegnerEintrag("oscar", 800, "lehrerhaft"),
+    GegnerEintrag("nele", 900, "verspielt"),
+    GegnerEintrag("theo", 1000, "vorsichtig"),
+    GegnerEintrag("sementa", 1100, "eitel"),
+    GegnerEintrag("konrad", 1200, "lehrerhaft"),
+    GegnerEintrag("maren", 1300, "aggressiv"),
 )
 
 
 # Spielstaerken (SCHACH-SPEC 4.1, Feld `stufe`). Temperatur und Fairy-Ausweg gelten je Spielstaerke.
+# Vereinsspieler, Turnierspieler und Meister haben zurzeit keinen Gegner.
 SPIELSTAERKEN: dict[str, tuple[str, ...]] = {
-    "anfaenger": ("ilse", "finn"),
-    "hobbyspieler": ("oscar", "nele"),
-    "vereinsspieler": ("theo", "sementa"),
-    "turnierspieler": ("konrad",),
-    "meister": ("maren",),
+    "anfaenger": ("ilse", "finn", "oscar", "nele"),
+    "hobbyspieler": ("theo", "sementa", "konrad", "maren"),
 }
 
 

@@ -55,7 +55,7 @@ Stand: 2026-11-07, Phase 4 Teil 1 (#41). Phase 3 ist noch nicht abgeschlossen (#
 
 - Offen. `docs/engine-messung.md` „Ergebnis Eichung“: noch nicht geeicht. `Engine:Eichung` bleibt Identität (SCHACH-SPEC 5.4).
 - Betreiber: `eichung.py staerke` und `eichung.py stil` auf dem Entwicklungsrechner laufen lassen (Befehle in `docs/engine-messung.md`), Tabellen dort füllen, Block `Engine:Eichung` in die Konfiguration übernehmen.
-- Bedingung: alle acht Elo-Stufen ±100 (oder 600/800 auf Fairy-Stockfish), Stil-A/B 45 bis 55 %, Sichtbarkeit erfüllt.
+- Bedingung: alle acht Elo-Stufen ±100 (oder Anfänger 600 bis 900 auf Fairy-Stockfish), Stil-A/B 45 bis 55 %, Sichtbarkeit erfüllt.
 
 ### 7. Spruch-Probe
 

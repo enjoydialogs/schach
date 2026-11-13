@@ -116,7 +116,7 @@ public sealed class PartieTests
         zustand.Ergebnis.Should().Be(Ergebnis.SchwarzGewinnt);
         zustand.Grund.Should().Be(Grund.Aufgabe);
         zustand.EloVorher.Should().Be(800);
-        zustand.EloNachher.Should().Be(792); // 800 gegen 1000: E = 0,2403, 32 * -0,2403 = -7,7 -> -8.
+        zustand.EloNachher.Should().Be(784); // 800 gegen 800: E = 0,5, 32 * -0,5 = -16.
 
         using var offen = await mia.Http.GetAsync(new Uri("/api/v1/partien/offen", UriKind.Relative), Ct);
         offen.StatusCode.Should().Be(HttpStatusCode.NoContent);
@@ -301,7 +301,7 @@ public sealed class PartieTests
 
         gegner.Select(g => g.Key).Should().Equal("ilse", "finn", "oscar", "nele", "theo", "sementa", "konrad", "maren");
         gegner.Should().OnlyContain(g => g.Bilanz == null);
-        gegner[2].Should().Be(new GegnerDto("oscar", "Oscar", 1000, Stufe.Hobbyspieler, Persoenlichkeit.Lehrerhaft,
+        gegner[2].Should().Be(new GegnerDto("oscar", "Oscar", 800, Stufe.Anfaenger, Persoenlichkeit.Lehrerhaft,
             "Ich erklär dir hinterher gern, warum ich so gezogen hab.", null));
     });
 

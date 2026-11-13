@@ -109,7 +109,7 @@ python eichung.py staerke --url http://127.0.0.1:8081 --gegner alle --partien 10
 - Suche je Gegner: Temperaturen (`--temperaturen`, äußere Schleife), darin SelfElo-Offsets (`--offsets`, Standard `0,-100,100,…,±400`). Der erste Versuch im Band ±100 gewinnt. So bleibt der Wert so nah wie möglich an der Identität.
 - `--partien` gilt je Anker und Versuch. 100 × 3 Anker ergeben ±40 Elo Intervall.
 - Ausgabe: Block `Engine:Eichung` je Gegner-Key, Liste `nicht_im_band`, Liste `tau_abweichung` und alle Versuche.
-- Trifft 600 oder 800 nicht ins Band, spielt die ganze Spielstärke Anfänger (Ilse und Finn) mit `Engine: "Fairy"`, `SelfElo` = Gegner-Elo als `fairy_skill` (5.1, 5.4 a).
+- Trifft ein Anfänger (600 bis 900) nicht ins Band, spielt die ganze Spielstärke Anfänger (Ilse, Finn, Oscar, Nele) mit `Engine: "Fairy"`, `SelfElo` = Gegner-Elo als `fairy_skill` (5.1, 5.4 a).
 - τ gilt nur je Spielstärke (5.3 Schritt 2). Bekommen Gegner derselben Spielstärke verschiedene τ, steht die Spielstärke in `tau_abweichung`. Dann eine gemeinsame τ wählen und mit `--temperaturen <τ>` für beide nachmessen.
 - `--anker uci` prüft vor dem Spielen, ob alle Anker im `UCI_Elo`-Bereich der Engine liegen (Stockfish ab 1320), und bricht sonst ab.
 
@@ -143,13 +143,13 @@ Stand: noch nicht geeicht. Bis dahin gilt der Platzhalter `Engine:Eichung` = Ide
 | Gegner | Elo | SelfElo | τ | Engine | gemessen | 95-%-Intervall | Partien |
 |---|---|---|---|---|---|---|---|
 | ilse | 600 | | | | | | |
-| finn | 800 | | | | | | |
-| oscar | 1000 | | | | | | |
-| nele | 1200 | | | | | | |
-| theo | 1400 | | | | | | |
-| sementa | 1600 | | | | | | |
-| konrad | 1900 | | | | | | |
-| maren | 2200 | | | | | | |
+| finn | 700 | | | | | | |
+| oscar | 800 | | | | | | |
+| nele | 900 | | | | | | |
+| theo | 1000 | | | | | | |
+| sementa | 1100 | | | | | | |
+| konrad | 1200 | | | | | | |
+| maren | 1300 | | | | | | |
 
 | Gegner | Persönlichkeit | gestylt % | Intervall | bestanden | Sichtbarkeit | Ausweg |
 |---|---|---|---|---|---|---|

@@ -10,7 +10,7 @@ public sealed class WireFormatTests
     private static readonly JsonSerializerOptions Options = ApiJson.CreateOptions();
 
     private static readonly GegnerDto Oscar = new(
-        "oscar", "Oscar", 1000, Stufe.Hobbyspieler, Persoenlichkeit.Lehrerhaft,
+        "oscar", "Oscar", 800, Stufe.Anfaenger, Persoenlichkeit.Lehrerhaft,
         "Ich erklär dir hinterher gern, warum ich so gezogen hab.", null);
 
     [Fact]
@@ -88,7 +88,7 @@ public sealed class WireFormatTests
             "sprueche", "ergebnis", "grund", "eloVorher", "eloNachher", "pgn");
         doc.RootElement.GetProperty("uhr").GetProperty("laeuftFuer").GetString().Should().Be("Spieler");
         doc.RootElement.GetProperty("uhr").GetProperty("serverZeit").GetString().Should().Be("1970-01-01T00:00:00.000Z");
-        doc.RootElement.GetProperty("gegner").GetProperty("stufe").GetString().Should().Be("Hobbyspieler");
+        doc.RootElement.GetProperty("gegner").GetProperty("stufe").GetString().Should().Be("Anfaenger");
     }
 
     [Fact]

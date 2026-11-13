@@ -43,7 +43,7 @@ public sealed class ZustandAbbildungTests
 
         zustand.Status.Should().Be(Contracts.PartieStatus.Offen);
         zustand.SpielerFarbe.Should().Be(Contracts.Farbe.Weiss);
-        zustand.Gegner.Should().BeEquivalentTo(new { Key = "theo", Name = "Theo", Elo = 1400, Stufe = Contracts.Stufe.Vereinsspieler, Bilanz = (BilanzDto?)null });
+        zustand.Gegner.Should().BeEquivalentTo(new { Key = "theo", Name = "Theo", Elo = 1000, Stufe = Contracts.Stufe.Hobbyspieler, Bilanz = (BilanzDto?)null });
         zustand.Bedenkzeit.Should().Be(Contracts.Bedenkzeit.Fischer5Plus3);
         zustand.Halbzug.Should().Be(0);
         zustand.ErlaubteZuege.Should().HaveCount(20).And.Contain("e2e4");
