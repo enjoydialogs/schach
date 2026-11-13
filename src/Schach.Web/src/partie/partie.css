@@ -59,6 +59,8 @@ body:has(.partie) {
   grid-template-rows: 48px 64px;
   gap: 0 12px;
   height: 112px;
+  /* Luft zwischen Gegner und Brett */
+  margin-bottom: 12px;
 }
 
 .partie__gesicht {
@@ -237,6 +239,11 @@ body:has(.partie) {
   width: min(100vw - var(--brett-rand), 480px, calc(100dvh - 300px));
   margin: 0 auto;
   box-shadow: var(--brett-schatten);
+}
+
+/* Unter dem Kopf mit Blase fehlen dem Brett die 12 px Abstand in der Hoehe. */
+.partie__kopf--blase + .partie__brett {
+  width: min(100vw - var(--brett-rand), 480px, calc(100dvh - 312px));
 }
 
 /* Statuszeile 48 px reserviert */

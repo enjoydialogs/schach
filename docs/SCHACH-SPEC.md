@@ -807,8 +807,8 @@ Pixel 7 Hochformat, installierte PWA, CSS-Breite 412.
 
 | Bereich | Höhe | Inhalt |
 |---|---|---|
-| Kopf | 112 px | Links Avatar 96 px über beide Zeilen. Rechts oben (48 px): Name, „Elo 1200“, Gegner-Uhr 80×36, Menü „⋯“ 48×48. Rechts darunter (64 px fest reserviert): Spruchblase, 2 Zeilen, `line-clamp: 2`, runde Blase mit Spitze zum Avatar |
-| Brett | `min(100vw - Rand, 480px, calc(100dvh - 300px))`, Rand 24 px (Nacht: 0, randlos über die volle Breite) | ca. 388 px, Felder 48,5 px |
+| Kopf | 112 px + 12 px Abstand zum Brett | Links Avatar 96 px über beide Zeilen. Rechts oben (48 px): Name, „Elo 1200“, Gegner-Uhr 80×36, Menü „⋯“ 48×48. Rechts darunter (64 px fest reserviert): Spruchblase, 2 Zeilen, `line-clamp: 2`, runde Blase mit Spitze zum Avatar |
+| Brett | `min(100vw - Rand, 480px, calc(100dvh - 312px))` (Nachspielen: `- 300px`), Rand 24 px (Nacht: 0, randlos über die volle Breite) | ca. 388 px, Felder 48,5 px |
 | Statuszeile | 48 px reserviert | Vorrang: „Keine Verbindung“ > Hinweis (3 s, z. B. „Zug nicht möglich“ oder Grund eines gesperrten Knopfs) > Tipp > Warnung > „Schach!“ > „Ilse denkt nach …“ |
 | Eigene Zeile | 48 px | „Du“ + Farbpunkt + Pille „Zählt nicht für die Elo“ oder „Gast“, eigene Uhr |
 | Knopfleiste | 64 px + safe-area | 4 Knöpfe je ca. 89×56, Icon (lucide) über Text: Zurücknehmen, Tipp, Remis anbieten, Aufgeben (rot) |
