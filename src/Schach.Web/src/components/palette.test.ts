@@ -3,31 +3,45 @@ import { resolve } from 'node:path'
 import { ladePaletteNeu, lesePalette, PALETTEN, setzePalette, STANDARD_PALETTE } from './palette'
 
 // Grundfarbe (SCHACH-SPEC 10.3): Speicher, Anwenden, und jede Palette in palette.css haelt die
-// Kontrastregel (alle Paare >= 4,5:1) und passt zur Tabelle in palette.ts.
+// Kontrastregel (alle Paare >= 4,5:1) und passt zur Tabelle in palette.ts. Abgeleitete Flaechen
+// (Glas, Tints) rechnet der Test aus ihrer color-mix-Formel im CSS nach, je Palette.
 
 const css = readFileSync(resolve(__dirname, '../styles/palette.css'), 'utf8')
 
-/** Variablen eines Blocks; `:root` allein ist die Standardpalette. */
+/** Rohwerte eines Blocks; `:root` allein ist die Standardpalette. */
 function block(id: string): Record<string, string> {
   const selektor = id === STANDARD_PALETTE ? ':root {' : `:root[data-palette='${id}'] {`
   const start = css.indexOf(selektor)
   if (start < 0) throw new Error(`Block fuer ${id} fehlt`)
-  const inhalt = css.slice(start + selektor.length, css.indexOf('\n}', start))
+  const inhalt = css.slice(start + selektor.length, css.indexOf('\n}', start)).replace(/\/\*[\s\S]*?\*\//g, '')
   const werte: Record<string, string> = {}
-  for (const [, name, wert] of inhalt.matchAll(/(--[\w-]+):\s*(#[0-9a-f]{6})\s*;/gi)) {
-    if (name !== undefined && wert !== undefined) werte[name] = wert.toLowerCase()
+  for (const [, name, wert] of inhalt.matchAll(/(--[\w-]+):\s*([^;]+);/g)) {
+    if (name !== undefined && wert !== undefined) werte[name] = wert.trim().toLowerCase()
   }
   return werte
 }
 
-/** Hex-Werte einer Palette (Standard plus Ueberschreibungen); fehlende Variable wirft. */
-function palette(id: string): (name: string) => string {
+/**
+ * Farbe einer Variable in einer Palette (Standard plus Ueberschreibungen) als Hex. Loest `var(--x)`
+ * und `color-mix(in srgb, <farbe> N%, transparent)` auf; die Mischung liegt ueber `hinten`
+ * (Standard: `--bg` der Palette). Andere Werte werfen.
+ */
+function palette(id: string): (name: string, hinten?: string) => string {
   const werte = { ...block(STANDARD_PALETTE), ...block(id) }
-  return (name) => {
+  const loese = (wert: string, hinten: string | undefined): string => {
+    if (/^#[0-9a-f]{6}$/.test(wert)) return wert
+    const verweis = wert.match(/^var\((--[\w-]+)\)$/)
+    if (verweis) return farbe(verweis[1]!, hinten)
+    const mix = wert.match(/^color-mix\(in srgb, (.+) (\d+)%, transparent\)$/)
+    if (mix) return mische(loese(mix[1]!, hinten), Number(mix[2]) / 100, hinten ?? farbe('--bg'))
+    throw new Error(`Wert nicht aufloesbar: ${wert}`)
+  }
+  const farbe = (name: string, hinten?: string): string => {
     const wert = werte[name]
     if (wert === undefined) throw new Error(`${name} fehlt in ${id}`)
-    return wert
+    return loese(wert, hinten)
   }
+  return farbe
 }
 
 function rgb(hex: string): [number, number, number] {
@@ -46,21 +60,6 @@ function leuchtdichte(hex: string): number {
 function kontrast(a: string, b: string): number {
   const [x, y] = [leuchtdichte(a), leuchtdichte(b)]
   return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05)
-}
-
-/** Glas: Weiss mit Deckkraft 0,72 ueber dem Grund. */
-function glas(grund: string): string {
-  return mische('#ffffff', 0.72, grund)
-}
-
-/**
- * Abgeleitete Flaeche `variable` (`color-mix(in srgb, var(--x) N%, transparent)` in palette.css)
- * ueber `hinten`. Liest Quelle und Anteil aus dem CSS, damit der Test einer Aenderung dort folgt.
- */
-function flaeche(variable: string, w: (name: string) => string, hinten: string): string {
-  const treffer = css.match(new RegExp(`${variable}:\\s*color-mix\\(in srgb, var\\((--[\\w-]+)\\) (\\d+)%, transparent\\)`))
-  if (!treffer) throw new Error(`${variable} ist kein color-mix mit transparent`)
-  return mische(w(treffer[1]!), Number(treffer[2]) / 100, hinten)
 }
 
 /** `vorne` mit Deckkraft `anteil` ueber `hinten` (wie color-mix mit transparent). */
@@ -109,29 +108,43 @@ describe('Palette', () => {
   it.each(PALETTEN.map((p) => p.id))('%s haelt 4,5:1 fuer Text, Knoepfe und Avatare', (id) => {
     const w = palette(id)
     const weiss = '#ffffff'
+    const glas = w('--glass-surface')
     const paare: [string, string, string][] = [
       ['Text auf Grund', w('--text'), w('--bg')],
       ['Nebentext auf Grund', w('--text-muted'), w('--bg')],
-      ['Nebentext auf Glas', w('--text-muted'), glas(w('--bg'))],
+      ['Nebentext auf Glas', w('--text-muted'), glas],
       ['Nebentext auf hellem Feld', w('--text-muted'), w('--board-light')],
-      ['Knopftext auf Akzent', weiss, w('--accent')],
+      ['Knopftext auf Akzent', w('--on-accent'), w('--accent')],
       ['Akzent auf Grund', w('--accent'), w('--bg')],
       ['Akzent auf Akzent-Tint', w('--accent'), w('--accent-tint')],
-      ['Avatar Anfaenger', w('--text'), w('--avatar-anfaenger')],
-      ['Avatar Hobbyspieler', w('--text'), w('--avatar-hobbyspieler')],
+      ['Avatar Anfaenger', w('--avatar-anfaenger-text'), w('--avatar-anfaenger')],
+      ['Avatar Hobbyspieler', w('--avatar-hobbyspieler-text'), w('--avatar-hobbyspieler')],
       ['Avatar Vereinsspieler', weiss, w('--avatar-vereinsspieler')],
       ['Avatar Turnierspieler', weiss, w('--avatar-turnierspieler')],
       ['Avatar Meister', weiss, w('--avatar-meister')],
       // Phase 4 (#41): Paare, die bisher fehlten
-      ['Akzent auf Hover-Tint ueber Grund', w('--accent'), flaeche('--glass-tint', w, w('--bg'))],
+      ['Akzent auf Hover-Tint ueber Grund', w('--accent'), w('--glass-tint')],
       ['Gefahr auf Grund', w('--danger'), w('--bg')],
-      ['Gefahr auf Glas', w('--danger'), glas(w('--bg'))],
-      ['Knopftext auf Gefahr', weiss, w('--danger')],
+      ['Gefahr auf Glas', w('--danger'), glas],
+      ['Knopftext auf Gefahr', w('--on-danger'), w('--danger')],
       ['Warntext auf Warn-Tint', w('--warning-text'), w('--warning-tint')],
       ['Warntext auf Grund', w('--warning-text'), w('--bg')],
-      ['Gesperrt auf Gesperrt-Flaeche', w('--text-muted'), flaeche('--disabled-bg', w, glas(w('--bg')))],
-      ['Weiss auf dunklem Glas', weiss, flaeche('--glass-dark', w, w('--bg'))],
+      ['Gesperrt auf Gesperrt-Flaeche', w('--text-muted'), w('--disabled-bg', glas)],
+      ['Knopftext auf dunklem Glas', w('--on-accent'), w('--glass-dark')],
+      ['Nebentext auf erhobenem Glas (Sheet, Dialog)', w('--text-muted'), w('--glass-surface-strong')],
+      ['Text in der Spruchblase', w('--text'), w('--blase-flaeche')],
     ]
+    // Nur Nacht: Koordinaten und Schalterknauf. Die hellen Paletten setzen Koordinaten in der
+    // Gegenfarbe des Feldes (unter 4,5:1) und den Knauf mit Schatten ab; offen fuer spaeter.
+    if (id === 'nacht') {
+      paare.push(
+        ['Koordinate auf hellem Feld', w('--notation-auf-hell', w('--board-light')), w('--board-light')],
+        ['Koordinate auf dunklem Feld', w('--notation-auf-dunkel', w('--board-dark')), w('--board-dark')],
+      )
+      // Bedienelement (WCAG 1.4.11): Knauf hebt sich mit 3:1 von der Schiene ab.
+      expect(kontrast(w('--knauf'), w('--disabled-bg', w('--surface')))).toBeGreaterThanOrEqual(3)
+      expect(kontrast(w('--knauf-an'), w('--accent'))).toBeGreaterThanOrEqual(3)
+    }
     for (const [name, vorne, hinten] of paare) {
       expect({ name, kontrast: kontrast(vorne, hinten) >= 4.5 }).toEqual({ name, kontrast: true })
     }

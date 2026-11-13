@@ -343,6 +343,7 @@ export const de = {
       pink: 'Pink',
       gruen: 'Grün',
       blau: 'Blau',
+      nacht: 'Nacht',
     },
   },
   // Profil (10.9), nach #64 (SpielerDto.erstelltAm).

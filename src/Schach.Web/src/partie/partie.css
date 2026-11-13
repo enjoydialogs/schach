@@ -1,5 +1,6 @@
 /* Partie-Bildschirm, Layout `Fest` (SCHACH-SPEC 10.1, 10.3). Pixel 7 Hochformat, CSS-Breite 412.
-   Hoehen: Kopf 56, Spruch 56, Brett ca. 388, Status 48, eigene Zeile 48, Knoepfe 64 + safe-area. */
+   Hoehen: Kopf 112 (Name 48 + Spruch 64, Avatar links ueber beide), Brett ca. 388 (Nacht: volle
+   Breite), Status 48, eigene Zeile 48, Knoepfe 64 + safe-area. */
 
 html:has(.partie),
 body:has(.partie) {
@@ -23,7 +24,6 @@ body:has(.partie) {
 
 /* Glas fuer die kleinen Flaechen im festen Layout. Nur Hintergrund und Rand, kein Platzbedarf. */
 .uhr,
-.spruchblase,
 .leistenknopf {
   background: var(--glass-surface);
   border: 1px solid var(--glass-border);
@@ -41,7 +41,7 @@ body:has(.partie) {
   text-align: center;
 }
 
-/* Kopfzeile 56 px: Avatar 40, Name, Elo, Gegner-Uhr 80x36, Menue 48x48 */
+/* Kopfzeile 56 px (Nachspielen): Avatar, Titel, Menue 48x48 */
 .partie__kopf {
   flex: none;
   display: flex;
@@ -49,6 +49,29 @@ body:has(.partie) {
   gap: 12px;
   height: 56px;
   padding: 0 4px 0 16px;
+}
+
+/* Partie-Kopf 112 px: links der Avatar ueber beide Zeilen, rechts oben Name, Elo, Gegner-Uhr 80x36
+   und Menue 48x48 (48 px), darunter die Spruchblase (64 px), deren Spitze auf den Avatar zeigt. */
+.partie__kopf--blase {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  grid-template-rows: 48px 64px;
+  gap: 0 14px;
+  height: 112px;
+}
+
+.partie__gesicht {
+  grid-row: 1 / 3;
+  align-self: center;
+  justify-self: center;
+}
+
+.partie__kopfzeile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .partie__gegner {
@@ -128,14 +151,21 @@ body:has(.partie) {
 .uhr--knapp {
   background: var(--danger);
   border-color: var(--danger);
-  color: var(--on-accent);
+  color: var(--on-danger);
 }
 
-/* Spruchblase: 56 px fest reserviert, 2 Zeilen */
+/* Spruchblase: fest reserviert, 2 Zeilen. Allein (Nachspielen) 56 px unter dem Kopf, im
+   Partie-Kopf 64 px rechts neben dem Avatar. */
 .partie__spruch {
   flex: none;
   height: 56px;
   padding: 0 16px;
+}
+
+.partie__kopf--blase .partie__spruch {
+  grid-column: 2;
+  height: auto;
+  padding: 2px 12px 8px 0;
 }
 
 .spruchblase--knopf {
@@ -145,12 +175,54 @@ body:has(.partie) {
   cursor: pointer;
 }
 
+/* Runde Blase mit Spitze nach links: zwei Dreiecke, aussen in der Randfarbe, innen in der Flaeche. */
 .spruchblase {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-height: 100%;
   margin: 0;
-  padding: 6px 12px;
-  border-radius: 16px 16px 16px 4px;
+  padding: 8px 14px;
+  border: 2px solid var(--blase-rand);
+  border-radius: 18px;
+  background: var(--blase-flaeche);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  box-shadow: var(--glass-highlight);
   font-size: 15px;
   line-height: 20px;
+}
+
+.partie__kopf--blase .spruchblase {
+  height: 100%;
+}
+
+.partie__kopf--blase .spruchblase::before,
+.partie__kopf--blase .spruchblase::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+
+.partie__kopf--blase .spruchblase::before {
+  left: -11px;
+  width: 11px;
+  height: 18px;
+  margin-top: -9px;
+  background: var(--blase-rand);
+}
+
+.partie__kopf--blase .spruchblase::after {
+  left: -8px;
+  width: 10px;
+  height: 14px;
+  margin-top: -7px;
+  background: var(--blase-flaeche);
+}
+
+.spruchblase__text {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -158,12 +230,13 @@ body:has(.partie) {
   overflow: hidden;
 }
 
-/* Brett: min(100vw - 24px, 480px, 100dvh - 300px). Schatten hebt es als wichtigste Flaeche ab. */
+/* Brett: min(100vw - Rand, 480px, 100dvh - 300px). Helle Paletten: 12 px Rand je Seite und
+   Schatten; Nacht: volle Breite, flach. */
 .partie__brett {
   flex: none;
-  width: min(100vw - 24px, 480px, calc(100dvh - 300px));
+  width: min(100vw - var(--brett-rand), 480px, calc(100dvh - 300px));
   margin: 0 auto;
-  box-shadow: var(--shadow-3);
+  box-shadow: var(--brett-schatten);
 }
 
 /* Statuszeile 48 px reserviert */

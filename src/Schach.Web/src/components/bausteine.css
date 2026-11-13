@@ -73,6 +73,7 @@
 
 .knopf--gefahr {
   background: var(--danger);
+  color: var(--on-danger);
 }
 
 /* Hover behaelt die Variante: Outline behaelt den Rand, Gefahr glueht nicht blau. */
@@ -254,9 +255,11 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--surface);
+  background: var(--knauf);
   box-shadow: var(--shadow-1);
-  transition: transform var(--dauer-kurz) var(--kurve-raus);
+  transition:
+    transform var(--dauer-kurz) var(--kurve-raus),
+    background-color var(--dauer-kurz) var(--kurve-raus);
 }
 
 .schalter input:checked {
@@ -265,6 +268,7 @@
 
 .schalter input:checked::before {
   transform: translateX(20px);
+  background: var(--knauf-an);
 }
 
 .schalter input:focus-visible {
@@ -318,7 +322,7 @@
   margin-top: -7px;
   border: 0;
   border-radius: 50%;
-  background: var(--surface);
+  background: var(--knauf-an);
   box-shadow: var(--shadow-1);
   appearance: none;
 }
@@ -328,7 +332,7 @@
   height: 20px;
   border: 0;
   border-radius: 50%;
-  background: var(--surface);
+  background: var(--knauf-an);
   box-shadow: var(--shadow-1);
 }
 
@@ -369,7 +373,7 @@
 
 .palettewahl__reihe {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
 }
 

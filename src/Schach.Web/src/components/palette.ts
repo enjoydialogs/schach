@@ -3,18 +3,21 @@ import { paletteId } from './SpeicherSchluessel'
 
 // Grundfarbe, vom Spieler gewaehlt (SCHACH-SPEC 10.3). Die Farben selbst stehen in
 // styles/palette.css unter `:root[data-palette=…]`; hier nur die Werte, die ausserhalb von CSS
-// gebraucht werden (theme-color, Tipp-Pfeil, Farbmuster der Auswahl). palette.test.ts prueft,
-// dass sie mit palette.css uebereinstimmen.
+// gebraucht werden (theme-color, Tipp-Pfeil, Farbmuster der Auswahl, Figurensatz). palette.test.ts
+// prueft, dass sie mit palette.css uebereinstimmen. Helle Paletten zeigen Cburnett-Figuren, die
+// dunkle Palette Nacht die flachen Figuren (brett/figurenFlach.tsx).
 
 export const PALETTEN = [
-  { id: 'lila', grund: '#f4f2fb', brett: '#a898d8', akzent: '#1c715b' },
-  { id: 'pink', grund: '#fcf1f6', brett: '#e09cba', akzent: '#1b6a7e' },
-  { id: 'gruen', grund: '#eff7f2', brett: '#8ec6a7', akzent: '#6a45b0' },
-  { id: 'blau', grund: '#f0f4fb', brett: '#94afde', akzent: '#a3336b' },
+  { id: 'lila', grund: '#f4f2fb', brett: '#a898d8', akzent: '#1c715b', figuren: 'cburnett' },
+  { id: 'pink', grund: '#fcf1f6', brett: '#e09cba', akzent: '#1b6a7e', figuren: 'cburnett' },
+  { id: 'gruen', grund: '#eff7f2', brett: '#8ec6a7', akzent: '#6a45b0', figuren: 'cburnett' },
+  { id: 'blau', grund: '#f0f4fb', brett: '#94afde', akzent: '#a3336b', figuren: 'cburnett' },
+  { id: 'nacht', grund: '#131f24', brett: '#172228', akzent: '#6bc1e8', figuren: 'flach' },
 ] as const
 
 export type Palette = (typeof PALETTEN)[number]
 export type PaletteId = Palette['id']
+export type Figurensatz = Palette['figuren']
 
 export const STANDARD_PALETTE: PaletteId = 'lila'
 

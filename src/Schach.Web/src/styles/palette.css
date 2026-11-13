@@ -1,7 +1,8 @@
-/* Paletten (nur hell, SCHACH-SPEC 10.3). Der Spieler waehlt die Grundfarbe, `data-palette` am
+/* Paletten (SCHACH-SPEC 10.3). Der Spieler waehlt die Grundfarbe, `data-palette` am
    <html> (components/palette.ts). `:root` ist die Standardpalette Lila ("Sorbet"): Fliedernebel als
-   Grund, Minze fuer Aktionen, Fliederbrett. Jede weitere Palette ueberschreibt nur die Grundtoene;
-   Overlays, Glas, Schatten und Farbflecken leiten sich per color-mix daraus ab.
+   Grund, Minze fuer Aktionen, Fliederbrett. Jede helle Palette ueberschreibt nur die Grundtoene;
+   Overlays, Glas, Schatten und Farbflecken leiten sich per color-mix daraus ab. Die dunkle Palette
+   Nacht (ganz unten) ueberschreibt zusaetzlich Flaechen, Glas, Schatten und Brettdetails.
    Pastell nur fuer Flaechen; Text und Knoepfe nutzen die kraeftigen Toene (alle >= 4.5:1).
    Komponenten lesen nur diese Variablen, nie Hex-Werte. */
 :root {
@@ -17,6 +18,7 @@
   --warning-text: #7a4600;
   --danger: #c4423a;
   --danger-tint: #fde6e2;
+  --on-danger: #ffffff;
   --board-light: #eee9fb;
   --board-dark: #a898d8;
   /* Grundton der Schatten */
@@ -46,8 +48,8 @@
   /* Glas-Ebene: helle, halbtransparente Flaechen ueber einem weichen Farbhintergrund.
      Deckkraft >= 0.72, damit --text-muted auf Glas 4.5:1 haelt. */
   --on-accent: #ffffff;
-  --glass-surface: rgba(255, 255, 255, 0.72);
-  --glass-surface-strong: rgba(255, 255, 255, 0.86);
+  --glass-surface: color-mix(in srgb, #ffffff 72%, transparent);
+  --glass-surface-strong: color-mix(in srgb, #ffffff 86%, transparent);
   --glass-tint: color-mix(in srgb, var(--accent) 12%, transparent);
   --glass-border: rgba(255, 255, 255, 0.75);
   --glass-hairline: color-mix(in srgb, var(--text) 8%, transparent);
@@ -62,6 +64,18 @@
   --disabled-bg: color-mix(in srgb, var(--text) 7%, transparent);
   --disabled-text: var(--text-muted);
   --fokus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+
+  /* Brett und Spruchblase im Partie-Bildschirm */
+  --brett-rand: 24px;
+  --brett-schatten: var(--shadow-3);
+  --notation-auf-hell: var(--board-dark);
+  --notation-auf-dunkel: var(--board-light);
+  --blase-flaeche: var(--glass-surface);
+  --blase-rand: var(--glass-border);
+
+  /* Knauf von Schalter und Regler: aus und an (an liegt auf dem Akzent) */
+  --knauf: var(--surface);
+  --knauf-an: var(--surface);
 
   /* Hoehenstufen: Kontakt, Mitte, Umgebung (shadow-elevation), leicht in der Grundfarbe */
   --shadow-1:
@@ -136,4 +150,63 @@
   --avatar-vereinsspieler: #a3336b;
   --avatar-turnierspieler: #72244b;
   --avatar-meister: #4e1833;
+}
+
+/* Nacht: dunkler Schiefergrund, Schieferbrett ohne Rand, flache Figuren (brett/figurenFlach.tsx),
+   Eisblau fuer Aktionen. Einzige dunkle Palette: Text ist hell, Knopftext darum dunkel, und Glas,
+   Schatten und Farbflecken werden flach und deckend statt aus den hellen Werten abgeleitet. */
+:root[data-palette='nacht'] {
+  --bg: #131f24;
+  --surface: #1c2b32;
+  --text: #eef4f7;
+  --text-muted: #9db0bb;
+  --border: #33444d;
+  /* Etwas entsaettigt gegenueber einem reinen Himmelblau, damit es auf Dunkel nicht flimmert */
+  --accent: #6bc1e8;
+  --accent-tint: #1b3a49;
+  --on-accent: #0b1c24;
+  --warning: #f2b544;
+  --warning-tint: #3b301a;
+  --warning-text: #ffd27a;
+  --danger: #ff7b6e;
+  --danger-tint: #3d2220;
+  --on-danger: #2a0d0a;
+  --board-light: #24343d;
+  --board-dark: #172228;
+  --schatten: #070c0f;
+  /* Helle Avatar-Stufen brauchen dunkle Schrift, --text ist hier hell. */
+  --avatar-anfaenger-text: #0b1c24;
+  --avatar-hobbyspieler-text: #0b1c24;
+
+  --overlay-auswahl: color-mix(in srgb, var(--accent) 45%, transparent);
+  --overlay-letzter-zug: color-mix(in srgb, var(--accent) 28%, transparent);
+  --overlay-ziel: color-mix(in srgb, var(--text) 35%, transparent);
+  /* Tiefe ueber Flaechentoene: Grund < Flaeche (Karten, Knoepfe) < erhoben (Sheets, Dialoge) */
+  --glass-surface: var(--surface);
+  --glass-surface-strong: #243540;
+  --glass-border: var(--border);
+  --glass-highlight: 0 0 transparent;
+  --glass-blur: 0px;
+  --scrim: color-mix(in srgb, var(--schatten) 65%, transparent);
+  --backdrop-pfirsich: transparent;
+  --backdrop-grund: transparent;
+  --backdrop-akzent: transparent;
+  /* Flach: eine harte Kante unten statt weicher Schatten */
+  --shadow-1: 0 3px 0 var(--schatten);
+  --shadow-2: 0 4px 0 var(--schatten);
+  --shadow-3: 0 12px 32px color-mix(in srgb, var(--schatten) 60%, transparent);
+  --glow-accent: 0 3px 0 color-mix(in srgb, var(--accent) 45%, var(--schatten));
+
+  --brett-rand: 0px;
+  --brett-schatten: none;
+  /* Koordinaten leise, aber lesbar (>= 4,5:1 auf beiden Feldern): Warnungen nennen Felder */
+  --notation-auf-hell: color-mix(in srgb, var(--text) 56%, transparent);
+  --notation-auf-dunkel: color-mix(in srgb, var(--text) 56%, transparent);
+  --blase-flaeche: var(--bg);
+  --blase-rand: var(--border);
+  /* Wie Material 3: Knauf aus in Nebentext-Grau, an in Knopftext-Dunkel auf dem Akzent */
+  --knauf: var(--text-muted);
+  --knauf-an: var(--on-accent);
+
+  color-scheme: dark;
 }
