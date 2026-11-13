@@ -901,8 +901,8 @@ Eine Kombination ohne Eintrag zeigt nur das Grund-Label, nie einen Fehler.
 
 ### 10.4 Start (`/`)
 
-- Wortmarke „Schach“. Rechts der Elo-Chip (Spieler, führt zum Profil) oder „Anmelden“ (Gast).
-- Hauptkarte mit offener Partie: Avatar, „Offene Partie gegen Oscar“, Bedenkzeit, „Fortsetzen“ (primär) und „Neue Partie“ (Outline). Ohne offene Partie nur „Neue Partie“.
+- Bildmarke plus Wortmarke „Schach“: der Cburnett-Springer (wie das App-Icon) auf einer leicht gedrehten 2×2-Brett-Kachel in den Brettfarben der Palette, Akzentrand; die Wortmarke 34 px mit Verlauf von Text- zu Akzentfarbe. Rechts der Elo-Chip (Spieler, führt zum Profil) oder „Anmelden“ (Gast).
+- Hauptkarte mit offener Partie: Avatar, „Offene Partie gegen Oscar“, Bedenkzeit, „Fortsetzen“ (primär) und „Neue Partie“ (Outline). Ohne offene Partie: Gesichter der ersten vier Gegner überlappend plus „+4“, Überschrift „Bereit für deine nächste Partie?“, Untertitel und „Neue Partie“. Ein ausgeblendetes Brettmuster oben rechts schmückt die Karte in beiden Fällen.
 - Spieler: drei Kacheln nebeneinander, je mit Symbol in Akzentfarbe: „Partien“ (Verlauf), „Übungen“ (Doktorhut), „Profil“ (Person). Reihenfolge fest.
 - Gast: nur die Kachel „Übungen“ über die ganze Breite, darunter die Gast-Hinweis-Karte (10.11).
 - Install-Karte nach Regel (10.13).

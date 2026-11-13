@@ -59,3 +59,114 @@
     transition: none;
   }
 }
+
+/* Bildmarke: Springer auf gedrehter Brett-Kachel (2x2-Felder der Palette), Akzentrand und Glanz. */
+.marke {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.logo {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+}
+
+.logo__kachel {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  background: conic-gradient(
+    var(--board-dark) 0 25%,
+    var(--board-light) 0 50%,
+    var(--board-dark) 0 75%,
+    var(--board-light) 0
+  );
+  box-shadow: var(--glow-accent);
+  transform: rotate(-8deg);
+}
+
+.logo__figur {
+  width: 40px;
+  height: 40px;
+  transform: rotate(8deg) translateY(-1px);
+  filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--schatten) 35%, transparent));
+}
+
+/* Wortmarke: groesser, Verlauf von Text- zu Akzentfarbe. Ohne background-clip bleibt die Textfarbe. */
+.marke__name {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--text);
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .marke__name {
+    background: linear-gradient(100deg, var(--text) 35%, var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* Startkarte: Brettmuster oben rechts, ausgeblendet zur Mitte hin. */
+.startkarte {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.startkarte::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto auto;
+  z-index: -1;
+  width: 168px;
+  height: 140px;
+  background: repeating-conic-gradient(var(--board-dark) 0 25%, transparent 0 50%) 0 0 / 28px 28px;
+  opacity: 0.35;
+  -webkit-mask-image: radial-gradient(circle at 100% 0, #000 20%, transparent 72%);
+  mask-image: radial-gradient(circle at 100% 0, #000 20%, transparent 72%);
+}
+
+.startkarte__gegner {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.startkarte__gegner > * {
+  box-shadow: 0 0 0 3px var(--surface);
+}
+
+.startkarte__gegner > * + * {
+  margin-left: -12px;
+}
+
+.startkarte__mehr {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--accent-tint);
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.startkarte__titel {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}

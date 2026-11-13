@@ -11,8 +11,14 @@ import { InstallHinweis } from '../components/pwa'
 import { Seite } from '../components/Seite'
 import { ladeSitzung, useSitzung } from '../components/sitzung'
 import { de, t } from '../i18n/de'
+import { GESICHTER } from '../components/gesichter/katalog'
 import { fuelle } from '../partie/text'
+import { Logo } from './Logo'
 import './start.css'
+
+// Gesichter-Reihe auf der Startkarte: die ersten vier Gegner (Elo aufsteigend), der Rest als Zahl.
+const GESICHTER_VORSCHAU = Object.keys(GESICHTER).slice(0, 4)
+const WEITERE_GEGNER = Object.keys(GESICHTER).length - GESICHTER_VORSCHAU.length
 
 /**
  * Start (`/`), der Hub (SCHACH-SPEC 10.1, 10.4): Wortmarke, Elo-Chip oder „Anmelden“, Hauptkarte
@@ -70,7 +76,10 @@ export function Start() {
   return (
     <Seite>
       <header className="startkopf">
-        <h1 className="wortmarke">{t('app.name')}</h1>
+        <div className="marke">
+          <Logo />
+          <h1 className="wortmarke marke__name">{t('app.name')}</h1>
+        </div>
         {spieler !== null && (
           <Link className="chip" to="/profil">
             {fuelle(de.hub.eloChip, { elo: spieler.elo })}
@@ -87,7 +96,18 @@ export function Start() {
         <Ladeanzeige skelette={2} gross />
       ) : (
         <>
-          <section className="karte">
+          <section className="karte startkarte">
+            {partie === null && (
+              <>
+                <div className="startkarte__gegner" aria-hidden="true">
+                  {GESICHTER_VORSCHAU.map((key) => (
+                    <Avatar key={key} gegner={{ key, name: key, stufe: 'Anfaenger' }} groesse={48} />
+                  ))}
+                  {WEITERE_GEGNER > 0 && <span className="startkarte__mehr">+{WEITERE_GEGNER}</span>}
+                </div>
+                <h2 className="startkarte__titel">{t('startKarte.titel')}</h2>
+              </>
+            )}
             {partie !== null && (
               <div className="zeile zeile--flach">
                 <Avatar gegner={partie.gegner} />

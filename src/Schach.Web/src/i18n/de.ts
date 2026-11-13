@@ -404,6 +404,10 @@ export const de = {
     nichtGefunden: 'Diese Übung gibt es nicht.',
     schritt: 'Schritt {nr} von {von}',
   },
+  // Startkarte ohne offene Partie (10.4)
+  startKarte: {
+    titel: 'Bereit für deine nächste Partie?',
+  },
 } as const
 
 type Pfade<T, P extends string = ''> = {
